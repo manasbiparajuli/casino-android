@@ -59,7 +59,7 @@ public class Card
     // Return value: suit value of the card
     // Assistance Received: none
     // ****************************************************************
-    private String getSuit()
+    public String getSuit()
     {
         return suit;
     }
