@@ -13,16 +13,15 @@ import edu.ramapo.mparajul.casino.model.setup.Card;
 
 public class Player
 {
+    protected int score;
+    protected int firstBuildScore;
+    protected String playerName;
+    protected boolean hasCapturedCardsInMove = false;
+    protected Vector<Card> cardsOnPile;
+    protected Vector<Card> cardsOnHand;
 
-    private int score;
-    private int firstBuildScore;
-    private String playerName;
-    private boolean hasCapturedCardsInMove = false;
-    private Vector<Card> cardsOnPile;
-    private Vector<Card> cardsOnHand;
-
-    private HashMap<String, Vector<Card>> singleBuildCard;
-    private HashMap<String, Vector<Vector<Card>>> multipleBuildCard;
+    protected HashMap<String, Vector<Card>> singleBuildCard;
+    protected HashMap<String, Vector<Vector<Card>>> multipleBuildCard;
 
     Player()
     {
@@ -35,7 +34,7 @@ public class Player
     // Return value: none
     // Assistance Received: none
     // ****************************************************************
-    Player (String playerName)
+    public Player (String playerName)
     {
         this.playerName = playerName;
         this.score = 0;
@@ -90,6 +89,30 @@ public class Player
             score += calcSingleCardScore(card);
         }
         return score;
+    }
+
+    // ****************************************************************
+    // Function Name: addCardsToHand
+    // Purpose: adds cards to the players' hand
+    // Parameters: card, a Card object. It holds the current card to be added.
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    public void addCardsToHand(Card card)
+    {
+        cardsOnHand.add(card);
+    }
+
+    // ****************************************************************
+    // Function Name: addCardsToPile
+    // Purpose: adds cards to the players' pile
+    // Parameters: card, a Card object. It holds the current card to be added.
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    public void addCardsToPile(Card card)
+    {
+        cardsOnPile.add(card);
     }
 
     // ****************************************************************

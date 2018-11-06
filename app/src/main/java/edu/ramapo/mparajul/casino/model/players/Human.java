@@ -8,4 +8,8 @@ package edu.ramapo.mparajul.casino.model.players;
 
 public class Human extends Player
 {
+    public Human (String name)
+    {
+        playerName = name;
+    }
 }

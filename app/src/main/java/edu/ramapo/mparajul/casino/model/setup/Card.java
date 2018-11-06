@@ -21,7 +21,7 @@ public class Card
     // Return value: none
     // Assistance Received: none
     // ****************************************************************
-    Card()
+    public Card()
     {
     }
 
@@ -34,7 +34,7 @@ public class Card
     // Return value: none
     // Assistance Received: none
     // ****************************************************************
-    Card(String suit, String face)
+    public Card(String suit, String face)
     {
         this.suit = suit;
         this.face = face;

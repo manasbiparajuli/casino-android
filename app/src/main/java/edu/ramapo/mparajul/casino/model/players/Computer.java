@@ -8,4 +8,8 @@ package edu.ramapo.mparajul.casino.model.players;
 
 public class Computer extends Player
 {
+    public Computer(String name)
+    {
+        playerName = name;
+    }
 }

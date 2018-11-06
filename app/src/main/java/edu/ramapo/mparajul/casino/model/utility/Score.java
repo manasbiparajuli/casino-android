@@ -1,18 +1,23 @@
+//****************************************************
+//* Name: Manasbi Parajuli
+//* Project: Casino
+//* Class: CMPS 366-01
+//* Date: 11/20/2018
+//****************************************************
 package edu.ramapo.mparajul.casino.model.utility;
 
-import java.util.HashMap;
-import java.util.Vector;
-
 import edu.ramapo.mparajul.casino.model.setup.Card;
+import java.util.Vector;
 
 public class Score
 {
+    // stores the score of the players
     private int playerOneScore;
     private int playerTwoScore;
 
+    // the cards on pile of the players
     private Vector<Card> playerOnePile, playerTwoPile;
-
-    private HashMap<Integer, Vector<Card>> buildCombination;
+    private Vector<Pairs<Integer , Vector<Card>>> buildCombinations = new Vector<>();
 
     // ****************************************************************
     // Function Name: Score
@@ -36,7 +41,7 @@ public class Score
     // Return value: none
     // Assistance Received: none
     // ****************************************************************
-    Score(Vector<Card> playerOnePile, Vector<Card> playerTwoPile)
+    public Score(Vector<Card> playerOnePile, Vector<Card> playerTwoPile)
     {
         this.playerOneScore = 0;
         this.playerTwoScore = 0;
@@ -242,43 +247,36 @@ public class Score
     // Return value: a vector of string that lists all the possible valid power sets
     // Assistance Received: none
     // ****************************************************************
-    Vector<String> powerSet (int tableSize)
+    public Vector<String> powerSet (int tableSize)
     {
         // the power set that will be used to create a map of possible scores
         Vector<String> validSets = new Vector<>();
 
         // all the power sets possible
-        Vector<Character> temp;
+        StringBuilder temp;
         Vector<String> totalSets = new Vector<>();
 
-        Vector<Integer> index = new Vector<>();
+        Vector<Character> index = new Vector<>();
 
         // input numbers into the vector that will be used to create the possible power set
         for (int i = 0; i < tableSize; i++) {
-            index.add('0' + i);
+            index.add(Character.forDigit(i, 10));
         }
 
         // total number of power set elements possible
         int N = (int) Math.pow(2, tableSize);
 
         for (int i = 0; i < N; i++) {
-            temp = new Vector<>();
+            temp = new StringBuilder();
 
             // check every bit of i
             for (int j = 0; j < tableSize; j++) {
                 // if jth bit of i set, print index[j]
                 if ((i & (1 << j)) > 0) {
-                    temp.add((char) (index.get(j) + '0'));
+                    temp.append(String.valueOf(index.get(j)));
                 }
             }
-
-            StringBuilder charToString = new StringBuilder();
-            for (Character a: temp)
-            {
-                charToString.append(String.valueOf(a));
-            }
-
-            totalSets.add(charToString.toString());
+            totalSets.add(temp.toString());
         }
 
         // Get only the combinations that has more than one card as we don't form a build with only a single card
@@ -290,6 +288,67 @@ public class Score
             }
         }
         return validSets;
+    }
+
+    // ****************************************************************
+    // Function Name: buildScoreMap
+    // Purpose: constructs a map of possible builds with the current table cards corresponding to
+    //          the build score
+    // Parameters: -> powerSets, a vector of string. It holds the possible power set combinations that
+    //                      can be formed using the current cards in the table.
+    //             -> tableCards, a vector of cards. It holds the current table cards.
+    //
+    //       Both parameters have been passed by reference.
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    public void buildScoreMap(Vector<String> powerSets, Vector<Card> tableCards)
+    {
+        // the build combination score
+        int buildCombiScore = 0;
+
+        // the combination of cards for the build
+        Vector<Card> buildCards;
+
+        // the integer representation of index that was converted from a character
+        int buildIndex;
+
+        // map the generated power set to the respective indices of cards in the table
+        for (String build : powerSets)
+        {
+            buildCards = new Vector<>();
+
+            for (char c : build.toCharArray())
+            {
+                buildIndex = c - '0';
+                buildCards.add(tableCards.elementAt(buildIndex));
+            }
+
+            // calculate the build score and insert into the vector of pairs of score and build
+            buildCombiScore = calcBuildScore(buildCards);
+            buildCombinations.add(new Pairs(buildCombiScore, buildCards));
+        }
+    }
+
+    // ****************************************************************
+    // Function Name: printBuildCombinations
+    // Purpose: prints the pair of the build and its corresponding score
+    // Parameters: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    public void printBuildCombinations()
+    {
+        for (Pairs<Integer, Vector<Card>> build : buildCombinations)
+        {
+            System.out.print(build.first);
+
+            for (Card card : build.second)
+            {
+                System.out.print(card.cardToString() + " ");
+            }
+            System.out.println(" ");
+        }
     }
 
     // ****************************************************************
@@ -344,26 +403,14 @@ public class Score
     }
 
     // ****************************************************************
-    // Function Name: getBuildComb
-    // Purpose: gets the map of the possible build and corresponding scores
+    // Function Name: getBuildCombination
+    // Purpose: gets the vector of pair of possible build and corresponding scores
     // Parameter: none
-    // Return value: map of possible build and corresponding scores
+    // Return value: vector of pair of possible build and corresponding scores
     // Assistance Received: none
     // ****************************************************************
-    public HashMap<Integer, Vector<Card>> getBuildCombination()
+    public Vector<Pairs<Integer, Vector<Card>>> getBuildCombination()
     {
-        return buildCombination;
+        return buildCombinations;
     }
-
-    public static void main (String[] args)
-    {
-        Score score = new Score();
-        Vector<String> sets = score.powerSet(3);
-
-        for (String comb : sets)
-        {
-            System.out.println(comb);
-        }
-    }
-
 }
