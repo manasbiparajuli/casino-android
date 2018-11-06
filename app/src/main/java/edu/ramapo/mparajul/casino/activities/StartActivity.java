@@ -6,12 +6,15 @@
 //****************************************************
 package edu.ramapo.mparajul.casino.activities;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.view.View;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -20,12 +23,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Random;
 
 import edu.ramapo.mparajul.casino.FileIO.FileDialog;
 import edu.ramapo.mparajul.casino.R;
 
-public class StartActivity extends AppCompatActivity {
-
+public class StartActivity extends AppCompatActivity
+{
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -34,52 +38,117 @@ public class StartActivity extends AppCompatActivity {
 
         // setup CardView listener to initiate new game
         CardView startGame = findViewById(R.id.start_cardview);
-        startGame.setOnClickListener(new View.OnClickListener() {
+        startGame.setOnClickListener(new View.OnClickListener()
+        {
             @Override
             public void onClick(View v)
             {
-                startGame();
+                final Dialog dialog = new Dialog(StartActivity.this);
+                dialog.setContentView(R.layout.coin_toss);
+
+                RadioGroup radioGroup = dialog.findViewById(R.id.toss_options_radio);
+                dialog.show();
+
+                // set listeners in the radio group
+                radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
+                {
+                    @Override
+                    public void onCheckedChanged(RadioGroup group, int checkedId)
+                    {
+                        int childCount = group.getChildCount();
+                        // Loop through the radio buttons list
+                        for (int x = 0; x < childCount; x++)
+                        {
+                            RadioButton btn = (RadioButton) group.getChildAt(x);
+                            // set the value of the selected button as the depth selected
+                            // by the user to look in branch and bound
+                            // once selected, make the dialog box disappear
+                            if (btn.getId() == checkedId)
+                            {
+                                switch (btn.getId())
+                                {
+                                    case (R.id.heads):
+                                        startGame("heads");
+                                        break;
+                                    default:
+                                        startGame("tails");
+                                        break;
+                                }
+                                dialog.dismiss();
+                            }
+                        }
+                    }
+                });
             }
         });
 
-
-        // setup CardView listener to load from file
+        // setup CardView listener to load game from file
         final CardView resumeGame = findViewById(R.id.resume_cardview);
 
         resumeGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v)
             {
-                File mPath = new File(Environment.getExternalStorageDirectory() + "//DIR//");
-                FileDialog fileDialog = new FileDialog(StartActivity.this, mPath, ".txt");
-                fileDialog.addFileListener(new FileDialog.FileSelectedListener() {
-                    public void fileSelected(File file) {
-
-                        // warn the user if the file format is invalid or could not be read
-                        if (!resumeGame(file.toString())){
-                            Toast.makeText(StartActivity.this, "Error while loading game.", Toast.LENGTH_SHORT).show();
-                        }
+            File mPath = new File(Environment.getExternalStorageDirectory() + "//DIR//");
+            FileDialog fileDialog = new FileDialog(StartActivity.this, mPath, ".txt");
+            fileDialog.addFileListener(new FileDialog.FileSelectedListener()
+            {
+                public void fileSelected(File file)
+                {
+                    // warn the user if the file format is invalid or could not be read
+                    if (!resumeGame(file.toString()))
+                    {
+                        Toast.makeText(StartActivity.this, "Error while loading game.", Toast.LENGTH_SHORT).show();
                     }
-                });
-                fileDialog.showDialog();
+                }
+            });
+            fileDialog.showDialog();
             }
         });
     }
 
-
     // ****************************************************************
     // Function Name: startGame
     // Purpose: Creates intent to start MainActivity
-    // Parameters: none
+    // Parameters: coinTossResult, a string. Holds the coin toss option selected by the user
     // Return value: none
     // Assistance Received: none
     // ****************************************************************
-    public void startGame()
+    public void startGame(String coinTossResult)
     {
+        // Generate random numbers between 1 and 2
+        // Treat 1 as heads
+        // Treat 2 as tails
+        final int random = new Random().nextInt(2) + 1;
+        boolean correctCoinTossGuess;
+
+        // stores the player who will go first
+        String firstPlayer;
+
+        // Match the user's guess against the coin toss result and set flag for correctCoinTossGuess
+        if (random == 1 && coinTossResult.equals("heads")) { correctCoinTossGuess = true; }
+        else if (random == 2 && coinTossResult.equals("tails")) { correctCoinTossGuess = true;}
+        else { correctCoinTossGuess = false; }
+
+        // Display toast to announce who plays first to the user
+        if (correctCoinTossGuess)
+        {
+            firstPlayer = "human";
+            Toast.makeText(StartActivity.this,
+        "Correctly guessed " + coinTossResult + ". You play first!",Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+            firstPlayer = "computer";
+            Toast.makeText(StartActivity.this,
+        "Incorrectly guessed " + coinTossResult + ". Computer plays first!",Toast.LENGTH_SHORT).show();
+        }
+
         Intent launchGame = new Intent (this, MainActivity.class);
 
         // put extra information to tell that we are initiating a new game
         launchGame.putExtra("gameIntent", "newGame");
+        launchGame.putExtra("firstPlayer", firstPlayer);
         startActivity(launchGame);
     }
 

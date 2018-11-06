@@ -10,4 +10,8 @@
     <string name="player1_won">PLAYER 1 WON!</string>
     <string name="player2_won">PLAYER 2 WON!</string>
     <string name="match_drawn">MATCH DRAWN</string>
+
+    <string name="coin_toss">GUESS COIN TOSS TO PLAY FIRST!</string>
+    <string name="heads">HEADS</string>
+    <string name="tails">TAILS</string>
 </resources>

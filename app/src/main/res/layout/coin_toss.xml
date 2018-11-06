@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/background_border"
+                android:layout_margin="2dp">
+
+    <TextView
+        android:id="@+id/coin_toss_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:layout_marginTop="33dp"
+        android:text="@string/coin_toss"
+        android:textSize="30sp"/>
+
+    <RadioGroup
+        android:id="@+id/toss_options_radio"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/coin_toss_name">
+
+        <RadioButton
+            android:id="@+id/heads"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/heads"
+            android:textSize="25sp"/>
+
+        <RadioButton
+            android:id="@+id/tails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/tails"
+            android:textSize="25sp"/>
+    </RadioGroup>
+
+</RelativeLayout>
