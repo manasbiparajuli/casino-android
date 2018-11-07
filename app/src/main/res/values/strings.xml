@@ -3,9 +3,11 @@
 
     <string name="start">START GAME</string>
     <string name="resume">RESUME GAME</string>
-    <string name="save_game">SAVE GAME</string>
+    <string name="get_help">HELP</string>
+    <string name="save_game">SAVE</string>
     <string name="main_menu">MAIN MENU</string>
     <string name="re_play">PLAY AGAIN</string>
+    <string name="make_move">MAKE MOVE</string>
 
     <string name="player1_won">PLAYER 1 WON!</string>
     <string name="player2_won">PLAYER 2 WON!</string>
@@ -14,4 +16,12 @@
     <string name="coin_toss">GUESS COIN TOSS TO PLAY FIRST!</string>
     <string name="heads">HEADS</string>
     <string name="tails">TAILS</string>
+    
+    <string name="single_build">Make Single Build</string>
+    <string name="multiple_build">Make Multiple Build</string>
+    <string name="extend_build">Extend Opponent Build</string>
+    <string name="capture">Capture</string>
+    <string name="trail">Trail</string>
+
+    <string name="action_settings">Display deck and pile</string>
 </resources>

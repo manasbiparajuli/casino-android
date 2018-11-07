@@ -14,7 +14,8 @@
         android:gravity="center"
         android:layout_marginTop="33dp"
         android:text="@string/coin_toss"
-        android:textSize="30sp"/>
+        android:fontFamily="@font/batmanforever"
+        android:textSize="25sp"/>
 
     <RadioGroup
         android:id="@+id/toss_options_radio"
@@ -27,15 +28,17 @@
             android:id="@+id/heads"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/batmanforever"
             android:text="@string/heads"
-            android:textSize="25sp"/>
+            android:textSize="18sp"/>
 
         <RadioButton
             android:id="@+id/tails"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/batmanforever"
             android:text="@string/tails"
-            android:textSize="25sp"/>
+            android:textSize="18sp"/>
     </RadioGroup>
 
 </RelativeLayout>
