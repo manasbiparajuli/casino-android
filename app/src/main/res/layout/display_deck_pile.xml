@@ -8,17 +8,95 @@
 
     <LinearLayout
         android:id="@+id/player_identifier"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fadeScrollbars="false"
         android:orientation="vertical">
 
-            <LinearLayout
-                android:id="@+id/layout_deck"
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:orientation="horizontal">
-            </LinearLayout>
+        <!--Label: Deck of Cards-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:orientation="horizontal">
 
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:fontFamily="@font/batmanforever"
+                android:text="@string/label_deck"
+                android:gravity="start"
+                android:textAlignment="gravity"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_deck"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="start"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="15dp">
+        </LinearLayout>
+
+
+        <!--Label: Computer's cards on pile-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:orientation="horizontal">
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:fontFamily="@font/batmanforever"
+                android:text="@string/label_computer_pile"
+                android:gravity="start"
+                android:textAlignment="gravity"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_computer_pile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="start"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="15dp">
+        </LinearLayout>
+
+
+        <!--Label: Human's cards on pile-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:orientation="horizontal">
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:fontFamily="@font/batmanforever"
+                android:text="@string/label_human_pile"
+                android:gravity="start"
+                android:textAlignment="gravity"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_human_pile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="start"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="15dp">
+        </LinearLayout>
     </LinearLayout>
 </HorizontalScrollView>

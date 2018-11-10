@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<com.google.android.flexbox.FlexboxLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity"
-    android:background="@drawable/game_background">
+    android:background="@drawable/game_background"
+    app:flexWrap="wrap"
+    app:layout_flexGrow="1"
+    app:flexDirection="row">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -34,76 +37,100 @@
 
             </LinearLayout>
 
-            <!--Player Scores-->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:weightSum="2">
-
-                <Button
-                    android:id="@+id/player1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/batmanforever"
-                    android:text="Player 1"
-                    android:clickable="false"/>
-
-                <Button
-                    android:id="@+id/player2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="Player 2"
-                    android:fontFamily="@font/batmanforever"
-                    android:clickable="false"/>
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:weightSum="1">
-
-                <Button
-                    android:id="@+id/make_move"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:clickable="true"
-                    android:fontFamily="@font/batmanforever"
-                    android:text="@string/make_move"/>
-            </LinearLayout>
-
             <!--Display Computer Hand-->
+
             <LinearLayout
                 android:id="@+id/layout_computer_hand"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/display_card_layout_height"
                 android:background="@drawable/background_border"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="5dp">
             </LinearLayout>
-
 
             <!--Display table cards-->
             <LinearLayout
                 android:id="@+id/layout_table_cards"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="@dimen/display_table_card_layout_height"
                 android:orientation="horizontal"
-                android:background="@drawable/background_border">
+                android:gravity="center"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/background_border"
+                android:layout_marginBottom="5dp">
             </LinearLayout>
+
+
+
+            <!--Buttons for making move-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="fill_horizontal"
+                android:orientation="horizontal"
+                android:weightSum="5">
+
+                    <Button
+                    android:id="@+id/make_single_build"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:fontFamily="@font/batmanforever"
+                    android:text="@string/single_build"/>
+
+
+                    <Button
+                    android:id="@+id/make_multiple_build"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:fontFamily="@font/batmanforever"
+                    android:text="@string/multiple_build"/>
+
+                    <Button
+                    android:id="@+id/make_extend_build"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:fontFamily="@font/batmanforever"
+                    android:text="@string/extend_build"/>
+
+                    <Button
+                    android:id="@+id/make_capture"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:fontFamily="@font/batmanforever"
+                    android:text="@string/capture"/>
+
+                    <Button
+                    android:id="@+id/make_trail"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:fontFamily="@font/batmanforever"
+                    android:text="@string/trail"/>
+            </LinearLayout>
+
 
             <!--Display Human Hand-->
             <LinearLayout
                 android:id="@+id/layout_human_hand"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:layout_height="@dimen/display_card_layout_height"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/background_border">
             </LinearLayout>
 
         </LinearLayout>
     </RelativeLayout>
-</android.support.design.widget.CoordinatorLayout>
+</com.google.android.flexbox.FlexboxLayout>

@@ -3,15 +3,21 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_display_score"
+        android:icon="@drawable/scoreboard"
+        android:title="@string/action_display_score"
+        app:showAsAction="always"/>
+
+    <item
         android:id="@+id/action_save_game"
         android:icon="@drawable/save_button"
-        android:title="@string/action_settings"
+        android:title="@string/action_save_game"
         app:showAsAction="always"/>
 
     <item
         android:id="@+id/action_get_help"
         android:icon="@drawable/help"
-        android:title="@string/action_settings"
+        android:title="@string/action_get_help"
         app:showAsAction="always"/>
 
     <item
@@ -19,6 +25,8 @@
         android:icon="@drawable/show_deck_pile"
         android:title="@string/action_settings"
         app:showAsAction="always"/>
+
+
 
 
 </menu>

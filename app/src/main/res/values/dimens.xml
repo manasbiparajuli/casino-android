@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="display_card_layout_height">138dp</dimen>
+    <dimen name="display_table_card_layout_height">414dp</dimen>
+</resources>

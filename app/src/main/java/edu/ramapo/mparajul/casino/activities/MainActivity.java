@@ -13,8 +13,10 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.support.v7.widget.Toolbar;
@@ -25,19 +27,21 @@ public class MainActivity extends AppCompatActivity
 {
     private Toolbar toolbar;
     private int deviceWidth;
+    private View root;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        root = LayoutInflater.from(this).inflate(R.layout.activity_main, null);
+        setContentView(root);
 
         // store the width of the device as we use it to set the width of the
         // button that display cards in this activity
         deviceWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
 
         configureToolbar();
-        populateComputerHand();
+        populateCardsOnDisplay();
     }
 
     public void configureToolbar()
@@ -75,6 +79,11 @@ public class MainActivity extends AppCompatActivity
             getHelp();
             return true;
         }
+        else if (toolbar_option_selected == R.id.action_display_score)
+        {
+            displayScore();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -90,34 +99,85 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public void showDeckAndPile()
+    public void populateCardsOnDisplay()
     {
-        final Dialog dialog = new Dialog(MainActivity.this);
-        dialog.setContentView(R.layout.display_deck_pile);
-        dialog.show();
+        populateHand();
+        populateTable();
     }
 
-    public void populateComputerHand()
+    public void showDeckAndPile()
     {
-        int totalHandCards = 3;
-        int width = deviceWidth / 4;
+        final Dialog deck_dialog = new Dialog(MainActivity.this);
+        deck_dialog.setContentView(R.layout.display_deck_pile);
+        populateDeck(deck_dialog);
+        deck_dialog.show();
+    }
 
+    // TODO: accept card object
+    public void populateDeck(Dialog dialog)
+    {
+        int[] ids = {R.id.layout_deck, R.id.layout_computer_pile, R.id.layout_human_pile};
+
+        for (int id: ids)
+        {
+            LinearLayout linearLayout = dialog.findViewById(id);
+            String[] labelNames = { "H2", "SX", "DK", "CA", "H5", "HQ", "S4", "SA"};
+
+            if (id == R.id.layout_computer_pile)
+            {
+                labelNames = new String[]{ "H2", "SX", "DK"};
+            }
+            createCardsDynamically(linearLayout, labelNames);
+        }
+    }
+
+
+
+    // TODO: accept card object
+    public void populateHand()
+    {
         LinearLayout linearLayout = findViewById(R.id.layout_computer_hand);
-        String[] labelNames = { "H2", "SX", "DK", "CA", "H5", "HQ"};
+        String[] labelNames = { "H2", "SX", "DK", "CA"};
 
+        createCardsDynamically(linearLayout, labelNames);
+
+        linearLayout = findViewById(R.id.layout_human_hand);
+        createCardsDynamically(linearLayout, labelNames);
+    }
+
+    public void populateTable()
+    {
+        LinearLayout linearLayout = findViewById(R.id.layout_table_cards);
+        String[] labelNames = { "H2", "SX", "DK", "CA", "H5", "HQ", "S4", "SA"};
+        createCardsDynamically(linearLayout, labelNames);
+    }
+
+    private void createCardsDynamically(LinearLayout linearLayout, String[] labelNames)
+    {
+        int totalHandCards = labelNames.length;
+        int cardWidth = deviceWidth / 5;
         for (int i = 0; i < totalHandCards; i++)
         {
             Button handCardButton = new Button(this);
-            handCardButton.setLayoutParams(new LinearLayout.LayoutParams(width,450));
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(cardWidth, 300);
+            params.setMargins(15,10,30,10);
+
+            handCardButton.setLayoutParams(params);
             handCardButton.setId(i);
             handCardButton.setClickable(true);
-
             Context context = linearLayout.getContext();
-            int id = context.getResources().getIdentifier(labelNames[i].toLowerCase(), "drawable", context
-                                                                                             .getPackageName());
+            int id = context.getResources().getIdentifier(labelNames[i].toLowerCase(), "drawable", context.getPackageName());
+
             Drawable drawable = ResourcesCompat.getDrawable(getResources(), id, null);
             handCardButton.setBackground(drawable);
             linearLayout.addView(handCardButton);
         }
+    }
+
+    //TODO: display the scores
+    public void displayScore()
+    {
+
     }
 }
