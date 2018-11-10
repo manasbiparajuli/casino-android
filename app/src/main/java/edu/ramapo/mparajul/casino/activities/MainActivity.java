@@ -8,6 +8,7 @@ package edu.ramapo.mparajul.casino.activities;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.res.ResourcesCompat;
@@ -18,8 +19,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.support.v7.widget.Toolbar;
+import android.widget.Toast;
 
 import edu.ramapo.mparajul.casino.R;
 
@@ -87,11 +90,51 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    //TODO: save current game state
+    public void showDeckAndPile()
+    {
+        final Dialog deck_dialog = new Dialog(MainActivity.this);
+        deck_dialog.setContentView(R.layout.display_deck_pile);
+        populateDeck(deck_dialog);
+        deck_dialog.show();
+    }
+
+
     public void saveGame()
     {
+        final Dialog dialog = new Dialog(MainActivity.this);
+        dialog.setContentView(R.layout.save_game_dialog);
+        dialog.show();
 
+        Button saveFileButton = dialog.findViewById(R.id.save_file_button);
+        final EditText editText = dialog.findViewById(R.id.save_dialog);
+
+        saveFileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String saveFileName = editText.getText().toString();
+
+                // TODO: call the function as a method of Round
+                if(!saveGameToFile(saveFileName))
+                {
+                    callToast(MainActivity.this, "Unable to save game");
+                }
+                else
+                {
+                    callToast(MainActivity.this, "Game Saved!");
+
+                    // Call StartActivity and pass extra message to completely exit from the app
+                    Intent intent = new Intent(getApplicationContext(), StartActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra("EXIT", true);
+                    startActivity(intent);
+                }
+                dialog.dismiss();
+            }
+        });
     }
+
+    //TODO: delete this function
+    public boolean saveGameToFile(String fileName) {return true; }
 
     //TODO: get help using computer strategy
     public void getHelp()
@@ -99,18 +142,18 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    //TODO: edit scores for rounds and tournament
+    public void displayScore()
+    {
+        final Dialog score_dialog = new Dialog(MainActivity.this);
+        score_dialog.setContentView(R.layout.display_scores_dialog);
+        score_dialog.show();
+    }
+
     public void populateCardsOnDisplay()
     {
         populateHand();
         populateTable();
-    }
-
-    public void showDeckAndPile()
-    {
-        final Dialog deck_dialog = new Dialog(MainActivity.this);
-        deck_dialog.setContentView(R.layout.display_deck_pile);
-        populateDeck(deck_dialog);
-        deck_dialog.show();
     }
 
     // TODO: accept card object
@@ -175,9 +218,12 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    //TODO: display the scores
-    public void displayScore()
+    // Display messages to the user as Toast
+    // Parameters: mContext -> the current context of the app
+    //              message -> the message to be displayed in the toast
+    // Return: null
+    public void callToast(Context mContext, String message)
     {
-
+        Toast.makeText(mContext, "" + message, Toast.LENGTH_SHORT).show();
     }
 }

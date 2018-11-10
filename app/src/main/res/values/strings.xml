@@ -1,33 +1,52 @@
 <resources>
     <string name="app_name">CASINO</string>
 
+    <!--Labels for start and end activity buttons-->
     <string name="start">START GAME</string>
     <string name="resume">RESUME GAME</string>
-    <string name="get_help">HELP</string>
-    <string name="save_game">SAVE</string>
     <string name="main_menu">MAIN MENU</string>
     <string name="re_play">PLAY AGAIN</string>
 
+    <!--Labels for activity_end.xml-->
     <string name="player1_won">PLAYER 1 WON!</string>
     <string name="player2_won">PLAYER 2 WON!</string>
     <string name="match_drawn">MATCH DRAWN</string>
 
+    <!--Labels for coin_toss.xml-->
     <string name="coin_toss">GUESS COIN TOSS TO PLAY FIRST!</string>
     <string name="heads">HEADS</string>
     <string name="tails">TAILS</string>
-    
+
+    <!--Labels for actions to be performed by the human player-->
     <string name="single_build">Single Build</string>
     <string name="multiple_build">Multi Build</string>
     <string name="extend_build">Xtend Build</string>
     <string name="capture">Capture</string>
     <string name="trail">Trail</string>
 
+    <!--Labels for main_toolbar.xml's actions-->
     <string name="action_settings">Display deck and pile</string>
     <string name="action_get_help">Get help</string>
     <string name="action_save_game">Save game</string>
     <string name="action_display_score">Display score</string>
 
+    <!--Labels for display_deck_pile.xml-->
     <string name="label_deck">DECK OF CARDS</string>
     <string name="label_computer_pile">COMPUTER\'S PILE</string>
     <string name="label_human_pile">HUMAN\'S PILE</string>
+
+    <!--Labels for save_game_dialog.xml-->
+    <string name="save_game_hint">savegame\.txt</string>
+    <string name="save_button_text">SAVE</string>
+    
+    <!--Labels for display_scores_dialog.xml-->
+    <string name="label_score">Score</string>
+    <string name="label_human">Human</string>
+    <string name="label_computer">Computer</string>
+    <string name="label_last_round">Last Round</string>
+    <string name="label_tournament">Tournament</string>
+    <string name="label_score_nil">0</string>
+
+    <!--Label for display_card_action_explanation-->
+    <string name="label_card_action">Card action explanation</string>
 </resources>

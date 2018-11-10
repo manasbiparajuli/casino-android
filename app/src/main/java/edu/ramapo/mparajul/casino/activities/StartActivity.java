@@ -36,6 +36,15 @@ public class StartActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
 
+        // Check if the user saved the game as this activity will be called as Intent from
+        // MainActivity when the save is successful. Then, all the activities in this task will be
+        // removed from the recent tasks list.
+        if (getIntent().getExtras() != null && getIntent().getExtras().getBoolean("EXIT",
+                false))
+        {
+            finishAndRemoveTask();
+        }
+
         // setup CardView listener to initiate new game
         CardView startGame = findViewById(R.id.start_cardview);
         startGame.setOnClickListener(new View.OnClickListener()

@@ -382,6 +382,16 @@ public class Player
         return multipleBuildCard;
     }
 
+    final public boolean isMultipleBuildExist()
+    {
+        return multipleBuildCard.isEmpty();
+    }
+
+    final public boolean isSingleBuildExist()
+    {
+        return singleBuildCard.isEmpty();
+    }
+
     public void play (Vector<Card> tableCards, HashMap<String, Vector<Card>> oppoBuild){}
 
     public boolean makeSingleBuild (Vector<Card> tableCards){ return false;}

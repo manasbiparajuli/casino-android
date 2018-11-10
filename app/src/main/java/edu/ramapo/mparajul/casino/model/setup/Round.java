@@ -6,11 +6,17 @@
 //****************************************************
 package edu.ramapo.mparajul.casino.model.setup;
 
+import android.os.Environment;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Vector;
 
 import edu.ramapo.mparajul.casino.model.players.Computer;
 import edu.ramapo.mparajul.casino.model.players.Human;
 import edu.ramapo.mparajul.casino.model.players.Player;
+import edu.ramapo.mparajul.casino.model.utility.Score;
 
 public class Round
 {
@@ -152,6 +158,131 @@ public class Round
     }
 
     // ****************************************************************
+    // Function Name: saveGame
+    // Purpose: saves the current game values to a text file
+    // Parameter: fileName, a string. the name of the file to be saved to.
+    // Return value: a boolean flag that returns whether game was successfully saved or not
+    // Assistance Received: none
+    // ****************************************************************
+    public boolean saveGameToFile(String fileName)
+    {
+        // the contents of the saved file
+        String serializedFile = "";
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        // Add contents to the file
+        serializedFile += "Round: " + getRoundNumber() + "\n\n";
+
+        // Save Computer's game state
+        serializedFile += "Computer:\n";
+        serializedFile += "Score: " + players[computerIndex].getScore() + "\n";
+        serializedFile += "Hand: ";
+        for (Card card : players[computerIndex].getCardsOnHand())
+        {
+            stringBuilder.append(card.cardToString()).append(" ");
+        }
+        serializedFile += stringBuilder.toString() + "\n";
+
+        serializedFile += "Pile: ";
+        stringBuilder = new StringBuilder();
+        for (Card card : players[computerIndex].getCardsOnPile())
+        {
+            stringBuilder.append(card.cardToString()).append(" ");
+        }
+        serializedFile += stringBuilder.toString() + "\n\n";
+
+        // Save Human's game state
+        serializedFile += "Human:\n";
+        serializedFile += "Score: " + players[humanIndex].getScore() + "\n";
+        serializedFile += "Hand: ";
+        stringBuilder = new StringBuilder();
+        for (Card card : players[humanIndex].getCardsOnHand())
+        {
+            stringBuilder.append(card.cardToString()).append(" ");
+        }
+        serializedFile += stringBuilder.toString() + "\n";
+
+        serializedFile += "Pile: ";
+        stringBuilder = new StringBuilder();
+        for (Card card : players[humanIndex].getCardsOnPile())
+        {
+            stringBuilder.append(card.cardToString()).append(" ");
+        }
+        serializedFile += stringBuilder.toString()  + "\n\n";
+
+        // Save table
+        serializedFile += "Table: " + saveTableCardsToFile();
+
+        // Save build owner
+        serializedFile += "Build Owner: " + saveBuildOwnerToFile();
+
+        // Save Last Capturer
+        serializedFile += "Last Capturer: " + getLastCapturer() + "\n";
+
+        // Save deck
+        serializedFile += "Deck: ";
+        stringBuilder = new StringBuilder();
+        for(Card card: deck.getDeck())
+        {
+            stringBuilder.append(card.cardToString()).append(" ");
+        }
+        serializedFile += stringBuilder.toString() + "\n\n";
+
+        // save next player
+        serializedFile += "Next Player: " + getNextPlayer();
+
+        return generateCasinoOnSD (fileName, serializedFile);
+    }
+
+    private boolean generateCasinoOnSD (String saveFileName, String serializedContent)
+    {
+        try
+        {
+            File root = new File (Environment.getExternalStorageDirectory(), "Casino");
+
+            // Check if Casino folder exists to save the file
+            // If is doesn't, then create the directory
+            if (!root.exists()) { root.mkdirs(); }
+
+            File file = new File (root, saveFileName);
+            FileWriter writer = new FileWriter(file);
+            writer.write(serializedContent);
+            writer.flush();
+            writer.close();
+            return true;
+        }catch (IOException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // ****************************************************************
+    // Function Name: calculateScore
+    // Purpose: creates Score object and calls its calculate function to
+    //          calculate and then store the scores of human and computer
+    // Parameter: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    void calculateScore()
+    {
+        // Create a score object by passing the cards on the pile of the players
+        Score score = new Score(players[humanIndex].getCardsOnPile(), players[computerIndex].getCardsOnPile());
+
+        // calculate the score of the player using the rules of the game
+        score.calculateTotalScore();
+
+        // get the scores of both players and then set their scores by passing their scores.
+        int humanScore = score.getPlayerOneScore() + players[humanIndex].getScore();
+        int computerScore = score.getPlayerTwoScore() + players[computerIndex].getScore();
+
+        players[humanIndex].setScore(humanScore);
+        players[computerIndex].setScore(computerScore);
+    }
+
+    // ****************************************************************
     // Function Name: removeCardFromTable
     // Purpose: remove the group of cards from table
     // Parameters: cardsToRemove, a vector of cards that need to be
@@ -165,6 +296,152 @@ public class Round
         {
             tableCards.remove(builtCards);
         }
+    }
+
+    // ****************************************************************
+    // Function Name: saveTableCardsToFile
+    // Purpose: saves the player's single and multiple builds and then the ongoing table cards to file
+    // Parameter: none
+    // Return value: a string value of builds and loose table value
+    // Assistance Received: none
+    // ****************************************************************
+    private String saveTableCardsToFile()
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        Vector<Vector<Card>> multipleBuild;
+        Vector<Card> singleBuild;
+
+        // Save multiple builds to file
+        if (players[computerIndex].isMultipleBuildExist())
+        {
+            stringBuilder.append("[ ");
+            multipleBuild = players[computerIndex].getMultipleBuildCard().get(players[computerIndex].getPlayerName());
+            saveMultipleBuildToFile(stringBuilder, multipleBuild);
+        }
+
+        if (players[humanIndex].isMultipleBuildExist())
+        {
+            stringBuilder.append("[ ");
+            multipleBuild = players[humanIndex].getMultipleBuildCard().get(players[humanIndex].getPlayerName());
+            saveMultipleBuildToFile(stringBuilder, multipleBuild);
+        }
+
+        // Save single builds to file
+        if (players[computerIndex].isSingleBuildExist())
+        {
+            stringBuilder.append("[ ");
+            singleBuild = players[computerIndex].getSingleBuildCard().get(players[computerIndex].getPlayerName());
+            saveSingleBuildToFile(stringBuilder, singleBuild);
+        }
+
+        if (players[humanIndex].isSingleBuildExist())
+        {
+            stringBuilder.append("[ ");
+            singleBuild = players[humanIndex].getSingleBuildCard().get(players[humanIndex].getPlayerName());
+            saveSingleBuildToFile(stringBuilder, singleBuild);
+        }
+
+        // Save loose table cards to file
+        for (Card card : tableCards)
+        {
+            stringBuilder.append(card.cardToString()).append(" ");
+        }
+        stringBuilder.append("\n\n");
+
+        return stringBuilder.toString();
+    }
+
+    // ****************************************************************
+    // Function Name: saveBuildOwnerToFile
+    // Purpose: saves the build owner to file
+    // Parameter: none
+    // Return value: a string object with builds followed by their owner's names
+    // Assistance Received: none
+    // ****************************************************************
+    private String saveBuildOwnerToFile()
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        Vector<Vector<Card>> multipleBuild;
+        Vector<Card> singleBuild;
+
+        if (players[computerIndex].isMultipleBuildExist())
+        {
+            stringBuilder.append("[ ");
+            multipleBuild = players[computerIndex].getMultipleBuildCard().get(players[computerIndex].getPlayerName());
+            saveMultipleBuildToFile(stringBuilder, multipleBuild);
+            stringBuilder.append(players[computerIndex].getPlayerName()).append(" ");
+        }
+
+        if (players[humanIndex].isMultipleBuildExist())
+        {
+            stringBuilder.append("[ ");
+            multipleBuild = players[humanIndex].getMultipleBuildCard().get(players[humanIndex].getPlayerName());
+            saveMultipleBuildToFile(stringBuilder, multipleBuild);
+            stringBuilder.append(players[humanIndex].getPlayerName()).append(" ");
+        }
+
+        // Save single builds to file
+        if (players[computerIndex].isSingleBuildExist())
+        {
+            stringBuilder.append("[ ");
+            singleBuild = players[computerIndex].getSingleBuildCard().get(players[computerIndex].getPlayerName());
+            saveSingleBuildToFile(stringBuilder, singleBuild);
+            stringBuilder.append(players[computerIndex].getPlayerName()).append(" ");
+        }
+
+        if (players[humanIndex].isSingleBuildExist())
+        {
+            stringBuilder.append("[ ");
+            singleBuild = players[humanIndex].getSingleBuildCard().get(players[humanIndex].getPlayerName());
+            saveSingleBuildToFile(stringBuilder, singleBuild);
+            stringBuilder.append(players[humanIndex].getPlayerName()).append(" ");
+        }
+        stringBuilder.append("\n\n");
+        return stringBuilder.toString();
+    }
+
+    // ****************************************************************
+    // Function Name: saveSingleBuildToFile
+    // Purpose: saves the player's single build to a text file
+    // Parameter: saveToFile -> StringBuilder object. Holds the object to append string of builds
+    //            singleBuild -> vector of Cards. Holds the player's single build
+    //                           to be saved to a file
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    private void saveSingleBuildToFile(StringBuilder stringBuilder, Vector<Card> singleBuild)
+    {
+        stringBuilder.append("[");
+        for (Card card : singleBuild)
+        {
+            stringBuilder.append(card.cardToString()).append(" ");
+        }
+        stringBuilder.append("] ");
+    }
+
+    // ****************************************************************
+    // Function Name: saveMultipleBuildToFile
+    // Purpose: saves the player's multiple build to a text file
+    // Parameter: stringBuilder -> StringBuilder object. Holds the object to append string of builds
+    //            multipleBuild -> vector of vector of Cards. Holds the player's multibuild to be
+    // saved to a file
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    private void saveMultipleBuildToFile(StringBuilder stringBuilder, Vector<Vector<Card>> multipleBuild)
+    {
+        for (Vector<Card> build : multipleBuild)
+        {
+            stringBuilder.append("[");
+            for (Card card : build)
+            {
+                stringBuilder.append(card.cardToString()).append(" ");
+            }
+            stringBuilder.append("] ");
+        }
+        stringBuilder.append("] ");
     }
 
     // ****************************************************************
