@@ -6,6 +6,8 @@
 //****************************************************
 package edu.ramapo.mparajul.casino.model.setup;
 
+import android.content.Intent;
+import android.os.Bundle;
 import android.os.Environment;
 
 import java.io.File;
@@ -29,11 +31,14 @@ public class Round
     private String nextPlayer;
     private boolean isNewGame;
 
-    private Vector<Card> tableCards;
-    private Deck deck;
+    private Vector<Card> tableCards = new Vector<>();
+    private Deck deck = new Deck();
 
-    private Player players[];
+    private Player[] players = new Player[2];
 
+    public Round()
+    {
+    }
 
     // ****************************************************************
     // Function Name: Round
@@ -52,6 +57,7 @@ public class Round
         numberOfPlayers = 2;
         isNewGame = false;
 
+        // This will be executed for first round
         // Set the index of the players based on who the next player is
         if (this.nextPlayer.equals("Human"))
         {
@@ -64,6 +70,8 @@ public class Round
             computerIndex = 0;
         }
 
+        // This will be executed when a new round starts after previous round ended
+        // The player that last captured the cards will go first in next round
         if (this.lastCapturer.equals("Human"))
         {
             humanIndex = 0;
@@ -77,30 +85,7 @@ public class Round
 
         players[humanIndex] = new Human("Human");
         players[computerIndex] = new Computer("Computer");
-    }
-
-    // ****************************************************************
-    // Function Name: createPlayers
-    // Purpose: creates a pointer to two players each of human and computer and sets their index
-    // Parameters: none
-    // Return value: none
-    // Assistance Received: none
-    // ****************************************************************
-    public void createPlayers()
-    {
-        // Set the index of the players based on who the next player is
-        if (nextPlayer.equals("Human"))
-        {
-            humanIndex = 0;
-            computerIndex = 1;
-        }
-        if (nextPlayer.equals("Computer"))
-        {
-            humanIndex = 1;
-            computerIndex = 0;
-        }
-        players[humanIndex] = new Human("Human");
-        players[computerIndex] = new Computer("Computer");
+        deck = new Deck();
     }
 
     // ****************************************************************
@@ -126,7 +111,7 @@ public class Round
     // ****************************************************************
     public void dealCardsToPlayers(boolean newRound)
     {
-        int totalCardsToDeal = 0;
+        int totalCardsToDeal;
 
         if (newRound) { totalCardsToDeal = 12; }
         else { totalCardsToDeal = 8; }
@@ -156,6 +141,45 @@ public class Round
             }
         }
     }
+
+    public void setSavedPreferences(Intent intent)
+    {
+        Bundle bundle = intent.getExtras();
+        Vector<Card> cards;
+        if (bundle != null)
+        {
+            // set player scores
+            players[computerIndex].setTourneyScore(intent.getExtras().getInt("computerScore"));
+            players[humanIndex].setTourneyScore(intent.getExtras().getInt("humanScore"));
+
+            // set hand cards
+            cards = makeCardFromFile(intent.getExtras().getStringArray("computerHand"));
+            players[computerIndex].setCardsOnHand(cards);
+            cards = makeCardFromFile(intent.getExtras().getStringArray("humanHand"));
+            players[humanIndex].setCardsOnHand(cards);
+
+            // set pile cards
+            cards = makeCardFromFile(intent.getExtras().getStringArray("computerPile"));
+            players[computerIndex].setCardsOnPile(cards);
+            cards = makeCardFromFile(intent.getExtras().getStringArray("humanPile"));
+            players[humanIndex].setCardsOnPile(cards);
+
+            // set table cards
+            cards = makeCardFromFile(intent.getExtras().getStringArray("tableCards"));
+            setTableCards(cards);
+
+            // set deck of cards
+            cards = makeCardFromFile(intent.getExtras().getStringArray("deck"));
+            setDeck(cards);
+
+            // TODO: set build cards
+
+            // set last capturer
+            setLastCapturer(intent.getExtras().getString("lastCapturer"));
+        }
+    }
+
+
 
     // ****************************************************************
     // Function Name: saveGame
@@ -218,7 +242,7 @@ public class Round
         serializedFile += "Build Owner: " + saveBuildOwnerToFile();
 
         // Save Last Capturer
-        serializedFile += "Last Capturer: " + getLastCapturer() + "\n";
+        serializedFile += "Last Capturer: " + getLastCapturer() + "\n\n";
 
         // Save deck
         serializedFile += "Deck: ";
@@ -313,14 +337,14 @@ public class Round
         Vector<Card> singleBuild;
 
         // Save multiple builds to file
-        if (players[computerIndex].isMultipleBuildExist())
+        if (!players[computerIndex].isMultipleBuildEmpty())
         {
             stringBuilder.append("[ ");
             multipleBuild = players[computerIndex].getMultipleBuildCard().get(players[computerIndex].getPlayerName());
             saveMultipleBuildToFile(stringBuilder, multipleBuild);
         }
 
-        if (players[humanIndex].isMultipleBuildExist())
+        if (!players[humanIndex].isMultipleBuildEmpty())
         {
             stringBuilder.append("[ ");
             multipleBuild = players[humanIndex].getMultipleBuildCard().get(players[humanIndex].getPlayerName());
@@ -328,14 +352,14 @@ public class Round
         }
 
         // Save single builds to file
-        if (players[computerIndex].isSingleBuildExist())
+        if (!players[computerIndex].isSingleBuildEmpty())
         {
             stringBuilder.append("[ ");
             singleBuild = players[computerIndex].getSingleBuildCard().get(players[computerIndex].getPlayerName());
             saveSingleBuildToFile(stringBuilder, singleBuild);
         }
 
-        if (players[humanIndex].isSingleBuildExist())
+        if (!players[humanIndex].isSingleBuildEmpty())
         {
             stringBuilder.append("[ ");
             singleBuild = players[humanIndex].getSingleBuildCard().get(players[humanIndex].getPlayerName());
@@ -366,7 +390,7 @@ public class Round
         Vector<Vector<Card>> multipleBuild;
         Vector<Card> singleBuild;
 
-        if (players[computerIndex].isMultipleBuildExist())
+        if (!players[computerIndex].isMultipleBuildEmpty())
         {
             stringBuilder.append("[ ");
             multipleBuild = players[computerIndex].getMultipleBuildCard().get(players[computerIndex].getPlayerName());
@@ -374,7 +398,7 @@ public class Round
             stringBuilder.append(players[computerIndex].getPlayerName()).append(" ");
         }
 
-        if (players[humanIndex].isMultipleBuildExist())
+        if (!players[humanIndex].isMultipleBuildEmpty())
         {
             stringBuilder.append("[ ");
             multipleBuild = players[humanIndex].getMultipleBuildCard().get(players[humanIndex].getPlayerName());
@@ -383,7 +407,7 @@ public class Round
         }
 
         // Save single builds to file
-        if (players[computerIndex].isSingleBuildExist())
+        if (!players[computerIndex].isSingleBuildEmpty())
         {
             stringBuilder.append("[ ");
             singleBuild = players[computerIndex].getSingleBuildCard().get(players[computerIndex].getPlayerName());
@@ -391,7 +415,7 @@ public class Round
             stringBuilder.append(players[computerIndex].getPlayerName()).append(" ");
         }
 
-        if (players[humanIndex].isSingleBuildExist())
+        if (!players[humanIndex].isSingleBuildEmpty())
         {
             stringBuilder.append("[ ");
             singleBuild = players[humanIndex].getSingleBuildCard().get(players[humanIndex].getPlayerName());
@@ -443,6 +467,51 @@ public class Round
         }
         stringBuilder.append("] ");
     }
+
+    // ****************************************************************
+    // Function Name: makeCardFromFile
+    // Purpose: transforms the string of cards into vector of Card objects
+    // Parameters: -> cards, array of string. The array of strings that need to be
+    //                      converted into Card objects
+    // Return value: vector of card objects.
+    // Assistance Received: none
+    // ****************************************************************
+    Vector<Card> makeCardFromFile(String[] cards)
+    {
+        Vector<Card> cardList = new Vector<>();
+
+        // Loop through the string and make it a card object
+        // Then return cards as vector of cards
+        for (String cardStr : cards)
+        {
+            if (cardStr.length() == 2)
+            {
+                cardList.add(new Card(Character.toString(cardStr.charAt(0)), Character.toString(cardStr.charAt(1))));
+            }
+        }
+        return cardList;
+    }
+
+    public Vector<Card> getHumanCardsOnHand()
+    {
+        return players[humanIndex].getCardsOnHand();
+    }
+
+    public Vector<Card> getComputerCardsOnHand()
+    {
+        return players[computerIndex].getCardsOnHand();
+    }
+
+    public Vector<Card> getHumanCardsOnPile()
+    {
+        return players[humanIndex].getCardsOnPile();
+    }
+
+    public Vector<Card> getComputerCardsOnPile()
+    {
+        return players[computerIndex].getCardsOnPile();
+    }
+
 
     // ****************************************************************
     // Function Name: getRoundNumber
@@ -528,6 +597,11 @@ public class Round
         deck.setDeck(tempDeck);
     }
 
+    public Vector<Card> getDeck()
+    {
+        return deck.getDeck();
+    }
+
     // ****************************************************************
     // Function Name: getTableCards
     // Purpose: gets the current cards in the table
@@ -550,6 +624,16 @@ public class Round
     public void setTableCards(Vector<Card> tableCards)
     {
         this.tableCards = tableCards;
+    }
+
+    public String getHumanPlayerName()
+    {
+        return players[humanIndex].getPlayerName();
+    }
+
+    public String getComputerPlayerName()
+    {
+        return players[computerIndex].getPlayerName();
     }
 
     // ****************************************************************

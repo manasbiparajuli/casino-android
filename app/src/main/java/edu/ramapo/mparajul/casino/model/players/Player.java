@@ -14,14 +14,15 @@ import edu.ramapo.mparajul.casino.model.setup.Card;
 public class Player
 {
     protected int score;
+    protected int tourneyScore;
     protected int firstBuildScore;
     protected String playerName;
     protected boolean hasCapturedCardsInMove = false;
-    protected Vector<Card> cardsOnPile;
-    protected Vector<Card> cardsOnHand;
+    protected Vector<Card> cardsOnPile = new Vector<>();
+    protected Vector<Card> cardsOnHand = new Vector<>();
 
-    protected HashMap<String, Vector<Card>> singleBuildCard;
-    protected HashMap<String, Vector<Vector<Card>>> multipleBuildCard;
+    protected HashMap<String, Vector<Card>> singleBuildCard = new HashMap<>();
+    protected HashMap<String, Vector<Vector<Card>>> multipleBuildCard = new HashMap<>();
 
     Player()
     {
@@ -41,6 +42,7 @@ public class Player
         this.firstBuildScore = 0;
         this.cardsOnHand = new Vector<>();
         this.cardsOnPile = new Vector<>();
+        this.tourneyScore = 0;
 
         singleBuildCard = new HashMap<>();
         multipleBuildCard = new HashMap<>();
@@ -382,15 +384,26 @@ public class Player
         return multipleBuildCard;
     }
 
-    final public boolean isMultipleBuildExist()
+    final public boolean isMultipleBuildEmpty()
     {
         return multipleBuildCard.isEmpty();
     }
 
-    final public boolean isSingleBuildExist()
+    final public boolean isSingleBuildEmpty()
     {
         return singleBuildCard.isEmpty();
     }
+
+    public int getTourneyScore()
+    {
+        return tourneyScore;
+    }
+
+    public void setTourneyScore(int tourneyScore)
+    {
+        this.tourneyScore = tourneyScore;
+    }
+
 
     public void play (Vector<Card> tableCards, HashMap<String, Vector<Card>> oppoBuild){}
 

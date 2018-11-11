@@ -14,7 +14,7 @@ public class Deck
     private static final int TOTAL_CARDS = 52;
 
     // holds the deck of cards for the game
-    private Vector<Card> deck = new Vector<>(TOTAL_CARDS);
+    private Vector<Card> deck;
 
     // ****************************************************************
     // Function Name: Deck
@@ -23,7 +23,10 @@ public class Deck
     // Return value: none
     // Assistance Received: none
     // ****************************************************************
-    Deck(){}
+    Deck()
+    {
+        deck = new Vector<>(TOTAL_CARDS);
+    }
 
     // ****************************************************************
     // Function Name: createShuffledDeck

@@ -142,13 +142,13 @@ public class StartActivity extends AppCompatActivity
         // Display toast to announce who plays first to the user
         if (correctCoinTossGuess)
         {
-            firstPlayer = "human";
+            firstPlayer = "Human";
             Toast.makeText(StartActivity.this,
         "Correctly guessed " + coinTossResult + ". You play first!",Toast.LENGTH_SHORT).show();
         }
         else
         {
-            firstPlayer = "computer";
+            firstPlayer = "Computer";
             Toast.makeText(StartActivity.this,
         "Incorrectly guessed " + coinTossResult + ". Computer plays first!",Toast.LENGTH_SHORT).show();
         }

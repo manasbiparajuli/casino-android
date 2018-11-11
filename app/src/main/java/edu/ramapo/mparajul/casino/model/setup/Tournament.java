@@ -6,13 +6,16 @@
 //****************************************************
 package edu.ramapo.mparajul.casino.model.setup;
 
+import android.content.Intent;
+
 public class Tournament
 {
     private int roundNumber;
     private int playerOneTournamentScore;
     private int playerTwoTournamentScore;
-    private String firstPlayer;
+    private String nextPlayer;
     private String lastCapturer;
+    private Round round = new Round();
 
     // ****************************************************************
     // Function Name: Tournament
@@ -26,9 +29,22 @@ public class Tournament
         roundNumber = 1;
         playerOneTournamentScore = 0;
         playerTwoTournamentScore = 0;
+        round = new Round();
     }
 
+    public void newGame()
+    {
+        round = new Round(nextPlayer, " ", roundNumber);
+        round.startGame();
+        round.dealCardsToPlayers(true);
 
+    }
+
+    public void loadGame(Intent intent)
+    {
+        round = new Round (nextPlayer, " ", roundNumber);
+        round.setSavedPreferences(intent);
+    }
 
     public void setRoundNumber(int roundNumber)
     {
@@ -46,19 +62,25 @@ public class Tournament
     }
 
     // ****************************************************************
-    // Function Name: setFirstPlayer
+    // Function Name: setNextPlayer
     // Purpose: sets the first player to start the game
-    // Parameters: firstPlayer, a string. Options include "Human" and "Computer".
+    // Parameters: nextPlayer, a string. Options include "Human" and "Computer".
     // Return value: none
     // Assistance Received: none
     // ****************************************************************
-    public void setFirstPlayer(String firstPlayer)
+    public void setNextPlayer(String nextPlayer)
     {
-        this.firstPlayer = firstPlayer;
+        this.nextPlayer = nextPlayer;
     }
 
     public void setLastCapturer(String lastCapturer)
     {
         this.lastCapturer = lastCapturer;
     }
+
+    public Round getRound()
+    {
+        return round;
+    }
+
 }
