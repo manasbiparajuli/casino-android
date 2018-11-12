@@ -434,7 +434,7 @@ public class StartActivity extends AppCompatActivity
 
                     }
                     // build cards present
-                    // extract the substring after the last occurence of "]" and split the cards
+                    // extract the substring after the last occurrence of "]" and split the cards
                     // to get the loose cards in the table
                     else
                     {
@@ -474,7 +474,7 @@ public class StartActivity extends AppCompatActivity
                     // get the last index that identifies the build ("]")
                     int index = identifier.lastIndexOf("]");
 
-                    // the string after the last occurence of "]" is the owner of the build
+                    // the string after the last occurrence of "]" is the owner of the build
                     // Human
                     owner = identifier.substring(index + 2, identifier.length());
                     System.out.println("owner: " + owner);

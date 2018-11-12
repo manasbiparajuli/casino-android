@@ -91,22 +91,25 @@
                 android:textAlignment="gravity"/>
 
             <Button
+                android:id="@+id/score_human_round"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:clickable="false"
                 android:fontFamily="@font/batmanforever"
                 android:gravity="center_horizontal"
-                android:text="@string/label_score_nil"
-                android:textAlignment="gravity"/>
+                android:text="0"
+                android:textAlignment="gravity">
+            </Button>
 
             <Button
+                android:id="@+id/score_computer_round"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:clickable="false"
                 android:fontFamily="@font/batmanforever"
-                android:text="@string/label_score_nil"
+                android:text="0"
                 android:gravity="center_horizontal"
                 android:textAlignment="gravity"/>
         </LinearLayout>
@@ -131,22 +134,24 @@
                 android:textAlignment="gravity"/>
 
             <Button
+                android:id="@+id/score_human_tournament"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:clickable="false"
                 android:fontFamily="@font/batmanforever"
-                android:text="@string/label_score_nil"
+                android:text="0"
                 android:gravity="center_horizontal"
                 android:textAlignment="gravity"/>
 
             <Button
+                android:id="@+id/score_computer_tournament"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:clickable="false"
                 android:fontFamily="@font/batmanforever"
-                android:text="@string/label_score_nil"
+                android:text="0"
                 android:gravity="center_horizontal"
                 android:textAlignment="gravity"/>
         </LinearLayout>

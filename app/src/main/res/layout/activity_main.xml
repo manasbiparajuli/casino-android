@@ -3,13 +3,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_activity_root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity"
-    android:background="@drawable/game_background"
-    app:flexWrap="wrap"
-    app:layout_flexGrow="1"
-    app:flexDirection="row">
+    android:background="@drawable/game_background">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -51,7 +49,6 @@
 
             <!--Display table cards-->
             <LinearLayout
-                android:id="@+id/layout_table_cards"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/display_table_card_layout_height"
                 android:orientation="horizontal"
@@ -59,6 +56,18 @@
                 android:layout_gravity="center_horizontal"
                 android:background="@drawable/background_border"
                 android:layout_marginBottom="5dp">
+
+                <com.google.android.flexbox.FlexboxLayout
+                    android:id="@+id/layout_table_cards"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_gravity="center_horizontal"
+                    app:flexWrap="wrap"
+                    app:justifyContent="space_evenly"
+                    app:alignItems="center"
+                    app:alignContent="center">
+                </com.google.android.flexbox.FlexboxLayout>
             </LinearLayout>
 
 
@@ -72,55 +81,55 @@
                 android:weightSum="5">
 
                     <Button
-                    android:id="@+id/make_single_build"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:clickable="true"
-                    android:onClick="onClickCardAction"
-                    android:fontFamily="@font/batmanforever"
-                    android:text="@string/single_build"/>
+                        android:id="@+id/make_single_build"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:onClick="onClickCardAction"
+                        android:fontFamily="@font/batmanforever"
+                        android:text="@string/single_build"/>
 
 
                     <Button
-                    android:id="@+id/make_multiple_build"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:clickable="true"
-                    android:onClick="onClickCardAction"
-                    android:fontFamily="@font/batmanforever"
-                    android:text="@string/multiple_build"/>
+                        android:id="@+id/make_multiple_build"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:onClick="onClickCardAction"
+                        android:fontFamily="@font/batmanforever"
+                        android:text="@string/multiple_build"/>
 
                     <Button
-                    android:id="@+id/make_extend_build"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:clickable="true"
-                    android:onClick="onClickCardAction"
-                    android:fontFamily="@font/batmanforever"
-                    android:text="@string/extend_build"/>
+                        android:id="@+id/make_extend_build"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:onClick="onClickCardAction"
+                        android:fontFamily="@font/batmanforever"
+                        android:text="@string/extend_build"/>
 
                     <Button
-                    android:id="@+id/make_capture"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:clickable="true"
-                    android:onClick="onClickCardAction"
-                    android:fontFamily="@font/batmanforever"
-                    android:text="@string/capture"/>
+                        android:id="@+id/make_capture"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:onClick="onClickCardAction"
+                        android:fontFamily="@font/batmanforever"
+                        android:text="@string/capture"/>
 
                     <Button
-                    android:id="@+id/make_trail"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:clickable="true"
-                    android:onClick="onClickCardAction"
-                    android:fontFamily="@font/batmanforever"
-                    android:text="@string/trail"/>
+                        android:id="@+id/make_trail"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:onClick="onClickCardAction"
+                        android:fontFamily="@font/batmanforever"
+                        android:text="@string/trail"/>
             </LinearLayout>
 
 

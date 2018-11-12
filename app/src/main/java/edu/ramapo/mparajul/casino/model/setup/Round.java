@@ -512,6 +512,13 @@ public class Round
         return players[computerIndex].getCardsOnPile();
     }
 
+    public int getHumanTourneyScore() { return players[humanIndex].getTourneyScore();}
+
+    public int getComputerTourneyScore() { return players[computerIndex].getTourneyScore();}
+
+    public int getHumanRoundScore() { return players[humanIndex].getScore();}
+
+    public int getComputerRoundScore() { return players[computerIndex].getScore();}
 
     // ****************************************************************
     // Function Name: getRoundNumber
@@ -631,9 +638,7 @@ public class Round
         return players[humanIndex].getPlayerName();
     }
 
-    public String getComputerPlayerName()
-    {
-        return players[computerIndex].getPlayerName();
+    public String getComputerPlayerName() { return players[computerIndex].getPlayerName();
     }
 
     // ****************************************************************

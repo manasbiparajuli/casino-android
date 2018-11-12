@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,10 +21,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.support.v7.widget.Toolbar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
+
+import com.google.android.flexbox.FlexboxLayout;
 
 import java.util.Vector;
 
@@ -34,11 +38,12 @@ import edu.ramapo.mparajul.casino.model.setup.Tournament;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener
 {
-    private Toolbar toolbar;
     private int deviceWidth;
     private View root;
     private Tournament tournament = new Tournament();
     private Round round = new Round();
+    private Vector<String> cardsClicked = new Vector<>();
+    private RelativeLayout rootView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -46,6 +51,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         root = LayoutInflater.from(this).inflate(R.layout.activity_main, null);
         setContentView(root);
+
+        // get the rootview id of the current activity that will be used by the snackbar
+        rootView = findViewById(R.id.main_activity_root_layout);
 
         // store the width of the device as we use it to set the width of the
         // button that display cards in this activity
@@ -60,13 +68,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void configureToolbar()
     {
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
+        // populate the toolbar with action menus
         getMenuInflater().inflate(R.menu.toolbar_menu, menu);
         return true;
     }
@@ -74,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        // get the id of the option that the user selected
+        // get the id of the option that the user selected in the toolbar
         int toolbar_option_selected = item.getItemId();
 
         // based on the user's selections, perform specific actions
@@ -135,7 +144,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         deck_dialog.show();
     }
 
-
     public void saveGame()
     {
         final Dialog dialog = new Dialog(MainActivity.this);
@@ -172,14 +180,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //TODO: get help using computer strategy
     public void getHelp()
     {
-
     }
 
-    //TODO: edit scores for rounds and tournament
     public void displayScore()
     {
         final Dialog score_dialog = new Dialog(MainActivity.this);
         score_dialog.setContentView(R.layout.display_scores_dialog);
+
+        Button button;
+
+        // Set last round scores of the players
+        button = score_dialog.findViewById(R.id.score_computer_round);
+        button.setText(String.valueOf(round.getComputerRoundScore()));
+
+        button = score_dialog.findViewById(R.id.score_human_round);
+        button.setText(String.valueOf(round.getHumanRoundScore()));
+
+        // Set tournament scores of the players
+        button = score_dialog.findViewById(R.id.score_computer_tournament);
+        button.setText(String.valueOf(round.getComputerTourneyScore()));
+
+        button = score_dialog.findViewById(R.id.score_human_tournament);
+        button.setText(String.valueOf(round.getHumanTourneyScore()));
+
         score_dialog.show();
     }
 
@@ -225,7 +248,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             {
                 labelNames.add(card.cardToString());
             }
-            System.out.println(round.getDeck().size());
             createCardsDynamically(linearLayout, labelNames, false);
         }
     }
@@ -243,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             {
                 labelNames.add(card.cardToString());
             }
-            createCardsDynamically(linearLayout, labelNames, true);
+            createCardsDynamically(linearLayout, labelNames, false);
         }
 
         if (!round.getHumanCardsOnHand().isEmpty())
@@ -263,54 +285,118 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     {
         if (!round.getTableCards().isEmpty())
         {
+            int cardWidth = deviceWidth / 5;
+
             // display human cards on hand
-            LinearLayout linearLayout = findViewById(R.id.layout_table_cards);
+            FlexboxLayout flexboxLayout = findViewById(R.id.layout_table_cards);
             Vector<String> labelNames = new Vector<>();
             for (Card card : round.getTableCards())
             {
                 labelNames.add(card.cardToString());
             }
-            createCardsDynamically(linearLayout, labelNames, true);
+
+            for (String label : labelNames)
+            {
+                ImageView imageView = new ImageView(this);
+
+                // set margins for the image views
+                FlexboxLayout.LayoutParams params = new FlexboxLayout.LayoutParams(cardWidth,300);
+                params.setMargins(15,10,30,10);
+                params.setFlexShrink(1);
+                imageView.setLayoutParams(params);
+                imageView.setPadding(2,8,2,8);
+
+                // get current context and set the image of the button to the card it corresponds to
+                // also set the id and tag of the card
+                Context context = flexboxLayout.getContext();
+                int id = context.getResources().getIdentifier(label.toLowerCase(), "drawable", context.getPackageName());
+                imageView.setTag(label.toLowerCase());
+                imageView.setImageResource(id);
+                imageView.setId(id);
+
+                // add normal border to the image view
+                int card_border = context.getResources().getIdentifier("card_border_normal",
+                        "drawable", context.getPackageName());
+                Drawable drawable = ResourcesCompat.getDrawable(getResources(), card_border, null);
+                imageView.setBackground(drawable);
+                imageView.bringToFront();
+
+                // add click listeners for image views
+                imageView.setClickable(true);
+                imageView.setOnClickListener(this);
+                flexboxLayout.addView(imageView);
+            }
         }
     }
 
-    private void createCardsDynamically(LinearLayout linearLayout, Vector<String> labelNames,
-                                        boolean clickable)
+    private void createCardsDynamically(LinearLayout linearLayout, Vector<String> labelNames, boolean clickable)
     {
+        // store the width of the card
         int cardWidth = deviceWidth / 5;
 
+        // Loop through the cards and set their ImageViews
         for (String label : labelNames)
         {
-            ImageButton handCardButton = new ImageButton(this);
+            ImageView imageView = new ImageView(this);
 
-            // set margins for the button and implement click listener
+            // set margins for the image views
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(cardWidth, 300);
             params.setMargins(15,10,30,10);
-            handCardButton.setLayoutParams(params);
-
-            // Implement onClick listeners for hand and table cards only
-            if (clickable)
-            {
-                handCardButton.setClickable(true);
-                handCardButton.setOnClickListener(this);
-            }
-            else { handCardButton.setClickable(false);}
+            imageView.setLayoutParams(params);
+            imageView.setPadding(2,8,2,8);
 
             // get current context and set the image of the button to the card it corresponds to
             Context context = linearLayout.getContext();
             int id = context.getResources().getIdentifier(label.toLowerCase(), "drawable", context.getPackageName());
-            handCardButton.setTag(label.toLowerCase());
-            Drawable drawable = ResourcesCompat.getDrawable(getResources(), id, null);
-            handCardButton.setBackground(drawable);
-            linearLayout.addView(handCardButton);
+            imageView.setTag(label.toLowerCase());
+            imageView.setImageResource(id);
+            imageView.setId(id);
+
+            // add normal border to the image view
+            int card_border = context.getResources().getIdentifier("card_border_normal",
+                    "drawable", context.getPackageName());
+            Drawable drawable = ResourcesCompat.getDrawable(getResources(), card_border, null);
+
+            imageView.setBackground(drawable);
+            imageView.bringToFront();
+
+            // Implement onClick listeners for human hand cards
+            if (clickable)
+            {
+                imageView.setClickable(true);
+                imageView.setOnClickListener(this);
+            }
+            else { imageView.setClickable(false);}
+            linearLayout.addView(imageView);
         }
     }
 
     @Override
     public void onClick(View view)
     {
-    }
+        int clickedCardId = view.getId();
 
+        // Check if the clicked card has already been clicked
+        // If the player clicked on the card again, then remove the highlight border from the card
+        if (!duplicateCardClicked(clickedCardId))
+        {
+            // Not a duplicate card
+            // check if the user did not click on a second hand card.
+            if (singleHandCardClicked(clickedCardId))
+            {
+                // valid card click
+                // Highlight the border of the clicked card
+                ImageView imageView = findViewById(clickedCardId);
+                Context context = view.getContext();
+
+                int card_border = context.getResources().getIdentifier("card_border_clicked",
+                        "drawable", context.getPackageName());
+                Drawable drawable = ResourcesCompat.getDrawable(getResources(), card_border, null);
+                imageView.setBackground(drawable);
+                cardsClicked.add(String.valueOf(clickedCardId));
+            }
+        }
+    }
 
     //TODO: get user action clicks
     public void onClickCardAction(View view)
@@ -318,14 +404,65 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId())
         {
             case R.id.make_single_build:
+                // check if the player has clicked a hand card before performing an action
+                if (cardsClickedContainsHandCard())
+                {
+                    setCardBorderNormal(cardsClicked);
+                    // reset the holder for clicked cards
+                    cardsClicked = new Vector<>();
+                }
+                // no hand card in the list of clicked cards
+                else { callSnackbar("Invalid. No hand cards selected!");}
                 break;
             case R.id.make_multiple_build:
+                // check if the player has clicked a hand card before performing an action
+                if (cardsClickedContainsHandCard())
+                {
+                    setCardBorderNormal(cardsClicked);
+                    // reset the holder for clicked cards
+                    cardsClicked = new Vector<>();
+                }
+                // no hand card in the list of clicked cards
+                else { callSnackbar("Invalid. No hand cards selected!");}
+
                 break;
             case R.id.make_extend_build:
+                // check if the player has clicked a hand card before performing an action
+                if (cardsClickedContainsHandCard())
+                {
+                    setCardBorderNormal(cardsClicked);
+                    // reset the holder for clicked cards
+                    cardsClicked = new Vector<>();
+                }
+                // no hand card in the list of clicked cards
+                else { callSnackbar("Invalid. No hand cards selected!");}
+
                 break;
             case R.id.make_capture:
+                // check if the player has clicked a hand card before performing an action
+                if (cardsClickedContainsHandCard())
+                {
+                    setCardBorderNormal(cardsClicked);
+                    // reset the holder for clicked cards
+                    cardsClicked = new Vector<>();
+                }
+                // no hand card in the list of clicked cards
+                else { callSnackbar("Invalid. No hand cards selected!");}
+
+                break;
+            case R.id.make_trail:
+                // check if the player has clicked a hand card before performing an action
+                if (cardsClickedContainsHandCard())
+                {
+                    setCardBorderNormal(cardsClicked);
+                    // reset the holder for clicked cards
+                    cardsClicked = new Vector<>();
+                }
+                // no hand card in the list of clicked cards
+                else { callSnackbar("Invalid. No hand cards selected!");}
                 break;
             default:
+                break;
         }
     }
 
@@ -353,6 +490,121 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Drawable drawable = ResourcesCompat.getDrawable(getResources(), id, null);
             linearLayout.setBackground(drawable);
         }
+    }
+
+    public void setCardBorderNormal(Vector<String> clickedCards)
+    {
+        ImageView imageView;
+
+        // Set highlighted cards to normal border
+        for (String cards: clickedCards)
+        {
+            imageView = findViewById(Integer.valueOf(cards));
+            Context context = this;
+
+            int card_border = context.getResources().getIdentifier("card_border_normal",
+                    "drawable", context.getPackageName());
+            Drawable drawable = ResourcesCompat.getDrawable(getResources(), card_border, null);
+            imageView.setBackground(drawable);
+        }
+    }
+
+    private boolean duplicateCardClicked(int cardId)
+    {
+        if (!cardsClicked.isEmpty())
+        {
+            // Check if the newly clicked card is a duplicate click
+            // If it is, proceed to remove its highlight border
+            for (String clicked : cardsClicked)
+            {
+                if (Integer.valueOf(clicked) == cardId)
+                {
+                    Vector<String> temp = new Vector<>();
+                    temp.add(String.valueOf(cardId));
+                    setCardBorderNormal(temp);
+                    cardsClicked.remove(String.valueOf(cardId));
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean singleHandCardClicked(int handCardId)
+    {
+        LinearLayout linearLayout = findViewById(R.id.layout_human_hand);
+
+        // check if the clicked list contains card clicks
+        if (!cardsClicked.isEmpty())
+        {
+            // Check if the clicked card belongs to the linear layout that displays human hand card
+            if (belongsToHumanCard(handCardId))
+            {
+                // get all the child views of human hand linear layout
+                for (int i = 0 ; i < linearLayout.getChildCount(); i++)
+                {
+                    // Check if the user is clicking multiple cards from his hand
+                    for (String id : cardsClicked)
+                    {
+                        // if there are any matching ids in the list of clicked cards
+                        // remove the highlight border from the card and return false
+                        if (Integer.valueOf(id) == linearLayout.getChildAt(i).getId())
+                        {
+                            Vector<String> temp = new Vector<>();
+                            temp.add(String.valueOf(handCardId));
+                            setCardBorderNormal(temp);
+                            cardsClicked.remove(String.valueOf(handCardId));
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean belongsToHumanCard(int cardId)
+    {
+        LinearLayout linearLayout = findViewById(R.id.layout_human_hand);
+
+        // get all the child views of human hand linear layout
+        for (int i = 0 ; i < linearLayout.getChildCount(); i++)
+        {
+            // Check if the clicked card belongs to the linear layout that displays human hand
+            if (cardId == linearLayout.getChildAt(i).getId())
+            {
+                // Card belongs to human hand linear layout
+                return true;
+            }
+        }
+        // Card belongs to the table linear layout
+        return false;
+    }
+
+    private boolean cardsClickedContainsHandCard()
+    {
+        for (String card: cardsClicked)
+        {
+            if (belongsToHumanCard(Integer.valueOf(card))) { return true;}
+        }
+        return false;
+    }
+
+    public void callSnackbar (String message)
+    {
+        // Create snackbar
+        final Snackbar snackbar = Snackbar.make(rootView, message, Snackbar.LENGTH_INDEFINITE);
+
+        // Set dismiss button on the snackbar
+        snackbar.setAction("DISMISS", new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                snackbar.dismiss();
+            }
+        });
+        snackbar.show();
     }
 
     // Display messages to the user as Toast
