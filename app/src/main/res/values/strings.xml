@@ -38,7 +38,7 @@
     <!--Labels for save_game_dialog.xml-->
     <string name="save_game_hint">savegame\.txt</string>
     <string name="save_button_text">SAVE</string>
-    
+
     <!--Labels for display_scores_dialog.xml-->
     <string name="label_score">Score</string>
     <string name="label_human">Human</string>

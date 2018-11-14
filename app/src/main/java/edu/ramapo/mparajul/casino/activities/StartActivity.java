@@ -153,6 +153,7 @@ public class StartActivity extends AppCompatActivity
         "Incorrectly guessed " + coinTossResult + ". Computer plays first!",Toast.LENGTH_SHORT).show();
         }
 
+        // TODO: replace this with mainactivity.class
         Intent launchGame = new Intent (this, MainActivity.class);
 
         // put extra information to tell that we are initiating a new game

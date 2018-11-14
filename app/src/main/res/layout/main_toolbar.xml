@@ -7,7 +7,7 @@
     android:id="@+id/toolbar"
     android:elevation="4dp"
     android:background="@color/toolbar_color"
-    app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     app:popupTheme="@style/AlertDialog.AppCompat.Light"
     app:title="@string/app_name"
     app:titleTextColor="@color/toolbar_text"/>

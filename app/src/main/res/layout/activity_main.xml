@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,16 +7,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity"
-    android:background="@drawable/game_background">
+>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="0dp"
-        app:layout_constraintTop_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="parent"
-        tools:layout_editor_absoluteX="3dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -48,29 +40,58 @@
             </LinearLayout>
 
             <!--Display table cards-->
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/display_table_card_layout_height"
                 android:orientation="horizontal"
                 android:gravity="center"
                 android:layout_gravity="center_horizontal"
                 android:background="@drawable/background_border"
-                android:layout_marginBottom="5dp">
+                android:layout_marginBottom="5dp"
+                android:id="@+id/linear_table_cards">
 
-                <com.google.android.flexbox.FlexboxLayout
-                    android:id="@+id/layout_table_cards"
-                    android:layout_width="match_parent"
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:layout_gravity="center_horizontal"
-                    app:flexWrap="wrap"
-                    app:justifyContent="space_evenly"
-                    app:alignItems="center"
-                    app:alignContent="center">
-                </com.google.android.flexbox.FlexboxLayout>
-            </LinearLayout>
+                    android:orientation="horizontal"
+                    android:id="@+id/loose_card_layout">
 
+                    <!--loose cards-->
+                    <com.google.android.flexbox.FlexboxLayout
+                        android:id="@+id/layout_table_cards"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_gravity="center_horizontal"
+                        app:flexWrap="wrap"
+                        app:justifyContent="space_evenly"
+                        app:alignItems="center"
+                        app:alignContent="center">
+                    </com.google.android.flexbox.FlexboxLayout>
+                </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_below="@+id/loose_card_layout">
+
+                    <!--build cards-->
+                    <com.google.android.flexbox.FlexboxLayout
+                        android:id="@+id/layout_build_cards"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_gravity="center_horizontal"
+                        app:flexWrap="wrap"
+                        app:justifyContent="space_evenly"
+                        app:alignItems="center"
+                        app:alignContent="center">
+                    </com.google.android.flexbox.FlexboxLayout>
+                </LinearLayout>
+
+            </RelativeLayout>
 
             <!--Buttons for making move-->
             <LinearLayout
@@ -132,7 +153,6 @@
                         android:text="@string/trail"/>
             </LinearLayout>
 
-
             <!--Display Human Hand-->
             <LinearLayout
                 android:id="@+id/layout_human_hand"
@@ -145,5 +165,4 @@
             </LinearLayout>
 
         </LinearLayout>
-    </RelativeLayout>
-</RelativeLayout>
+</LinearLayout>

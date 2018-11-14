@@ -30,6 +30,7 @@ import android.widget.Toast;
 import com.google.android.flexbox.FlexboxLayout;
 
 import java.util.Vector;
+import java.util.concurrent.ThreadLocalRandom;
 
 import edu.ramapo.mparajul.casino.R;
 import edu.ramapo.mparajul.casino.model.setup.Card;
@@ -43,7 +44,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Tournament tournament = new Tournament();
     private Round round = new Round();
     private Vector<String> cardsClicked = new Vector<>();
-    private RelativeLayout rootView;
+    private Vector<String> buildCardClicked = new Vector<>();
+    private LinearLayout rootView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -210,6 +212,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     {
         populateHand();
         populateTable();
+        setBuildCards();
     }
 
     public void populateDeckPile(Dialog dialog)
@@ -287,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             int cardWidth = deviceWidth / 5;
 
-            // display human cards on hand
+            // display cards on table
             FlexboxLayout flexboxLayout = findViewById(R.id.layout_table_cards);
             Vector<String> labelNames = new Vector<>();
             for (Card card : round.getTableCards())
@@ -329,6 +332,101 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    //TODO: get build cards
+    public void setBuildCards()
+    {
+        FlexboxLayout parentFlexboxLayout = findViewById(R.id.layout_build_cards);
+
+        String[] temp = {"sa", "s4", "h5", "dx"};
+        makeLayoutForBuild(parentFlexboxLayout, temp);
+
+        String[] temp2 = {"s9", "s7"};
+        makeLayoutForBuild(parentFlexboxLayout, temp2);
+
+        String[] temp3 = {"sa"};
+        makeLayoutForBuild(parentFlexboxLayout, temp3);
+
+        String[] temp4 = {"da", "d4", "d6", "d8","dx", "dk", "h7"};
+        makeLayoutForBuild(parentFlexboxLayout, temp4);
+
+        String[] temp5 = {"sa", "s4", "d6", "c3", "c7", "c9"};
+        makeLayoutForBuild(parentFlexboxLayout, temp5);
+    }
+
+    private void makeLayoutForBuild(FlexboxLayout flexboxLayout, String[] temp)
+    {
+        // stores the width of the card
+        int cardWidth = deviceWidth / 5;
+
+        // store the previous id so that we can achieve overlapping of cards
+        // when stacked into RelativeLayout
+        int previousId;
+
+        // The layout for a build
+        LinearLayout linearLayout = new LinearLayout(this);
+        LinearLayout.LayoutParams innerLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        innerLayoutParams.setMargins(2,2,2,2);
+        linearLayout.setLayoutParams(innerLayoutParams);
+        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+
+        Context context = linearLayout.getContext();
+
+        for (int i = 0; i < temp.length; i++)
+        {
+            String label = temp[i];
+            ImageView imageView = new ImageView(this);
+
+            // get the drawable resource for the specific card
+            int id = context.getResources().getIdentifier(label.toLowerCase(), "drawable", context.getPackageName());
+
+            // store the id as we require it to set up a rule when we overlap the cards
+            previousId = id;
+
+            // set the imageview attributes for the card
+            imageView.setId(id);
+            imageView.setTag(label.toLowerCase());
+            imageView.setImageResource(id);
+
+            // Store the cards of the build into a relative layout
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(cardWidth, 300);
+
+            // add rules starting from the second card in the build as we want to align them
+            // based on the position of the previous card
+            if (i != 0)
+            {
+                params.addRule(RelativeLayout.ALIGN_TOP, previousId);
+                params.addRule(RelativeLayout.ALIGN_RIGHT, previousId);
+
+                // we set negative margin to overlap the previous card and let us allow
+                // only the card's face value visible when stacked
+                params.leftMargin =  - 180;
+            }
+
+            // set the normal border of the card and add to the parent linear layout
+            imageView.setBackground(getDrawableFromString("card_border_normal"));
+            imageView.setLayoutParams(params);
+            linearLayout.addView(imageView);
+        }
+
+        // differentiate a build with a border
+        int card_border = context.getResources().getIdentifier("card_border_normal",
+                "drawable", context.getPackageName());
+        Drawable drawable = ResourcesCompat.getDrawable(getResources(), card_border, null);
+
+        // differentiate build with specific tag and assign a unique id
+        // so that click listeners can identify as a build
+        linearLayout.setPadding(3,8,3,8);
+        linearLayout.setBackground(drawable);
+        linearLayout.setId(ThreadLocalRandom.current().nextInt(0, 5000));
+        linearLayout.setTag("buildOfCards");
+        linearLayout.setOnClickListener(this);
+
+        // Add the build to the parent that stores the list of builds
+        flexboxLayout.addView(linearLayout);
+    }
+
+
     private void createCardsDynamically(LinearLayout linearLayout, Vector<String> labelNames, boolean clickable)
     {
         // store the width of the card
@@ -350,14 +448,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             int id = context.getResources().getIdentifier(label.toLowerCase(), "drawable", context.getPackageName());
             imageView.setTag(label.toLowerCase());
             imageView.setImageResource(id);
-            imageView.setId(id);
+            imageView.setId(ThreadLocalRandom.current().nextInt(0, 5000));
 
             // add normal border to the image view
-            int card_border = context.getResources().getIdentifier("card_border_normal",
-                    "drawable", context.getPackageName());
-            Drawable drawable = ResourcesCompat.getDrawable(getResources(), card_border, null);
-
-            imageView.setBackground(drawable);
+            imageView.setBackground(getDrawableFromString("card_border_normal"));
             imageView.bringToFront();
 
             // Implement onClick listeners for human hand cards
@@ -375,30 +469,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view)
     {
         int clickedCardId = view.getId();
-
-        // Check if the clicked card has already been clicked
-        // If the player clicked on the card again, then remove the highlight border from the card
-        if (!duplicateCardClicked(clickedCardId))
+        // the clicked card is part of a build
+        if (view.getTag().toString().equals("buildOfCards"))
         {
-            // Not a duplicate card
-            // check if the user did not click on a second hand card.
-            if (singleHandCardClicked(clickedCardId))
+            if (!duplicateBuildCardClicked(clickedCardId))
             {
-                // valid card click
-                // Highlight the border of the clicked card
-                ImageView imageView = findViewById(clickedCardId);
-                Context context = view.getContext();
+                LinearLayout parent = findViewById(view.getId());
+                parent.setBackground(getDrawableFromString("card_border_clicked"));
+                buildCardClicked.add(String.valueOf(clickedCardId));
+            }
+        }
 
-                int card_border = context.getResources().getIdentifier("card_border_clicked",
-                        "drawable", context.getPackageName());
-                Drawable drawable = ResourcesCompat.getDrawable(getResources(), card_border, null);
-                imageView.setBackground(drawable);
-                cardsClicked.add(String.valueOf(clickedCardId));
+        // the clicked card is from the hand or a loose card
+        else
+        {
+            // Check if the clicked card has already been clicked
+            // If the player clicked on the card again, then remove the highlight border from the card
+            if (!duplicateCardClicked(clickedCardId))
+            {
+                // Not a duplicate card
+                // check if the user did not click on a second hand card.
+                if (singleHandCardClicked(clickedCardId))
+                {
+                    // valid card click
+                    // Highlight the border of the clicked card
+                    ImageView imageView = findViewById(clickedCardId);
+                    imageView.setBackground(getDrawableFromString("card_border_clicked"));
+                    cardsClicked.add(String.valueOf(clickedCardId));
+                }
             }
         }
     }
 
-    //TODO: get user action clicks
+    //TODO: get user action clicks and empty click lists only after validating a move
     public void onClickCardAction(View view)
     {
         switch (view.getId())
@@ -407,9 +510,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // check if the player has clicked a hand card before performing an action
                 if (cardsClickedContainsHandCard())
                 {
-                    setCardBorderNormal(cardsClicked);
-                    // reset the holder for clicked cards
-                    cardsClicked = new Vector<>();
                 }
                 // no hand card in the list of clicked cards
                 else { callSnackbar("Invalid. No hand cards selected!");}
@@ -418,9 +518,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // check if the player has clicked a hand card before performing an action
                 if (cardsClickedContainsHandCard())
                 {
-                    setCardBorderNormal(cardsClicked);
-                    // reset the holder for clicked cards
-                    cardsClicked = new Vector<>();
                 }
                 // no hand card in the list of clicked cards
                 else { callSnackbar("Invalid. No hand cards selected!");}
@@ -430,9 +527,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // check if the player has clicked a hand card before performing an action
                 if (cardsClickedContainsHandCard())
                 {
-                    setCardBorderNormal(cardsClicked);
-                    // reset the holder for clicked cards
-                    cardsClicked = new Vector<>();
                 }
                 // no hand card in the list of clicked cards
                 else { callSnackbar("Invalid. No hand cards selected!");}
@@ -442,9 +536,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // check if the player has clicked a hand card before performing an action
                 if (cardsClickedContainsHandCard())
                 {
-                    setCardBorderNormal(cardsClicked);
-                    // reset the holder for clicked cards
-                    cardsClicked = new Vector<>();
                 }
                 // no hand card in the list of clicked cards
                 else { callSnackbar("Invalid. No hand cards selected!");}
@@ -454,9 +545,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // check if the player has clicked a hand card before performing an action
                 if (cardsClickedContainsHandCard())
                 {
-                    setCardBorderNormal(cardsClicked);
-                    // reset the holder for clicked cards
-                    cardsClicked = new Vector<>();
                 }
                 // no hand card in the list of clicked cards
                 else { callSnackbar("Invalid. No hand cards selected!");}
@@ -464,9 +552,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             default:
                 break;
         }
+
+        // reset the holder for clicked and build cards
+        setCardBorderNormal(cardsClicked);
+        setBuildBorderNormal(buildCardClicked);
+        cardsClicked = new Vector<>();
+        buildCardClicked = new Vector<>();
     }
 
-    public void highlightNextPlayer()
+    private void highlightNextPlayer()
     {
         // Next Player: Computer
         if (round.getNextPlayer().equals(round.getComputerPlayerName()))
@@ -492,7 +586,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public void setCardBorderNormal(Vector<String> clickedCards)
+    private void setCardBorderNormal(Vector<String> clickedCards)
     {
         ImageView imageView;
 
@@ -500,13 +594,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for (String cards: clickedCards)
         {
             imageView = findViewById(Integer.valueOf(cards));
-            Context context = this;
-
-            int card_border = context.getResources().getIdentifier("card_border_normal",
-                    "drawable", context.getPackageName());
-            Drawable drawable = ResourcesCompat.getDrawable(getResources(), card_border, null);
-            imageView.setBackground(drawable);
+            imageView.setBackground(getDrawableFromString("card_border_normal"));
         }
+    }
+
+    private void setBuildBorderNormal(Vector<String> clickedBuildCards)
+    {
+        LinearLayout buildLayout;
+        // set build border to black
+        for (String cards: clickedBuildCards)
+        {
+            buildLayout = findViewById(Integer.valueOf(cards));
+            buildLayout.setBackground(getDrawableFromString("card_border_normal"));
+        }
+    }
+
+    private boolean duplicateBuildCardClicked(int buildCardId)
+    {
+        if (!buildCardClicked.isEmpty())
+        {
+            // Check if the newly clicked card is a duplicate click on the build
+            // If it is, proceed to remove its highlight border
+            for (String clicked : buildCardClicked)
+            {
+                if (Integer.valueOf(clicked) == buildCardId)
+                {
+                    Vector<String> temp = new Vector<>();
+                    temp.add(String.valueOf(buildCardId));
+                    setBuildBorderNormal(temp);
+                    buildCardClicked.remove(String.valueOf(buildCardId));
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private boolean duplicateCardClicked(int cardId)
@@ -588,6 +709,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (belongsToHumanCard(Integer.valueOf(card))) { return true;}
         }
         return false;
+    }
+
+    private Drawable getDrawableFromString(String drawableFile)
+    {
+        Context context = this;
+        int card_border = context.getResources().getIdentifier(drawableFile,
+                "drawable", context.getPackageName());
+        return (ResourcesCompat.getDrawable(getResources(), card_border, null));
     }
 
     public void callSnackbar (String message)
