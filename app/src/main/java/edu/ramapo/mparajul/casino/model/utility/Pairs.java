@@ -6,7 +6,7 @@
 //****************************************************
 package edu.ramapo.mparajul.casino.model.utility;
 
-class Pairs<U,V>
+public class Pairs<U,V>
 {
     public final U first;
     public final V second;

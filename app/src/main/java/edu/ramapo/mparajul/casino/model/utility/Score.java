@@ -17,6 +17,8 @@ public class Score
 
     // the cards on pile of the players
     private Vector<Card> playerOnePile, playerTwoPile;
+
+    // store the list of pairs of possible build scores with their corresponding build cards
     private Vector<Pairs<Integer , Vector<Card>>> buildCombinations = new Vector<>();
 
     // ****************************************************************
@@ -26,7 +28,7 @@ public class Score
     // Return value: none
     // Assistance Received: none
     // ****************************************************************
-    Score()
+    public Score()
     {
         this.playerOneScore = 0;
         this.playerTwoScore = 0;

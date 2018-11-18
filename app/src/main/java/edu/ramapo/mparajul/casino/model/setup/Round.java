@@ -13,6 +13,7 @@ import android.os.Environment;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Vector;
 
 import edu.ramapo.mparajul.casino.model.players.Computer;
@@ -476,7 +477,7 @@ public class Round
     // Return value: vector of card objects.
     // Assistance Received: none
     // ****************************************************************
-    Vector<Card> makeCardFromFile(String[] cards)
+    private Vector<Card> makeCardFromFile(String[] cards)
     {
         Vector<Card> cardList = new Vector<>();
 
@@ -486,7 +487,7 @@ public class Round
         {
             if (cardStr.length() == 2)
             {
-                cardList.add(new Card(Character.toString(cardStr.charAt(0)), Character.toString(cardStr.charAt(1))));
+                cardList.add(stringToCard(cardStr));
             }
         }
         return cardList;
@@ -641,6 +642,130 @@ public class Round
     public String getComputerPlayerName() { return players[computerIndex].getPlayerName();
     }
 
+    public void setMoveActionIdentifier(String moveActionIdentifier)
+    {
+        players[humanIndex].setMoveActionIdentifier(moveActionIdentifier);
+    }
+
+    public void setClickedTableCards(Vector<String> clickedTableCards)
+    {
+        Vector <Card> temp = new Vector<>();
+        for (String cardStr: clickedTableCards)
+        {
+            temp.add(stringToCard(cardStr));
+        }
+        players[humanIndex].setClickedTableCards(temp);
+    }
+
+    public void setClickedBuildCards(Vector<String> clickedBuildCards)
+    {
+        Vector <Card> temp = new Vector<>();
+        for (String cardStr: clickedBuildCards)
+        {
+            temp.add(stringToCard(cardStr));
+        }
+        players[humanIndex].setClickedBuildCards(temp);
+    }
+
+    public void setClickedHandCard(String handCard)
+    {
+        players[humanIndex].setClickedHandCard(stringToCard(handCard));
+    }
+
+    private Card stringToCard(String cardStr)
+    {
+        return (new Card(Character.toString(cardStr.charAt(0)),
+                Character.toString(cardStr.charAt(1))));
+    }
+
+    public boolean getHumanIsMoveSuccessful()
+    {
+        return players[humanIndex].isMoveSuccessful();
+    }
+
+    public String getHumanMoveExplanation()
+    {
+        return players[humanIndex].getMoveExplanation();
+    }
+
+    public String getComputerMoveExplanation()
+    {
+        return players[computerIndex].getMoveExplanation();
+    }
+
+
+    public boolean isHumanSingleBuildEmpty()
+    {
+        return players[humanIndex].isSingleBuildEmpty();
+    }
+
+    public boolean isComputerSingleBuildEmpty()
+    {
+        return players[computerIndex].isSingleBuildEmpty();
+    }
+
+    public boolean isHumanMultipleBuildEmpty()
+    {
+        return players[humanIndex].isMultipleBuildEmpty();
+    }
+
+    public boolean isComputerMultipleBuildEmpty()
+    {
+        return players[computerIndex].isMultipleBuildEmpty();
+    }
+
+
+
+    // ****************************************************************
+    // Function Name: getHumanSingleBuildCard
+    // Purpose: gets the successful single build of the human player
+    // Parameter: none
+    // Return value: a Hash Map of owner as string and single build as vector of cards
+    // Assistance Received: none
+    // ****************************************************************
+    public HashMap<String, Vector<Card>> getHumanSingleBuildCard()
+    {
+        return players[humanIndex].getSingleBuildCard();
+    }
+
+    // ****************************************************************
+    // Function Name: getComputerSingleBuildCard
+    // Purpose: gets the successful single build of the computer player
+    // Parameter: none
+    // Return value: a Hash Map of owner as string and single build as vector of cards
+    // Assistance Received: none
+    // ****************************************************************
+    public HashMap<String, Vector<Card>> getComputerSingleBuildCard()
+    {
+        return players[computerIndex].getSingleBuildCard();
+    }
+
+    // ****************************************************************
+    // Function Name: getHumanMultipleBuildCard
+    // Purpose: gets the successful multiple build of the player
+    // Parameter: none
+    // Return value: a Hash Map of owner as string and multiple builds as
+    //                  vector of vector of cards
+    // Assistance Received: none
+    // ****************************************************************
+    public HashMap<String, Vector<Vector<Card>>> getHumanMultipleBuildCard()
+    {
+        return players[humanIndex].getMultipleBuildCard();
+    }
+
+    // ****************************************************************
+    // Function Name: getComputerMultipleBuildCard
+    // Purpose: gets the successful multiple build of the computer player
+    // Parameter: none
+    // Return value: a Hash Map of owner as string and multiple builds as
+    //                  vector of vector of cards
+    // Assistance Received: none
+    // ****************************************************************
+    public HashMap<String, Vector<Vector<Card>>> getComputerMultipleBuildCard()
+    {
+        return players[computerIndex].getMultipleBuildCard();
+    }
+
     // ****************************************************************
     // Function Name: isTableEmpty
     // Purpose: checks if the table is empty or not
@@ -651,5 +776,14 @@ public class Round
     public boolean isTableEmpty()
     {
         return tableCards.isEmpty();
+    }
+
+    // TODO: delete this test function
+    public void humanActionPlay()
+    {
+        HashMap<String, Vector<Card>> opponentBuild = new HashMap<>();
+        players[computerIndex].play(tableCards, opponentBuild,
+                players[computerIndex].getPlayerName());
+        players[computerIndex].printCardsOnHand();
     }
 }

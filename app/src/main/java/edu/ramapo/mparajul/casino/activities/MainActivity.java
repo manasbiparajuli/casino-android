@@ -36,6 +36,7 @@ import edu.ramapo.mparajul.casino.R;
 import edu.ramapo.mparajul.casino.model.setup.Card;
 import edu.ramapo.mparajul.casino.model.setup.Round;
 import edu.ramapo.mparajul.casino.model.setup.Tournament;
+import edu.ramapo.mparajul.casino.model.utility.Pairs;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener
 {
@@ -66,6 +67,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         populateCardsOnDisplay();
 
         highlightNextPlayer();
+
+
+        //TODO: test computer logic here
+        round.humanActionPlay();
+
+        callSnackbar(round.getComputerMoveExplanation());
     }
 
     public void configureToolbar()
@@ -221,38 +228,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LinearLayout linearLayout = dialog.findViewById(R.id.layout_computer_pile);
         Vector<String> labelNames = new Vector<>();
 
-        if (!round.getComputerCardsOnPile().isEmpty())
+        for (Card card : round.getComputerCardsOnPile())
         {
-            for (Card card : round.getComputerCardsOnPile())
-            {
-                labelNames.add(card.cardToString());
-            }
-            createCardsDynamically(linearLayout, labelNames, false);
+            labelNames.add(card.cardToString());
         }
+        createCardsDynamically(linearLayout, labelNames, false);
 
-        if (!round.getHumanCardsOnPile().isEmpty())
+        // display human cards on hand
+        linearLayout = dialog.findViewById(R.id.layout_human_pile);
+        labelNames = new Vector<>();
+        for (Card card : round.getHumanCardsOnPile())
         {
-            // display human cards on hand
-            linearLayout = dialog.findViewById(R.id.layout_human_pile);
-            labelNames = new Vector<>();
-            for (Card card : round.getHumanCardsOnPile())
-            {
-                labelNames.add(card.cardToString());
-            }
-            createCardsDynamically(linearLayout, labelNames, false);
+            labelNames.add(card.cardToString());
         }
+        createCardsDynamically(linearLayout, labelNames, false);
 
-        if (!round.getDeck().isEmpty())
+        // display deck of cards
+        linearLayout = dialog.findViewById(R.id.layout_deck);
+        labelNames = new Vector<>();
+        for (Card card : round.getDeck())
         {
-            // display deck of cards
-            linearLayout = dialog.findViewById(R.id.layout_deck);
-            labelNames = new Vector<>();
-            for (Card card : round.getDeck())
-            {
-                labelNames.add(card.cardToString());
-            }
-            createCardsDynamically(linearLayout, labelNames, false);
+            labelNames.add(card.cardToString());
         }
+        createCardsDynamically(linearLayout, labelNames, false);
     }
 
 
@@ -262,99 +260,132 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LinearLayout linearLayout = findViewById(R.id.layout_computer_hand);
         Vector<String> labelNames = new Vector<>();
 
-        if (!round.getComputerCardsOnHand().isEmpty())
+        for (Card card : round.getComputerCardsOnHand())
         {
-            for (Card card : round.getComputerCardsOnHand())
-            {
-                labelNames.add(card.cardToString());
-            }
-            createCardsDynamically(linearLayout, labelNames, false);
+            labelNames.add(card.cardToString());
         }
+        createCardsDynamically(linearLayout, labelNames, false);
 
-        if (!round.getHumanCardsOnHand().isEmpty())
+        // display human cards on hand
+        linearLayout = findViewById(R.id.layout_human_hand);
+        labelNames = new Vector<>();
+        for (Card card : round.getHumanCardsOnHand())
         {
-            // display human cards on hand
-            linearLayout = findViewById(R.id.layout_human_hand);
-            labelNames = new Vector<>();
-            for (Card card : round.getHumanCardsOnHand())
-            {
-                labelNames.add(card.cardToString());
-            }
-            createCardsDynamically(linearLayout, labelNames,true);
+            labelNames.add(card.cardToString());
         }
+        createCardsDynamically(linearLayout, labelNames,true);
+
     }
 
     public void populateTable()
     {
-        if (!round.getTableCards().isEmpty())
+        int cardWidth = deviceWidth / 5;
+
+        // display cards on table
+        FlexboxLayout flexboxLayout = findViewById(R.id.layout_table_cards);
+        flexboxLayout.removeAllViews();
+        Vector<String> labelNames = new Vector<>();
+        for (Card card : round.getTableCards())
         {
-            int cardWidth = deviceWidth / 5;
+            labelNames.add(card.cardToString());
+        }
 
-            // display cards on table
-            FlexboxLayout flexboxLayout = findViewById(R.id.layout_table_cards);
-            Vector<String> labelNames = new Vector<>();
-            for (Card card : round.getTableCards())
-            {
-                labelNames.add(card.cardToString());
-            }
+        for (String label : labelNames)
+        {
+            ImageView imageView = new ImageView(this);
 
-            for (String label : labelNames)
-            {
-                ImageView imageView = new ImageView(this);
+            // set margins for the image views
+            FlexboxLayout.LayoutParams params = new FlexboxLayout.LayoutParams(cardWidth,300);
+            params.setMargins(15,10,30,10);
+            params.setFlexShrink(1);
+            imageView.setLayoutParams(params);
+            imageView.setPadding(2,8,2,8);
 
-                // set margins for the image views
-                FlexboxLayout.LayoutParams params = new FlexboxLayout.LayoutParams(cardWidth,300);
-                params.setMargins(15,10,30,10);
-                params.setFlexShrink(1);
-                imageView.setLayoutParams(params);
-                imageView.setPadding(2,8,2,8);
+            // get current context and set the image of the button to the card it corresponds to
+            // also set the id and tag of the card
+            Context context = flexboxLayout.getContext();
+            int id = context.getResources().getIdentifier(label.toLowerCase(), "drawable", context.getPackageName());
+            imageView.setTag(label.toLowerCase());
+            imageView.setImageResource(id);
+            imageView.setId(id);
 
-                // get current context and set the image of the button to the card it corresponds to
-                // also set the id and tag of the card
-                Context context = flexboxLayout.getContext();
-                int id = context.getResources().getIdentifier(label.toLowerCase(), "drawable", context.getPackageName());
-                imageView.setTag(label.toLowerCase());
-                imageView.setImageResource(id);
-                imageView.setId(id);
+            // add normal border to the image view
+            int card_border = context.getResources().getIdentifier("card_border_normal",
+                    "drawable", context.getPackageName());
+            Drawable drawable = ResourcesCompat.getDrawable(getResources(), card_border, null);
+            imageView.setBackground(drawable);
+            imageView.bringToFront();
 
-                // add normal border to the image view
-                int card_border = context.getResources().getIdentifier("card_border_normal",
-                        "drawable", context.getPackageName());
-                Drawable drawable = ResourcesCompat.getDrawable(getResources(), card_border, null);
-                imageView.setBackground(drawable);
-                imageView.bringToFront();
-
-                // add click listeners for image views
-                imageView.setClickable(true);
-                imageView.setOnClickListener(this);
-                flexboxLayout.addView(imageView);
-            }
+            // add click listeners for image views
+            imageView.setClickable(true);
+            imageView.setOnClickListener(this);
+            flexboxLayout.addView(imageView);
         }
     }
 
-    //TODO: get build cards
     public void setBuildCards()
     {
         FlexboxLayout parentFlexboxLayout = findViewById(R.id.layout_build_cards);
 
-        String[] temp = {"sa", "s4", "h5", "dx"};
-        makeLayoutForBuild(parentFlexboxLayout, temp);
+        Vector<String> labelNames = new Vector<>();
+        String borderDrawable = new String();
 
-        String[] temp2 = {"s9", "s7"};
-        makeLayoutForBuild(parentFlexboxLayout, temp2);
+        // Display the builds of the players
+        if (!round.isComputerMultipleBuildEmpty())
+        {
+            Vector<Vector<Card>> multipleBuild =
+                round.getComputerMultipleBuildCard().get(round.getComputerPlayerName());
+            for (Vector<Card> builds : multipleBuild)
+            {
+                for (Card card : builds)
+                {
+                    labelNames.add(card.cardToString());
+                }
+            }
+            makeLayoutForBuild(parentFlexboxLayout, labelNames, "computer_player_border");
+        }
+        if (!round.isComputerSingleBuildEmpty())
+        {
+            labelNames = new Vector<>();
+            Vector<Card> singleBuild = round.getComputerSingleBuildCard().get(round.getComputerPlayerName());
 
-        String[] temp3 = {"sa"};
-        makeLayoutForBuild(parentFlexboxLayout, temp3);
+            for (Card card : singleBuild)
+            {
+                labelNames.add(card.cardToString());
+            }
+            makeLayoutForBuild(parentFlexboxLayout, labelNames, "computer_player_border");
+        }
+        if (!round.isHumanMultipleBuildEmpty())
+        {
+            labelNames = new Vector<>();
+            Vector<Vector<Card>> multipleBuild =
+                    round.getHumanMultipleBuildCard().get(round.getHumanPlayerName());
+            for (Vector<Card> builds : multipleBuild)
+            {
+                for (Card card : builds)
+                {
+                    labelNames.add(card.cardToString());
+                }
+            }
+            makeLayoutForBuild(parentFlexboxLayout, labelNames, "human_player_border");
+        }
+        if (!round.isHumanSingleBuildEmpty())
+        {
+            labelNames = new Vector<>();
+            Vector<Card> singleBuild = round.getHumanSingleBuildCard().get(round.getHumanPlayerName());
 
-        String[] temp4 = {"da", "d4", "d6", "d8","dx", "dk", "h7"};
-        makeLayoutForBuild(parentFlexboxLayout, temp4);
-
-        String[] temp5 = {"sa", "s4", "d6", "c3", "c7", "c9"};
-        makeLayoutForBuild(parentFlexboxLayout, temp5);
+            for (Card card : singleBuild)
+            {
+                labelNames.add(card.cardToString());
+            }
+            makeLayoutForBuild(parentFlexboxLayout, labelNames, "human_player_border");
+        }
     }
 
-    private void makeLayoutForBuild(FlexboxLayout flexboxLayout, String[] temp)
+    private void makeLayoutForBuild(FlexboxLayout flexboxLayout, Vector<String> temp,
+                                    String borderDrawable)
     {
+        flexboxLayout.removeAllViews();
         // stores the width of the card
         int cardWidth = deviceWidth / 5;
 
@@ -372,9 +403,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Context context = linearLayout.getContext();
 
-        for (int i = 0; i < temp.length; i++)
+        for (int i = 0; i < temp.size(); i++)
         {
-            String label = temp[i];
+            String label = temp.get(i);
             ImageView imageView = new ImageView(this);
 
             // get the drawable resource for the specific card
@@ -410,7 +441,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         // differentiate a build with a border
-        int card_border = context.getResources().getIdentifier("card_border_normal",
+        int card_border = context.getResources().getIdentifier(borderDrawable,
                 "drawable", context.getPackageName());
         Drawable drawable = ResourcesCompat.getDrawable(getResources(), card_border, null);
 
@@ -429,6 +460,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void createCardsDynamically(LinearLayout linearLayout, Vector<String> labelNames, boolean clickable)
     {
+        linearLayout.removeAllViews();
         // store the width of the card
         int cardWidth = deviceWidth / 5;
 
@@ -501,7 +533,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    //TODO: get user action clicks and empty click lists only after validating a move
     public void onClickCardAction(View view)
     {
         switch (view.getId())
@@ -510,6 +541,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // check if the player has clicked a hand card before performing an action
                 if (cardsClickedContainsHandCard())
                 {
+                    buildCardClicked = new Vector<>();
+                    if (cardsClicked.size() < 2)
+                    {
+                        callSnackbar("Invalid. Select at least one loose card");
+                    }
+                    else
+                    {
+                        round.setMoveActionIdentifier("make_single_build");
+                        saveClickedCardsToPlayer();
+                        round.humanActionPlay();
+                    }
                 }
                 // no hand card in the list of clicked cards
                 else { callSnackbar("Invalid. No hand cards selected!");}
@@ -518,6 +560,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // check if the player has clicked a hand card before performing an action
                 if (cardsClickedContainsHandCard())
                 {
+                    buildCardClicked = new Vector<>();
+                    if (cardsClicked.size() < 2)
+                    {
+                        callSnackbar("Invalid. Select at least one loose card");
+                    }
+                    else
+                    {
+                        round.setMoveActionIdentifier("make_multiple_build");
+                        saveClickedCardsToPlayer();
+                        round.humanActionPlay();
+                    }
                 }
                 // no hand card in the list of clicked cards
                 else { callSnackbar("Invalid. No hand cards selected!");}
@@ -527,15 +580,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // check if the player has clicked a hand card before performing an action
                 if (cardsClickedContainsHandCard())
                 {
+                    round.setMoveActionIdentifier("extend_build");
+                    saveClickedCardsToPlayer();
+                    round.humanActionPlay();
                 }
                 // no hand card in the list of clicked cards
                 else { callSnackbar("Invalid. No hand cards selected!");}
 
                 break;
             case R.id.make_capture:
+
+                //TODO: differentiate between various captures possible
+
                 // check if the player has clicked a hand card before performing an action
                 if (cardsClickedContainsHandCard())
                 {
+                    round.setMoveActionIdentifier("capture_individual_set");
+                    saveClickedCardsToPlayer();
+                    round.humanActionPlay();
                 }
                 // no hand card in the list of clicked cards
                 else { callSnackbar("Invalid. No hand cards selected!");}
@@ -545,6 +607,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // check if the player has clicked a hand card before performing an action
                 if (cardsClickedContainsHandCard())
                 {
+                    if (cardsClicked.size() == 1)
+                    {
+                        round.setMoveActionIdentifier("trail");
+                        saveClickedCardsToPlayer();
+                        round.humanActionPlay();
+                    }
+                    else
+                    {
+                        callSnackbar("Cannot trail with two cards selected!");
+                    }
                 }
                 // no hand card in the list of clicked cards
                 else { callSnackbar("Invalid. No hand cards selected!");}
@@ -553,6 +625,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
 
+        //
+        if (!round.getHumanIsMoveSuccessful())
+        {
+            callSnackbar(round.getHumanMoveExplanation());
+        }
+
+        resetGameCardClicks();
+        populateCardsOnDisplay();
+    }
+
+    private void resetGameCardClicks()
+    {
         // reset the holder for clicked and build cards
         setCardBorderNormal(cardsClicked);
         setBuildBorderNormal(buildCardClicked);
@@ -568,7 +652,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             LinearLayout linearLayout = findViewById(R.id.layout_computer_hand);
             // get current context and set the image of the button to the card it corresponds to
             Context context = linearLayout.getContext();
-            int id = context.getResources().getIdentifier("current_player_border", "drawable",
+            int id = context.getResources().getIdentifier("computer_player_border", "drawable",
                     context.getPackageName());
             Drawable drawable = ResourcesCompat.getDrawable(getResources(), id, null);
             linearLayout.setBackground(drawable);
@@ -579,7 +663,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             LinearLayout linearLayout = findViewById(R.id.layout_human_hand);
             // get current context and set the image of the button to the card it corresponds to
             Context context = linearLayout.getContext();
-            int id = context.getResources().getIdentifier("current_player_border", "drawable",
+            int id = context.getResources().getIdentifier("human_player_border", "drawable",
                     context.getPackageName());
             Drawable drawable = ResourcesCompat.getDrawable(getResources(), id, null);
             linearLayout.setBackground(drawable);
@@ -709,6 +793,67 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (belongsToHumanCard(Integer.valueOf(card))) { return true;}
         }
         return false;
+    }
+
+    private void saveClickedCardsToPlayer()
+    {
+        Vector<String> looseCardsList = new Vector<>();
+
+        Vector<String> tempCardsClicked = new Vector<>();
+        String temp = new String();
+
+        boolean removedHandCard = false;
+
+        for (String str : cardsClicked)
+        {
+            tempCardsClicked.add(str);
+        }
+
+        if (!tempCardsClicked.isEmpty())
+        {
+            // set the clicked hand card for the human player
+            for (String card : tempCardsClicked)
+            {
+                if (belongsToHumanCard(Integer.valueOf(card)))
+                {
+                    ImageView imageView = findViewById(Integer.valueOf(card));
+                    round.setClickedHandCard(imageView.getTag().toString().toUpperCase());
+                    temp = card;
+                    removedHandCard = true;
+                }
+            }
+
+            if (removedHandCard && temp != null) {tempCardsClicked.remove(temp);}
+
+            // clicked cards list may be empty if the user only clicked one card
+            if (!tempCardsClicked.isEmpty())
+            {
+                // set the clicked table cards for the human player
+                for (String looseCards : tempCardsClicked)
+                {
+                    ImageView imageView = findViewById(Integer.valueOf(looseCards));
+                    looseCardsList.add(imageView.getTag().toString().toUpperCase());
+                }
+                round.setClickedTableCards(looseCardsList);
+            }
+        }
+
+        if (!buildCardClicked.isEmpty())
+        {
+            Vector<String> buildCardList = new Vector<>();
+
+            // set the clicked build cards for the human player
+            for (String buildCards : buildCardClicked)
+            {
+                LinearLayout buildLayout = findViewById(Integer.valueOf(buildCards));
+
+                for (int i = 0; i < buildLayout.getChildCount(); i++)
+                {
+                    buildCardList.add(buildLayout.getChildAt(i).getTag().toString().toUpperCase());
+                }
+            }
+            round.setClickedBuildCards(buildCardList);
+        }
     }
 
     private Drawable getDrawableFromString(String drawableFile)

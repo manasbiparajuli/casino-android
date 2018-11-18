@@ -17,9 +17,16 @@ public class Player
     protected int tourneyScore;
     protected int firstBuildScore;
     protected String playerName;
-    protected boolean hasCapturedCardsInMove = false;
+    protected boolean hasCapturedCardsInMove;
+    protected boolean moveSuccessful;
     protected Vector<Card> cardsOnPile = new Vector<>();
     protected Vector<Card> cardsOnHand = new Vector<>();
+    protected Vector<Card> clickedTableCards = new Vector<>();
+    protected Vector<Card> clickedBuildCards = new Vector<>();
+    protected Card clickedHandCard = new Card();
+
+    protected String moveActionIdentifier;
+    protected String moveExplanation;
 
     protected HashMap<String, Vector<Card>> singleBuildCard = new HashMap<>();
     protected HashMap<String, Vector<Vector<Card>>> multipleBuildCard = new HashMap<>();
@@ -43,7 +50,12 @@ public class Player
         this.cardsOnHand = new Vector<>();
         this.cardsOnPile = new Vector<>();
         this.tourneyScore = 0;
-
+        this.hasCapturedCardsInMove = false;
+        this.moveSuccessful = false;
+        this.moveActionIdentifier = "";
+        this.clickedTableCards = new Vector<>();
+        this.clickedBuildCards = new Vector<>();
+        this.clickedHandCard = new Card();
         singleBuildCard = new HashMap<>();
         multipleBuildCard = new HashMap<>();
     }
@@ -149,6 +161,27 @@ public class Player
     }
 
     // ****************************************************************
+    // Function Name: findCommonCard
+    // Purpose: finds the card in common with the player's hand
+    // Parameters: matchedTableCards, a vector of cards. Holds the cards that were
+    //                   used to perform an action in the current move.
+    // Return value: a card object. Returns the card that was in common with the set of matched cards
+    // Assistance Received: none
+    // ****************************************************************
+    Card findCommonCard(final Vector<Card> matchedTableCards)
+    {
+        for (Card handCard : getCardsOnHand())
+        {
+            // return the card if found
+            if (matchedTableCards.contains(handCard))
+            {
+                return handCard;
+            }
+        }
+        return new Card();
+    }
+
+    // ****************************************************************
     // Function Name: isCardOnHand
     // Purpose: checks if the card selected by the player is in the player's hand
     // Parameter: cardSelected, a string. The card selected by the player
@@ -218,7 +251,6 @@ public class Player
         System.out.println(" ");
     }
 
-
     // ****************************************************************
     // Function Name: playerCardsOnPile
     // Purpose: prints the current cards on the player's pile
@@ -235,6 +267,62 @@ public class Player
             System.out.print(card.cardToString() + " ");
         }
         System.out.println(" ");
+    }
+
+    // ****************************************************************
+    // Function Name: printSingleBuild
+    // Purpose: prints the single build of the players
+    // Parameter: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    final public void printSingleBuild()
+    {
+        Vector<Card> singleBuild;
+
+        if (!isSingleBuildEmpty())
+        {
+            singleBuild = singleBuildCard.get(getPlayerName());
+
+            System.out.print(" [");
+            for (Card card : singleBuild)
+            {
+                System.out.print(card.cardToString() + " ");
+            }
+            System.out.print("]");
+        }
+    }
+
+    // ****************************************************************
+    // Function Name: printMultipleBuild
+    // Purpose: prints the multiple build of the players
+    // Parameter: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    final public void printMultipleBuild()
+    {
+        // get the list of builds
+        Vector<Vector<Card>> multiBuild = multipleBuildCard.get(getPlayerName());
+
+        // print the multiple build if it exists
+        if(!isMultipleBuildEmpty())
+        {
+            System.out.print(" [ ");
+
+            for (Vector<Card> builds : multiBuild)
+            {
+                System.out.print("[");
+
+                for (Card cards : builds)
+                {
+                    System.out.print(cards.cardToString() + " ");
+                }
+                System.out.print("]");
+            }
+            System.out.print(" ]");
+            System.out.println();
+        }
     }
 
     // ****************************************************************
@@ -384,6 +472,36 @@ public class Player
         return multipleBuildCard;
     }
 
+    public void setMoveActionIdentifier(String moveActionIdentifier)
+    {
+        this.moveActionIdentifier = moveActionIdentifier;
+    }
+
+    public void setClickedTableCards(Vector<Card> clickedTableCards)
+    {
+        this.clickedTableCards = clickedTableCards;
+    }
+
+    public void setClickedBuildCards(Vector<Card> clickedBuildCards)
+    {
+        this.clickedBuildCards = clickedBuildCards;
+    }
+
+    public boolean isMoveSuccessful()
+    {
+        return moveSuccessful;
+    }
+
+    public String getMoveExplanation()
+    {
+        return moveExplanation;
+    }
+
+    public void setClickedHandCard(Card clickedHandCard)
+    {
+        this.clickedHandCard = clickedHandCard;
+    }
+
     final public boolean isMultipleBuildEmpty()
     {
         return multipleBuildCard.isEmpty();
@@ -405,20 +523,24 @@ public class Player
     }
 
 
-    public void play (Vector<Card> tableCards, HashMap<String, Vector<Card>> oppoBuild){}
+    public void play (Vector<Card> tableCards, HashMap<String, Vector<Card>> oppoBuild,
+                      String opponentPlayerName){}
 
     public boolean makeSingleBuild (Vector<Card> tableCards){ return false;}
 
     public boolean makeMultipleBuild (Vector<Card> tableCards){ return false;}
 
     public boolean increaseOpponentBuild (Vector<Card> tableCards, HashMap<String, Vector<Card>>
-                                                                           oppoBuild) {return false;}
+                                                                           oppoBuild, String opponentPlayerName)
+    { return false;}
 
-    public boolean initiateMultipleBuild (Vector<Card> looseCardsSelected){return false;}
+    public void initiateMultipleBuild (Vector<Card> looseCardsSelected){}
 
-    public boolean captureCards (Vector<Card> tableCards) { return false;}
+    public boolean captureSingleBuild() { return false;}
 
-    public boolean captureSetCards (Vector<Card> tableCards, Card selectedHandCard) { return false;}
+    public boolean captureMultipleBuild() { return false;}
+
+    public boolean captureSetAndIndividualCards(Vector<Card> tableCards) { return false;}
 
     public boolean trailCard (Vector<Card> tableCards) { return false;}
 }
