@@ -168,7 +168,7 @@ public class Player
     // Return value: a card object. Returns the card that was in common with the set of matched cards
     // Assistance Received: none
     // ****************************************************************
-    Card findCommonCard(final Vector<Card> matchedTableCards)
+    protected Card findCommonCard(final Vector<Card> matchedTableCards)
     {
         for (Card handCard : getCardsOnHand())
         {
@@ -470,6 +470,11 @@ public class Player
     final public HashMap<String, Vector<Vector<Card>>> getMultipleBuildCard()
     {
         return multipleBuildCard;
+    }
+
+    public void setSingleBuildCard (HashMap<String, Vector<Card>> singleBuildCard)
+    {
+        this.singleBuildCard = singleBuildCard;
     }
 
     public void setMoveActionIdentifier(String moveActionIdentifier)

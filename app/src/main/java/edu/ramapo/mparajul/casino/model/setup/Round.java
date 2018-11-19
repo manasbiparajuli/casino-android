@@ -30,7 +30,9 @@ public class Round
 
     private String lastCapturer;
     private String nextPlayer;
+
     private boolean isNewGame;
+    private boolean roundEnded;
 
     private Vector<Card> tableCards = new Vector<>();
     private Deck deck = new Deck();
@@ -55,6 +57,7 @@ public class Round
         this.nextPlayer = nextPlayer;
         this.lastCapturer = lastCapturer;
         this.roundNumber = roundNumber;
+        this.roundEnded = false;
         numberOfPlayers = 2;
         isNewGame = false;
 
@@ -143,6 +146,105 @@ public class Round
         }
     }
 
+    public void makeMove(int turnIndex)
+    {
+        HashMap<String, Vector<Card>> opponentBuild = new HashMap<>();
+
+        if (turnIndex == 0)
+        {
+            opponentBuild = players[turnIndex + 1].getSingleBuildCard();
+            players[turnIndex].play(tableCards, opponentBuild, players[turnIndex + 1].getPlayerName());
+
+            // set the opponent's build if their build has been modified
+            players[turnIndex + 1].setSingleBuildCard(opponentBuild);
+
+            // set the last capturer to this player if any capturing of cards was done in this move
+            if (players[turnIndex].hasCapturedCard())
+            {
+                lastCapturer = players[turnIndex].getPlayerName();
+            }
+        }
+        else if (turnIndex == 1)
+        {
+            opponentBuild = players[turnIndex - 1].getSingleBuildCard();
+            players[turnIndex].play(tableCards, opponentBuild, players[turnIndex - 1].getPlayerName());
+
+            // set the opponent's build if their build has been modified
+            players[turnIndex - 1].setSingleBuildCard(opponentBuild);
+
+            // set the last capturer to this player if any capturing of cards was done in this move
+            if (players[turnIndex].hasCapturedCard())
+            {
+                lastCapturer = players[turnIndex].getPlayerName();
+            }
+        }
+    }
+
+    //TODO:delete this function??
+    // ****************************************************************
+    // Function Name: gamePlay
+    // Purpose: the logic behind the gameplay
+    // Parameter: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    public void gamePlay()
+    {
+        // store the turns in the current round to alternate between players
+        int turns = 0;
+        int pl1Hand = 0, pl2Hand = 0;
+
+        do
+        {
+            // Deal cards to players and place cards on table at the start of the first round
+            if (isNewGame)
+            {
+                dealCardsToPlayers(true);
+                isNewGame = false;
+            }
+
+            // store the size of the players' cards on hand
+            pl1Hand = players[humanIndex].getCardsOnHand().size();
+            pl2Hand = players[computerIndex].getCardsOnHand().size();
+
+            // Deal cards only to players if both of their hands are empty and deck is not empty
+            if (pl1Hand <= 0 && pl2Hand <= 0 && !deck.isDeckEmpty())
+            {
+                dealCardsToPlayers(false);
+            }
+
+            // Player who last captured picks up remaining cards on the table after there are no
+            // cards on hand of one of the players and the deck is empty
+            if ((pl1Hand == 0 && pl2Hand > 0 && deck.isDeckEmpty()) || (pl1Hand > 0 && pl2Hand == 0 && deck.isDeckEmpty()))
+            {
+                for (int i = 0; i < numberOfPlayers; i++)
+                {
+                    // Add to player i's pile if lastCapturer matches its name
+                    if (players[i].getPlayerName().equals(lastCapturer))
+                    {
+                        for (Card tableCards : getTableCards())
+                        {
+                            players[i].addCardsToPile(tableCards);
+                        }
+                        // After cards have been added to player's pile, remove those cards from the table
+                        removeCardsFromTable(getTableCards());
+                        break;
+                    }
+                }
+                break;
+            }
+
+
+
+            pl1Hand = players[humanIndex].getCardsOnHand().size();
+            pl2Hand = players[computerIndex].getCardsOnHand().size();
+        } while (!(pl1Hand <= 0 && pl2Hand <= 0 && deck.isDeckEmpty()));
+
+        // Increment the round number as we finished the deck
+        roundNumber++;
+        roundEnded = true;
+    }
+
     public void setSavedPreferences(Intent intent)
     {
         Bundle bundle = intent.getExtras();
@@ -179,8 +281,6 @@ public class Round
             setLastCapturer(intent.getExtras().getString("lastCapturer"));
         }
     }
-
-
 
     // ****************************************************************
     // Function Name: saveGame
@@ -291,7 +391,7 @@ public class Round
     // Return value: none
     // Assistance Received: none
     // ****************************************************************
-    void calculateScore()
+    public void calculateScore()
     {
         // Create a score object by passing the cards on the pile of the players
         Score score = new Score(players[humanIndex].getCardsOnPile(), players[computerIndex].getCardsOnPile());
@@ -300,8 +400,8 @@ public class Round
         score.calculateTotalScore();
 
         // get the scores of both players and then set their scores by passing their scores.
-        int humanScore = score.getPlayerOneScore() + players[humanIndex].getScore();
-        int computerScore = score.getPlayerTwoScore() + players[computerIndex].getScore();
+        int humanScore = score.getPlayerOneScore();
+        int computerScore = score.getPlayerTwoScore();
 
         players[humanIndex].setScore(humanScore);
         players[computerIndex].setScore(computerScore);
@@ -493,34 +593,6 @@ public class Round
         return cardList;
     }
 
-    public Vector<Card> getHumanCardsOnHand()
-    {
-        return players[humanIndex].getCardsOnHand();
-    }
-
-    public Vector<Card> getComputerCardsOnHand()
-    {
-        return players[computerIndex].getCardsOnHand();
-    }
-
-    public Vector<Card> getHumanCardsOnPile()
-    {
-        return players[humanIndex].getCardsOnPile();
-    }
-
-    public Vector<Card> getComputerCardsOnPile()
-    {
-        return players[computerIndex].getCardsOnPile();
-    }
-
-    public int getHumanTourneyScore() { return players[humanIndex].getTourneyScore();}
-
-    public int getComputerTourneyScore() { return players[computerIndex].getTourneyScore();}
-
-    public int getHumanRoundScore() { return players[humanIndex].getScore();}
-
-    public int getComputerRoundScore() { return players[computerIndex].getScore();}
-
     // ****************************************************************
     // Function Name: getRoundNumber
     // Purpose: gets the current round number
@@ -610,6 +682,15 @@ public class Round
         return deck.getDeck();
     }
 
+    public boolean isNewGame() { return isNewGame; }
+
+    public void setNewGame(boolean newGame) { isNewGame = newGame; }
+
+    public boolean isDeckEmpty()
+    {
+        return deck.isDeckEmpty();
+    }
+
     // ****************************************************************
     // Function Name: getTableCards
     // Purpose: gets the current cards in the table
@@ -634,12 +715,66 @@ public class Round
         this.tableCards = tableCards;
     }
 
+    public void setHumanCardsOnPile (Vector<Card> cards)
+    {
+        for (Card card : cards)
+        {
+            players[humanIndex].addCardsToPile(card);
+        }
+    }
+
+    public void setComputerCardsOnPile (Vector<Card> cards)
+    {
+        for (Card card : cards)
+        {
+            players[computerIndex].addCardsToPile(card);
+        }
+    }
+
+    public Vector<Card> getHumanCardsOnHand()
+    {
+        return players[humanIndex].getCardsOnHand();
+    }
+
+    public Vector<Card> getComputerCardsOnHand()
+    {
+        return players[computerIndex].getCardsOnHand();
+    }
+
+    public Vector<Card> getHumanCardsOnPile()
+    {
+        return players[humanIndex].getCardsOnPile();
+    }
+
+    public Vector<Card> getComputerCardsOnPile()
+    {
+        return players[computerIndex].getCardsOnPile();
+    }
+
+    public int getHumanTourneyScore() { return players[humanIndex].getTourneyScore();}
+
+    public int getComputerTourneyScore() { return players[computerIndex].getTourneyScore();}
+
+    public int getHumanRoundScore() { return players[humanIndex].getScore();}
+
+    public int getComputerRoundScore() { return players[computerIndex].getScore();}
+
     public String getHumanPlayerName()
     {
         return players[humanIndex].getPlayerName();
     }
 
     public String getComputerPlayerName() { return players[computerIndex].getPlayerName();
+    }
+
+    public int getHumanIndex()
+    {
+        return humanIndex;
+    }
+
+    public int getComputerIndex()
+    {
+        return computerIndex;
     }
 
     public void setMoveActionIdentifier(String moveActionIdentifier)
@@ -776,14 +911,5 @@ public class Round
     public boolean isTableEmpty()
     {
         return tableCards.isEmpty();
-    }
-
-    // TODO: delete this test function
-    public void humanActionPlay()
-    {
-        HashMap<String, Vector<Card>> opponentBuild = new HashMap<>();
-        players[computerIndex].play(tableCards, opponentBuild,
-                players[computerIndex].getPlayerName());
-        players[computerIndex].printCardsOnHand();
     }
 }

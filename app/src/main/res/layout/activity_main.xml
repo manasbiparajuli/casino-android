@@ -27,7 +27,6 @@
             </LinearLayout>
 
             <!--Display Computer Hand-->
-
             <LinearLayout
                 android:id="@+id/layout_computer_hand"
                 android:layout_width="match_parent"
@@ -36,7 +35,27 @@
                 android:orientation="horizontal"
                 android:gravity="center"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="5dp">
+                android:layout_marginBottom="2dp">
+            </LinearLayout>
+
+            <!--Buttons for making move by the computer-->
+            <LinearLayout
+                android:id="@+id/computer_game_actions_buttons"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="fill_horizontal"
+                android:orientation="horizontal"
+                android:weightSum="1">
+
+                <Button
+                    android:id="@+id/make_computer_move"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:onClick="onClickCardAction"
+                    android:fontFamily="@font/batmanforever"
+                    android:text="@string/computer_move"/>
             </LinearLayout>
 
             <!--Display table cards-->
@@ -95,6 +114,7 @@
 
             <!--Buttons for making move-->
             <LinearLayout
+                android:id="@+id/human_game_actions_buttons"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="fill_horizontal"

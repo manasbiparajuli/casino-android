@@ -6,6 +6,8 @@
 //****************************************************
 package edu.ramapo.mparajul.casino.model.players;
 
+import android.os.Build;
+
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -289,16 +291,32 @@ public class Human extends Player
         {
             if (calcSingleCardScore(handCard) == calcLooseCardScore(opponentBuild))
             {
-                // TODO: check if the player selected the correct opponent build to capture in
-                // TODO: their clicked build card
+                // Stores all the cards in the opponent's single build which will be used to check
+                // against the list of build cards clicked by the user and to verify if
+                // the correct builds have been selected to extend
+                int clickedBuildCount = 0;
+                for (Card card : opponentBuild)
+                {
+                    // check if all the cards clicked exists in the player's single build
+                    if (clickedBuildCards.contains(card))
+                    {
+                        clickedBuildCount++;
+                    }
+                }
 
+                // Check if the player selected the wrong build to capture
+                if (clickedBuildCount != opponentBuild.size())
+                {
+                    moveExplanation = "Invalid selection of opponent's build cards.";
+                    return false;
+                }
                 firstBuildScore = calcSingleCardScore(handCard);
 
                 // store the new build into the human's single build
                 // and set the opponent's build to be empty
                 singleBuildCard.put(getPlayerName(), opponentBuild);
                 Vector<Card> empty = new Vector<>();
-                oppoBuild.put("", empty);
+                oppoBuild.put(opponentPlayerName, empty);
 
                 // As the player successfully increased the opponent's build,
                 // remove the card from the player's hand
@@ -336,7 +354,7 @@ public class Human extends Player
 
         // empty the single build HashMap
         singleBuild = new Vector<>();
-        singleBuildCard.put("", singleBuild);
+        singleBuildCard.put(getPlayerName(), singleBuild);
     }
 
     // ****************************************************************
@@ -358,9 +376,34 @@ public class Human extends Player
         // check if the selected hand card score matches the multiple build card score
         if (calcSingleCardScore(clickedHandCard) == firstBuildScore)
         {
-            //TODO: check the hand card score against the clicked build cards
-
             Vector<Vector<Card>> multipleBuild = multipleBuildCard.get(getPlayerName());
+
+            // Stores all the cards in the multiple build which will be used to check
+            // against the list of build cards clicked by the user and to verify if
+            // the correct builds have been selected
+            Vector<Card> buildList = new Vector<>();
+
+            int clickedBuildCount = 0;
+
+            for (Vector<Card> tempSingleBuild : multipleBuild)
+            {
+                buildList.addAll(tempSingleBuild);
+            }
+
+            for (Card card : buildList)
+            {
+                if (clickedBuildCards.contains(card))
+                {
+                    clickedBuildCount++;
+                }
+            }
+
+            // Check if the player selected the wrong build to capture
+            if (clickedBuildCount != buildList.size())
+            {
+                moveExplanation = "Invalid build cards selected to capture.";
+                return false;
+            }
 
             // add the cards in the multiple build to the pile of the human player
             for (Vector<Card> singleBuild : multipleBuild)
@@ -371,7 +414,7 @@ public class Human extends Player
             // after capturing the card, empty the multiple build of the
             // player and set the build score to 0
             multipleBuild = new Vector<>();
-            multipleBuildCard.put("", multipleBuild);
+            multipleBuildCard.put(getPlayerName(), multipleBuild);
             firstBuildScore = 0;
 
             // add selected hand card to the pile and then remove it from the player's hand
@@ -411,6 +454,29 @@ public class Human extends Player
             if (calcSingleCardScore(clickedHandCard) != calcLooseCardScore(clickedBuildCards))
             {
                 moveExplanation = "Invalid. Build and hand card score mismatch.";
+                return false;
+            }
+
+            // Stores all the cards in the single build which will be used to check
+            // against the list of build cards clicked by the user and to verify if
+            // the correct builds have been selected
+            Vector<Card> buildList = new Vector<>(singleBuildCard.get(getPlayerName()));
+
+            int clickedBuildCount = 0;
+
+            for (Card card : buildList)
+            {
+                // check if all the cards clicked exists in the player's single build
+                if (clickedBuildCards.contains(card))
+                {
+                    clickedBuildCount++;
+                }
+            }
+
+            // Check if the player selected the wrong build to capture
+            if (clickedBuildCount != buildList.size())
+            {
+                moveExplanation = "Invalid build cards selected to capture.";
                 return false;
             }
 

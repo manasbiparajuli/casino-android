@@ -40,7 +40,12 @@ import edu.ramapo.mparajul.casino.model.utility.Pairs;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener
 {
+    private int playerTurn;
+    private int humanIndex;
+    private int computerIndex;
+    private int turnIndex;
     private int deviceWidth;
+    private boolean moveSuccessful = false;
     private View root;
     private Tournament tournament = new Tournament();
     private Round round = new Round();
@@ -62,17 +67,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // button that display cards in this activity
         deviceWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
 
+        playerTurn = 0;
+        turnIndex = 0;
+
         configureToolbar();
         loadGameState();
         populateCardsOnDisplay();
-
         highlightNextPlayer();
 
-
-        //TODO: test computer logic here
-        round.humanActionPlay();
-
-        callSnackbar(round.getComputerMoveExplanation());
+        playTournament();
+        //populateCardsOnDisplay();
     }
 
     public void configureToolbar()
@@ -144,6 +148,118 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     }
+
+    public void playTournament()
+    {
+        // flag that identifies whether this is a new round or not
+        boolean newRound = false;
+
+        do
+        {
+            populateCardsOnDisplay();
+
+            // Play the game, then get the round scores to be added to the tournament score
+            gamePlay();
+
+            round.calculateScore();
+
+            int humanTourneyScore = round.getHumanTourneyScore() + round.getHumanRoundScore();
+            int computerTourneyScore = round.getComputerTourneyScore() + round.getComputerRoundScore();
+
+            // Set the tournament values after the round has ended
+            tournament.setLastRoundHumanScore(round.getHumanRoundScore());
+            tournament.setLastRoundComputerScore(round.getComputerRoundScore());
+            tournament.setHumanTournamentScore(humanTourneyScore);
+            tournament.setComputerTournamentScore(computerTourneyScore);
+            tournament.setLastCapturer(round.getLastCapturer());
+            tournament.setRoundNumber(round.getRoundNumber()+ 1);
+
+        } while (!(tournament.getHumanTournamentScore() >= 21 || tournament.getComputerTournamentScore() >= 21));
+    }
+
+
+    // ****************************************************************
+    // Function Name: gamePlay
+    // Purpose: the logic behind the gameplay
+    // Parameter: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    public void gamePlay()
+    {
+        // store the turns in the current round to alternate between players
+        int pl1Hand, pl2Hand;
+
+        if (round.getHumanIndex() == 0)
+        {
+            humanIndex = 0;
+            computerIndex = 1;
+        }
+        else
+        {
+            humanIndex = 1;
+            computerIndex = 0;
+        }
+
+        do
+        {
+            // Deal cards to players and place cards on table at the start of the first round
+            if (round.isNewGame())
+            {
+                round.dealCardsToPlayers(true);
+                round.setNewGame(false);
+            }
+
+            // store the size of the players' cards on hand
+            pl1Hand = round.getHumanCardsOnHand().size();
+            pl2Hand = round.getComputerCardsOnHand().size();
+
+            // Deal cards only to players if both of their hands are empty and deck is not empty
+            if (pl1Hand <= 0 && pl2Hand <= 0 && !round.isDeckEmpty())
+            {
+                round.dealCardsToPlayers(false);
+            }
+
+            // Player who last captured picks up remaining cards on the table after there are no
+            // cards on hand of one of the players and the deck is empty
+            if ((pl1Hand == 0 && pl2Hand > 0 && round.isDeckEmpty()) || (pl1Hand > 0 && pl2Hand == 0
+                                                                             && round.isDeckEmpty()))
+            {
+                if (round.getLastCapturer().equals(round.getComputerPlayerName()))
+                {
+                    round.setComputerCardsOnPile(round.getTableCards());
+                }
+                else if (round.getLastCapturer().equals(round.getHumanPlayerName()))
+                {
+                    round.setHumanCardsOnPile(round.getTableCards());
+                }
+
+                // After cards have been added to player's pile, remove those cards from the table
+                round.removeCardsFromTable(round.getTableCards());
+                break;
+            }
+
+            highlightNextPlayer();
+            setMoveButtonsClickableOnTurn();
+            moveSuccessful = false;
+
+            do {
+                System.out.println("here");
+            } while (!moveSuccessful);
+
+            populateCardsOnDisplay();
+
+            // increment the turn of the players as we made a successful move
+            playerTurn++;
+
+            pl1Hand = round.getHumanCardsOnHand().size();
+            pl2Hand = round.getComputerCardsOnHand().size();
+        } while (!(pl1Hand <= 0 && pl2Hand <= 0 && round.isDeckEmpty()));
+
+        // round ended
+        round.setNewGame(true);
+    }
+
 
     public void showDeckAndPile()
     {
@@ -537,67 +653,137 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     {
         switch (view.getId())
         {
+            case R.id.make_computer_move:
+                round.makeMove(turnIndex);
+                moveSuccessful = true;
+                break;
+
             case R.id.make_single_build:
                 // check if the player has clicked a hand card before performing an action
                 if (cardsClickedContainsHandCard())
                 {
-                    buildCardClicked = new Vector<>();
-                    if (cardsClicked.size() < 2)
+                    // Warn the player if any build cards have been clicked
+                    if (!buildCardClicked.isEmpty())
                     {
-                        callSnackbar("Invalid. Select at least one loose card");
+                        callSnackbar("Invalid. Cannot make a build with build cards selected");
                     }
                     else
                     {
-                        round.setMoveActionIdentifier("make_single_build");
-                        saveClickedCardsToPlayer();
-                        round.humanActionPlay();
+                        if (cardsClicked.size() < 2)
+                        {
+                            callSnackbar("Invalid. Select at least one loose card");
+                        }
+                        else
+                        {
+                            round.setMoveActionIdentifier("make_single_build");
+                            saveClickedCardsToPlayer();
+                            round.makeMove(turnIndex);
+                        }
                     }
                 }
                 // no hand card in the list of clicked cards
                 else { callSnackbar("Invalid. No hand cards selected!");}
                 break;
+
             case R.id.make_multiple_build:
                 // check if the player has clicked a hand card before performing an action
                 if (cardsClickedContainsHandCard())
                 {
-                    buildCardClicked = new Vector<>();
-                    if (cardsClicked.size() < 2)
+                    // Warn the player if any build cards have been clicked
+                    if (!buildCardClicked.isEmpty())
                     {
-                        callSnackbar("Invalid. Select at least one loose card");
+                        callSnackbar("Invalid. Cannot make a build with build cards selected");
                     }
                     else
                     {
-                        round.setMoveActionIdentifier("make_multiple_build");
-                        saveClickedCardsToPlayer();
-                        round.humanActionPlay();
+                        if (cardsClicked.size() < 2)
+                        {
+                            callSnackbar("Invalid. Select at least one loose card");
+                        }
+                        else
+                        {
+                            // Player cannot make a multiple build if there are not any single builds
+                            if (round.isHumanSingleBuildEmpty())
+                            {
+                                callSnackbar("Invalid. No single builds exists.");
+                            }
+                            else
+                            {
+                                round.setMoveActionIdentifier("make_multiple_build");
+                                saveClickedCardsToPlayer();
+                                round.makeMove(turnIndex);
+                            }
+                        }
                     }
                 }
                 // no hand card in the list of clicked cards
                 else { callSnackbar("Invalid. No hand cards selected!");}
 
                 break;
+
             case R.id.make_extend_build:
                 // check if the player has clicked a hand card before performing an action
                 if (cardsClickedContainsHandCard())
                 {
-                    round.setMoveActionIdentifier("extend_build");
-                    saveClickedCardsToPlayer();
-                    round.humanActionPlay();
+                    if (cardsClicked.size() > 1)
+                    {
+                        callSnackbar("Invalid. Cannot extend build with loose cards selected");
+                    }
+                    else
+                    {
+                        round.setMoveActionIdentifier("extend_build");
+                        saveClickedCardsToPlayer();
+                        round.makeMove(turnIndex);
+                    }
                 }
                 // no hand card in the list of clicked cards
                 else { callSnackbar("Invalid. No hand cards selected!");}
 
                 break;
+
             case R.id.make_capture:
-
-                //TODO: differentiate between various captures possible
-
                 // check if the player has clicked a hand card before performing an action
                 if (cardsClickedContainsHandCard())
                 {
-                    round.setMoveActionIdentifier("capture_individual_set");
-                    saveClickedCardsToPlayer();
-                    round.humanActionPlay();
+                    if (!buildCardClicked.isEmpty())
+                    {
+                        // Check if the player selected any other cards from the table
+                        // when trying to capture a build
+                        if (cardsClicked.size() > 1)
+                        {
+                            callSnackbar("Invalid. Cannot choose both loose cards and build cards");
+                        }
+                        // Player used just one hand card to capture the build. So valid.
+                        else if (cardsClicked.size() == 1)
+                        {
+                            // Check if the player is capturing single or multiple build
+                            // based on whether multiple build exists for the player
+                            if (!round.isHumanMultipleBuildEmpty())
+                            {
+                                round.setMoveActionIdentifier("capture_multiple_build");
+                            }
+                            else
+                            {
+                                round.setMoveActionIdentifier("capture_single_build");
+                            }
+                            saveClickedCardsToPlayer();
+                            round.makeMove(turnIndex);
+                        }
+                    }
+                    else
+                    {
+                        // Player cannot capture if only the hand card has been selected
+                        if (cardsClicked.size() < 2)
+                        {
+                            callSnackbar("Invalid. Select at least one loose card to capture");
+                        }
+                        else
+                        {
+                            round.setMoveActionIdentifier("capture_individual_set");
+                            saveClickedCardsToPlayer();
+                            round.makeMove(turnIndex);
+                        }
+                    }
                 }
                 // no hand card in the list of clicked cards
                 else { callSnackbar("Invalid. No hand cards selected!");}
@@ -611,7 +797,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     {
                         round.setMoveActionIdentifier("trail");
                         saveClickedCardsToPlayer();
-                        round.humanActionPlay();
+                        round.makeMove(turnIndex);
                     }
                     else
                     {
@@ -621,18 +807,56 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // no hand card in the list of clicked cards
                 else { callSnackbar("Invalid. No hand cards selected!");}
                 break;
+
             default:
                 break;
         }
 
-        //
+        // Warn the player if their move action failed
         if (!round.getHumanIsMoveSuccessful())
         {
             callSnackbar(round.getHumanMoveExplanation());
         }
-
+        else
+        {
+            moveSuccessful = true;
+        }
         resetGameCardClicks();
         populateCardsOnDisplay();
+    }
+
+    private void setMoveButtonsClickableOnTurn()
+    {
+        turnIndex = playerTurn % 2;
+
+        if (turnIndex == humanIndex)
+        {
+            Button button = findViewById(R.id.make_computer_move);
+            button.setClickable(false);
+
+            int[] ids = { R.id.make_single_build, R.id.make_multiple_build, R.id.make_extend_build
+            , R.id.make_capture, R.id.make_trail};
+
+            for (int id : ids)
+            {
+                button = findViewById(id);
+                button.setClickable(true);
+            }
+        }
+        else if (turnIndex == computerIndex)
+        {
+            Button button = findViewById(R.id.make_computer_move);
+            button.setClickable(true);
+
+            int[] ids = { R.id.make_single_build, R.id.make_multiple_build, R.id.make_extend_build
+                    , R.id.make_capture, R.id.make_trail};
+
+            for (int id : ids)
+            {
+                button = findViewById(id);
+                button.setClickable(false);
+            }
+        }
     }
 
     private void resetGameCardClicks()

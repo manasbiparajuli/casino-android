@@ -11,8 +11,10 @@ import android.content.Intent;
 public class Tournament
 {
     private int roundNumber;
-    private int playerOneTournamentScore;
-    private int playerTwoTournamentScore;
+    private int humanTournamentScore;
+    private int computerTournamentScore;
+    private int lastRoundHumanScore;
+    private int lastRoundComputerScore;
     private String nextPlayer;
     private String lastCapturer;
     private Round round = new Round();
@@ -27,8 +29,8 @@ public class Tournament
     public Tournament()
     {
         roundNumber = 1;
-        playerOneTournamentScore = 0;
-        playerTwoTournamentScore = 0;
+        humanTournamentScore = 0;
+        computerTournamentScore = 0;
         round = new Round();
     }
 
@@ -36,14 +38,14 @@ public class Tournament
     {
         round = new Round(nextPlayer, " ", roundNumber);
         round.startGame();
-        round.dealCardsToPlayers(true);
-
+        round.setNewGame(true);
     }
 
     public void loadGame(Intent intent)
     {
         round = new Round (nextPlayer, " ", roundNumber);
         round.setSavedPreferences(intent);
+        round.setNewGame(false);
     }
 
     public void setRoundNumber(int roundNumber)
@@ -51,14 +53,44 @@ public class Tournament
         this.roundNumber = roundNumber;
     }
 
-    public void setPlayerOneTournamentScore(int playerOneTournamentScore)
+    public void setHumanTournamentScore(int humanTournamentScore)
     {
-        this.playerOneTournamentScore = playerOneTournamentScore;
+        this.humanTournamentScore = humanTournamentScore;
     }
 
-    public void setPlayerTwoTournamentScore(int playerTwoTournamentScore)
+    public void setComputerTournamentScore(int computerTournamentScore)
     {
-        this.playerTwoTournamentScore = playerTwoTournamentScore;
+        this.computerTournamentScore = computerTournamentScore;
+    }
+    public int getHumanTournamentScore()
+    {
+        return humanTournamentScore;
+    }
+
+    public int getComputerTournamentScore()
+    {
+        return computerTournamentScore;
+    }
+
+
+    public int getLastRoundHumanScore()
+    {
+        return lastRoundHumanScore;
+    }
+
+    public void setLastRoundHumanScore(int lastRoundHumanScore)
+    {
+        this.lastRoundHumanScore = lastRoundHumanScore;
+    }
+
+    public int getLastRoundComputerScore()
+    {
+        return lastRoundComputerScore;
+    }
+
+    public void setLastRoundComputerScore(int lastRoundComputerScore)
+    {
+        this.lastRoundComputerScore = lastRoundComputerScore;
     }
 
     // ****************************************************************
@@ -78,9 +110,21 @@ public class Tournament
         this.lastCapturer = lastCapturer;
     }
 
+    public String getLastCapturer()
+    {
+        return lastCapturer;
+    }
+
     public Round getRound()
     {
         return round;
     }
 
+    public void startNewRound()
+    {
+        lastCapturer = round.getLastCapturer();
+        round = new Round("", lastCapturer, roundNumber);
+        round.startGame();
+        round.dealCardsToPlayers(true);
+    }
 }

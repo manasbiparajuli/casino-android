@@ -17,6 +17,9 @@
     <string name="heads">HEADS</string>
     <string name="tails">TAILS</string>
 
+    <!--Label for computer action-->
+    <string name="computer_move">Make Computer Move</string>
+
     <!--Labels for actions to be performed by the human player-->
     <string name="single_build">Single Build</string>
     <string name="multiple_build">Multi Build</string>

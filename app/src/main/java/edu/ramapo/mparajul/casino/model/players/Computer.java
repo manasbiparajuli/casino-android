@@ -130,13 +130,15 @@ public class Computer extends Player
             tableCards.add(handCardToBuildWith);
 
             // enlist the possible power sets based on tableSize
-            Vector<String> buildComb = score.powerSet(tableCards.size());
+            Vector<String> buildComb = new Vector<>();
+            buildComb = score.powerSet(tableCards.size());
 
             // make a map of the scores possible from valid builds
             score.buildScoreMap(buildComb, tableCards);
 
             // get the map of <BuildScores, BuildCombination>
-            Vector<Pairs<Integer, Vector<Card>>> map = score.getBuildCombination();
+            Vector<Pairs<Integer, Vector<Card>>> map = new Vector<>();
+            map = score.getBuildCombination();
 
             // Loop through the hand cards to check if a card score matches the key in map
             for (Card handCard : getCardsOnHand())
@@ -289,13 +291,15 @@ public class Computer extends Player
                 tableCards.add(handCardToBuildWith);
 
                 // enlist the possible power sets based on tableSize
-                Vector<String> buildComb = score.powerSet(tableCards.size());
+                Vector<String> buildComb = new Vector<>();
+                buildComb = score.powerSet(tableCards.size());
 
                 // make a map of the scores possible from valid builds
                 score.buildScoreMap(buildComb, tableCards);
 
                 // get the map of <BuildScores, BuildCombination>
-                Vector<Pairs<Integer, Vector<Card>>> map = score.getBuildCombination();
+                Vector<Pairs<Integer, Vector<Card>>> map = new Vector<>();
+                map = score.getBuildCombination();
 
                 // Loop through the hand cards to check if a card score equivalent to 
                 // previous build score matches a key in map
@@ -387,8 +391,10 @@ public class Computer extends Player
                     // if increasing opponent's build is valid, own the new extended build and remove
                     // ownership of the opponent's build
                     singleBuildCard.put(getPlayerName(), oppnBuildCard);
+
                     Vector<Card> empty = new Vector<>();
-                    oppoBuild.put("", empty);
+                    oppoBuild.put(opponentPlayerName, empty);
+
                     removeCardFromHand(handCardToIncrease);
 
                     // Explain move reasoning
@@ -431,7 +437,7 @@ public class Computer extends Player
 
         // empty the single build HashMap
         singleBuild = new Vector<>();
-        singleBuildCard.put("", singleBuild);
+        singleBuildCard.put(getPlayerName(), singleBuild);
     }
 
     // ****************************************************************
@@ -473,8 +479,8 @@ public class Computer extends Player
                     // Also, we need to empty the single build as multiple build has already captured those cards
                     multipleBuild = new Vector<>();
                     Vector<Card> singleBuild = new Vector<>();
-                    multipleBuildCard.put("", multipleBuild);
-                    singleBuildCard.put("", singleBuild);
+                    multipleBuildCard.put(getPlayerName(), multipleBuild);
+                    singleBuildCard.put(getPlayerName(), singleBuild);
 
                     // remove card that was used to capture the build successfully from the player's hand and add to pile
                     removeCardFromHand(handCard);
@@ -519,7 +525,7 @@ public class Computer extends Player
 
                     // empty the single build as we have captured these cards
                     singleBuild = new Vector<>();
-                    singleBuildCard.put("", singleBuild);
+                    singleBuildCard.put(getPlayerName(), singleBuild);
 
                     // push the hand card into the player's pile and remove it from player's hand
                     cardsOnPile.add(handCard);
