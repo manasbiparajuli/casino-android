@@ -8,6 +8,8 @@ package edu.ramapo.mparajul.casino.model.setup;
 
 import android.content.Intent;
 
+import java.util.HashMap;
+
 public class Tournament
 {
     private int roundNumber;
@@ -18,6 +20,8 @@ public class Tournament
     private String nextPlayer;
     private String lastCapturer;
     private Round round = new Round();
+
+    private HashMap<String, String> endRoundScores = new HashMap<>();
 
     // ****************************************************************
     // Function Name: Tournament
@@ -34,6 +38,7 @@ public class Tournament
         lastRoundHumanScore = 0;
         lastRoundComputerScore = 0;
         round = new Round();
+        endRoundScores = new HashMap<>();
     }
 
     public void newGame()
@@ -49,6 +54,8 @@ public class Tournament
         round.setSavedPreferences(intent);
         round.setNewGame(false);
     }
+
+    public int getRoundNumber() { return roundNumber; }
 
     public void setRoundNumber(int roundNumber)
     {
@@ -120,6 +127,16 @@ public class Tournament
     public Round getRound()
     {
         return round;
+    }
+
+    public HashMap<String, String> getEndRoundScores()
+    {
+        return endRoundScores;
+    }
+
+    public void setEndRoundScores(HashMap<String, String> endRoundScores)
+    {
+        this.endRoundScores = endRoundScores;
     }
 
     public void startNewRound()

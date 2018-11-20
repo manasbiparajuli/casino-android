@@ -36,7 +36,7 @@ public class Round
 
     private Vector<Card> tableCards = new Vector<>();
     private Deck deck = new Deck();
-
+    private HashMap <String, String> roundEndScores = new HashMap<>();
     private Player[] players = new Player[2];
 
     public Round()
@@ -52,7 +52,7 @@ public class Round
     // Return value: none
     // Assistance Received: none
     // ****************************************************************
-    Round (String nextPlayer, String lastCapturer,  int roundNumber)
+    public Round (String nextPlayer, String lastCapturer,  int roundNumber)
     {
         this.nextPlayer = nextPlayer;
         this.lastCapturer = lastCapturer;
@@ -92,6 +92,7 @@ public class Round
         players[humanIndex] = new Human("Human");
         players[computerIndex] = new Computer("Computer");
         deck = new Deck();
+        roundEndScores = new HashMap<>();
     }
 
     // ****************************************************************
@@ -342,6 +343,31 @@ public class Round
         // get the scores of both players and then set their scores by passing their scores.
         int humanScore = score.getPlayerOneScore();
         int computerScore = score.getPlayerTwoScore();
+        int humanTotalCards = score.getPlayerOneTotalCards();
+        int computerTotalCards = score.getPlayerTwoTotalCards();
+        int humanTotalSpades = score.getPlayerOneTotalSpades();
+        int computerTotalSpades = score.getPlayerTwoTotalSpades();
+
+        StringBuilder humanPile = new StringBuilder();
+        StringBuilder computerPile = new StringBuilder();
+
+        for (Card card : players[humanIndex].getCardsOnPile())
+        {
+            humanPile.append(card.cardToString()).append(" ");
+        }
+
+        for (Card card : players[computerIndex].getCardsOnPile())
+        {
+            computerPile.append(card.cardToString()).append(" ");
+        }
+
+        // Store the scores and piles calculated after the end of round in a Hash Map
+        roundEndScores.put("humanPile", humanPile.toString());
+        roundEndScores.put("computerPile", computerPile.toString());
+        roundEndScores.put("humanTotalCards", String.valueOf(humanTotalCards));
+        roundEndScores.put("computerTotalCards", String.valueOf(computerTotalCards));
+        roundEndScores.put("humanTotalSpades", String.valueOf(humanTotalSpades));
+        roundEndScores.put("computerTotalSpades", String.valueOf(computerTotalSpades));
 
         players[humanIndex].setScore(humanScore);
         players[computerIndex].setScore(computerScore);
@@ -535,12 +561,13 @@ public class Round
 
     public String getHelp()
     {
-        Computer humanHelp = new Computer("You");
+        Computer humanHelp = new Computer(players[humanIndex].getPlayerName());
         humanHelp.setCardsOnHand(players[humanIndex].getCardsOnHand());
         humanHelp.setCardsOnPile(players[humanIndex].getCardsOnPile());
         humanHelp.setSingleBuildCard(players[humanIndex].getSingleBuildCard());
         humanHelp.setMultipleBuildCard(players[humanIndex].getMultipleBuildCard());
         humanHelp.setHelpRequested(true);
+        humanHelp.setFirstBuildScore(players[humanIndex].getFirstBuildScore());
 
         HashMap<String, Vector<Card>> opponentBuild = players[computerIndex].getSingleBuildCard();
 
@@ -775,6 +802,16 @@ public class Round
         return (players[computerIndex].isMoveSuccessful());
     }
 
+    public void setComputerIsMoveSuccessful(boolean flag)
+    {
+        players[computerIndex].setMoveSuccessful(flag);
+    }
+
+    public void setHumanIsMoveSuccessful(boolean flag)
+    {
+        players[humanIndex].setMoveSuccessful(flag);
+    }
+
     public boolean getHumanIsMoveSuccessful()
     {
         return players[humanIndex].isMoveSuccessful();
@@ -861,6 +898,11 @@ public class Round
     public HashMap<String, Vector<Vector<Card>>> getComputerMultipleBuildCard()
     {
         return players[computerIndex].getMultipleBuildCard();
+    }
+
+    public HashMap<String, String> getRoundEndScores()
+    {
+        return roundEndScores;
     }
 
     // ****************************************************************

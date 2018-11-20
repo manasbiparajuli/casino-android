@@ -75,9 +75,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:text="@string/re_play"
+                android:text="@string/tournament_details"
                 android:textColor="#fff"/>
-
         </RelativeLayout>
     </android.support.v7.widget.CardView>
 

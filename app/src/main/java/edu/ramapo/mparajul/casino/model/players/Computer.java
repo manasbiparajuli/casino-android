@@ -323,12 +323,6 @@ public class Computer extends Player
             }
         }
 
-        // if there are no more than 1 card that match the score of the previous build,
-        // then multibuild is not possible
-        if (sameCardScoreCount < 2)
-        {
-            return false;
-        }
         if (tableCards.size() > 0)
         {
             // Temporarily add a card to table to check if a build is possible
@@ -550,10 +544,10 @@ public class Computer extends Player
                         {
                             for (Card buildCards : parsedBuild)
                             {
-                                moveExplanation += buildCards.cardToString() + " ";
+                                helpExplanation += buildCards.cardToString() + " ";
                             }
                         }
-                        moveExplanation += " and maximize the number of captured cards.";
+                        helpExplanation += " and maximize the number of captured cards.";
                         return true;
                     }
 

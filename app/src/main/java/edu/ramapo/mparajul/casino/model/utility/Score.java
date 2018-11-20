@@ -14,6 +14,10 @@ public class Score
     // stores the score of the players
     private int playerOneScore;
     private int playerTwoScore;
+    private int playerOneTotalCards;
+    private int playerTwoTotalCards;
+    private int playerOneTotalSpades;
+    private int playerTwoTotalSpades;
 
     // the cards on pile of the players
     private Vector<Card> playerOnePile, playerTwoPile;
@@ -32,6 +36,10 @@ public class Score
     {
         this.playerOneScore = 0;
         this.playerTwoScore = 0;
+        this.playerOneTotalCards = 0;
+        this.playerOneTotalSpades = 0;
+        this.playerTwoTotalSpades = 0;
+        this.playerTwoTotalCards = 0;
     }
 
     // ****************************************************************
@@ -49,6 +57,10 @@ public class Score
         this.playerTwoScore = 0;
         this.playerOnePile = playerOnePile;
         this.playerTwoPile = playerTwoPile;
+        this.playerOneTotalCards = 0;
+        this.playerOneTotalSpades = 0;
+        this.playerTwoTotalSpades = 0;
+        this.playerTwoTotalCards = 0;
     }
 
     // ****************************************************************
@@ -62,6 +74,9 @@ public class Score
     {
         int plOneTotal = playerOnePile.size();
         int plTwoTotal = playerTwoPile.size();
+
+        playerOneTotalCards = plOneTotal;
+        playerTwoTotalCards = plTwoTotal;
 
         // Player with most cards gets a score of 3
         if (plOneTotal > plTwoTotal) { setPlayerOneScore(3); }
@@ -89,6 +104,9 @@ public class Score
         {
             if (card.getSuit().equals("S")) {plTwoTotal++; }
         }
+
+        playerOneTotalSpades = plOneTotal;
+        playerTwoTotalSpades = plTwoTotal;
 
         // Player with most spades gets a score of 1
         if (plOneTotal > plTwoTotal) { setPlayerOneScore(1); }
@@ -378,6 +396,26 @@ public class Score
     {
         playerTwoScore += score;
 
+    }
+
+    public int getPlayerOneTotalCards()
+    {
+        return playerOneTotalCards;
+    }
+
+    public int getPlayerTwoTotalCards()
+    {
+        return playerTwoTotalCards;
+    }
+
+    public int getPlayerOneTotalSpades()
+    {
+        return playerOneTotalSpades;
+    }
+
+    public int getPlayerTwoTotalSpades()
+    {
+        return playerTwoTotalSpades;
     }
 
     // ****************************************************************

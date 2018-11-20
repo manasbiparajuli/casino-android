@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import com.google.android.flexbox.FlexboxLayout;
 
+import java.util.HashMap;
 import java.util.Vector;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -41,7 +42,6 @@ import edu.ramapo.mparajul.casino.model.utility.Pairs;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener
 {
     private int playerTurn;
-    private int turnIndex;
     private int deviceWidth;
     private boolean roundEnded = false;
 
@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tournament = new Tournament();
 
         playerTurn = 0;
-        turnIndex = 0;
         roundEnded = false;
 
         configureToolbar();
@@ -171,15 +170,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 tournament.setComputerTournamentScore(computerTourneyScore);
                 tournament.setLastCapturer(round.getLastCapturer());
                 tournament.setRoundNumber(round.getRoundNumber()+ 1);
+                tournament.setEndRoundScores(round.getRoundEndScores());
             }
         }
         // Tournament has ended
         else
         {
-            //TODO: show the list of cards in the game
-            declareWinner();
+            round.calculateScore();
 
-            System.out.println("tourney finished");
+            int humanTourneyScore = round.getHumanTourneyScore() + round.getHumanRoundScore();
+            int computerTourneyScore = round.getComputerTourneyScore() + round.getComputerRoundScore();
+
+            // Set the tournament values after the round has ended
+            tournament.setLastRoundHumanScore(round.getHumanRoundScore());
+            tournament.setLastRoundComputerScore(round.getComputerRoundScore());
+            tournament.setHumanTournamentScore(humanTourneyScore);
+            tournament.setComputerTournamentScore(computerTourneyScore);
+            tournament.setLastCapturer(round.getLastCapturer());
+            tournament.setRoundNumber(round.getRoundNumber()+ 1);
+            tournament.setEndRoundScores(round.getRoundEndScores());
+            declareWinner();
         }
     }
 
@@ -197,6 +207,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             round.dealCardsToPlayers(true);
             round.setNewGame(false);
+        }
+
+        if (roundEnded)
+        {
+            displayMoveExplanation(getEndRoundStatus());
+            round = new Round ("", tournament.getLastCapturer(), tournament.getRoundNumber());
+            round.startGame();
+            round.dealCardsToPlayers(true);
+            round.setNewGame(false);
+            roundEnded = false;
         }
 
         setMoveButtonsClickableOnTurn();
@@ -234,12 +254,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 roundEnded = true;
             }
-        }
-
-        if (roundEnded)
-        {
-            // round ended
-            round.setNewGame(true);
         }
         populateCardsOnDisplay();
     }
@@ -315,25 +329,65 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // Set last round scores of the players
         button = score_dialog.findViewById(R.id.score_computer_round);
-        button.setText(String.valueOf(round.getComputerRoundScore()));
+        button.setText(String.valueOf(tournament.getLastRoundComputerScore()));
 
         button = score_dialog.findViewById(R.id.score_human_round);
-        button.setText(String.valueOf(round.getHumanRoundScore()));
+        button.setText(String.valueOf(tournament.getLastRoundHumanScore()));
 
         // Set tournament scores of the players
         button = score_dialog.findViewById(R.id.score_computer_tournament);
-        button.setText(String.valueOf(round.getComputerTourneyScore()));
+        button.setText(String.valueOf(tournament.getComputerTournamentScore()));
 
         button = score_dialog.findViewById(R.id.score_human_tournament);
-        button.setText(String.valueOf(round.getHumanTourneyScore()));
+        button.setText(String.valueOf(tournament.getHumanTournamentScore()));
 
         score_dialog.show();
     }
 
-    //TODO: start new intent and declare the winner heres
+    public String getEndRoundStatus()
+    {
+        StringBuilder message = new StringBuilder();
+
+        HashMap<String, String> endRnd = tournament.getEndRoundScores();
+
+        message.append("Human").append("\n");
+        message.append("Round Score: ").append(tournament.getLastRoundHumanScore()).append("\n");
+        message.append("Tournament Score: ").append(tournament.getHumanTournamentScore()).append("\n");
+        message.append("Total Spades: ").append(endRnd.get("humanTotalSpades")).append("\n");
+        message.append("Total Cards: ").append(endRnd.get("humanTotalCards")).append("\n");
+        message.append("Pile: ").append(endRnd.get("humanPile")).append("\n\n");
+
+        message.append("Computer").append("\n");
+        message.append("Round Score: ").append(tournament.getLastRoundComputerScore()).append("\n");
+        message.append("Tournament Score: ").append(tournament.getComputerTournamentScore()).append("\n");
+        message.append("Total Spades: ").append(endRnd.get("computerTotalSpades")).append("\n");
+        message.append("Total Cards: ").append(endRnd.get("computerTotalCards")).append("\n");
+        message.append("Pile: ").append(endRnd.get("computerPile")).append("\n");
+
+        return message.toString();
+    }
+
     public void declareWinner()
     {
+        int compScore = tournament.getComputerTournamentScore();
+        int humanScore = tournament.getHumanTournamentScore();
 
+        Intent intent = new Intent(this, EndActivity.class);
+
+        if (compScore > humanScore)
+        {
+            intent.putExtra("result", "computer");
+        }
+        else if (humanScore > compScore)
+        {
+            intent.putExtra("result", "human");
+        }
+        else
+        {
+            intent.putExtra("result", "draw");
+        }
+        intent.putExtra("end_round_status", getEndRoundStatus());
+        startActivity(intent);
     }
 
     public void populateCardsOnDisplay()
@@ -447,6 +501,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void setBuildCards()
     {
         FlexboxLayout parentFlexboxLayout = findViewById(R.id.layout_build_cards);
+        parentFlexboxLayout.removeAllViews();
 
         Vector<String> labelNames = new Vector<>();
         String borderDrawable = new String();
@@ -506,7 +561,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void makeLayoutForBuild(FlexboxLayout flexboxLayout, Vector<String> temp,
                                     String borderDrawable)
     {
-        flexboxLayout.removeAllViews();
         // stores the width of the card
         int cardWidth = deviceWidth / 5;
 
@@ -820,17 +874,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         // Warn the player if their move action failed
-        if (!round.getHumanIsMoveSuccessful())
+        if (round.getNextPlayer().equals(round.getHumanPlayerName()) &&
+                    !round.getHumanIsMoveSuccessful())
         {
-            callSnackbar(round.getHumanMoveExplanation());
-
-            System.out.println(round.getHumanMoveExplanation());
+            displayMoveExplanation(round.getHumanMoveExplanation());
         }
 
         // Set computer as the next player if human made a successful move
         else
         {
             round.setNextPlayer(round.getComputerPlayerName());
+            round.setHumanIsMoveSuccessful(false);
+
             // increment the turn of the players as we made a successful move
             playerTurn++;
 
@@ -844,7 +899,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (round.getComputerIsMoveSuccessful())
         {
             round.setNextPlayer(round.getHumanPlayerName());
-            callSnackbar(round.getComputerMoveExplanation());
+            round.setComputerIsMoveSuccessful(false);
+
+            displayMoveExplanation(round.getComputerMoveExplanation());
             playerTurn++;
 
             highlightNextPlayer();
@@ -858,9 +915,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setMoveButtonsClickableOnTurn()
     {
-        // alternate turns
-        turnIndex = playerTurn % 2;
-
         if (round.getNextPlayer().equals(round.getHumanPlayerName()))
         {
             Button button = findViewById(R.id.make_computer_move);
@@ -1152,6 +1206,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int card_border = context.getResources().getIdentifier(drawableFile,
                 "drawable", context.getPackageName());
         return (ResourcesCompat.getDrawable(getResources(), card_border, null));
+    }
+
+    public void displayMoveExplanation(String move)
+    {
+        final Dialog helpDialog = new Dialog(MainActivity.this);
+        helpDialog.setContentView(R.layout.display_card_action_explanation);
+
+        Button button = helpDialog.findViewById(R.id.card_explanation_button);
+        button.setText(move);
+        helpDialog.show();
     }
 
     public void callSnackbar (String message)

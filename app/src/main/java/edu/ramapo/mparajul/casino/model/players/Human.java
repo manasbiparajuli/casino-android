@@ -118,6 +118,8 @@ public class Human extends Player
             // there exists a card on hand that can be used to capture this build in the next turn
             if (calcSingleCardScore(card) == calcLooseCardScore(clickedTableCards))
             {
+                firstBuildScore = calcSingleCardScore(card);
+
                 // Initialize build process
                 // extract the cards from the successful build and add it to the player's
                 // list of build

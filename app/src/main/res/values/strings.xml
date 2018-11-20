@@ -5,11 +5,11 @@
     <string name="start">START GAME</string>
     <string name="resume">RESUME GAME</string>
     <string name="main_menu">MAIN MENU</string>
-    <string name="re_play">PLAY AGAIN</string>
+    <string name="tournament_details">TOURNAMENT DETAILS</string>
 
     <!--Labels for activity_end.xml-->
-    <string name="player1_won">PLAYER 1 WON!</string>
-    <string name="player2_won">PLAYER 2 WON!</string>
+    <string name="human_won">HUMAN WON!</string>
+    <string name="computer_won">COMPUTER WON!</string>
     <string name="match_drawn">MATCH DRAWN</string>
 
     <!--Labels for coin_toss.xml-->

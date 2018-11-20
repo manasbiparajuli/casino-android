@@ -6,19 +6,22 @@
 //****************************************************
 package edu.ramapo.mparajul.casino.activities;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import edu.ramapo.mparajul.casino.R;
 
-public class EndActivity extends AppCompatActivity {
-
+public class EndActivity extends AppCompatActivity
+{
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_end);
 
@@ -30,7 +33,8 @@ public class EndActivity extends AppCompatActivity {
     // Setup card view listener for the user to go into the start page
     // Receives: null
     // Returns: null
-    public void mainMenu() {
+    public void mainMenu()
+    {
         CardView menu = findViewById(R.id.main_menu_cardview);
         menu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -43,7 +47,8 @@ public class EndActivity extends AppCompatActivity {
     // Setup card view listener for the user to restart the game
     // Receives: null
     // Returns: null
-    public void playAgain() {
+    public void playAgain()
+    {
         CardView playAgain = findViewById(R.id.play_again_cardview);
         playAgain.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,33 +62,30 @@ public class EndActivity extends AppCompatActivity {
     // and whose values are passed from the Main Activity as extra message in the intent
     // Receives: Values from the intent
     // Returns: null
-    public void editResult() {
+    public void editResult()
+    {
+        // Get the string value from the passed intent
+        String resultValue = getIntent().getExtras().getString("result");
+        TextView textView = findViewById(R.id.game_result);
 
-
-        //TODO: edit the result
-//        // Get the string value from the passed intent
-//        String resultValue = getIntent().getExtras().getString("result");
-//        TextView textView = findViewById(R.id.game_result);
-//
-//        // set text of the text view based on the result of the game
-//        if (resultValue.equals("player1won")) {
-//            textView.setText(R.string.player1_won);
-//        }else if (resultValue.equals("player2won")){
-//            textView.setText(R.string.player2_won);
-//        }else {
-//            textView.setText(R.string.match_drawn);
-//        }
-
-
+        // set text of the text view based on the result of the game
+        if (resultValue.equals("computer")) {
+            textView.setText(R.string.computer_won);
+        }else if (resultValue.equals("human")){
+            textView.setText(R.string.human_won);
+        }else {
+            textView.setText(R.string.match_drawn);
+        }
     }
 
-    // Restart game by creating an intent
-    // Receives: null
-    // Returns: null
-    public void playClick() {
-        Intent playGame = new Intent(this, MainActivity.class);
-        playGame.putExtra("gameIntent", "new_game");
-        startActivity(playGame);
+    public void playClick()
+    {
+        final Dialog helpDialog = new Dialog(EndActivity.this);
+        helpDialog.setContentView(R.layout.display_card_action_explanation);
+
+        Button button = helpDialog.findViewById(R.id.card_explanation_button);
+        button.setText(getIntent().getExtras().getString("end_round_status"));
+        helpDialog.show();
     }
 
     // Open start page by creating an intent

@@ -33,8 +33,24 @@ public class Player
     protected HashMap<String, Vector<Card>> singleBuildCard = new HashMap<>();
     protected HashMap<String, Vector<Vector<Card>>> multipleBuildCard = new HashMap<>();
 
-    Player()
+    public Player()
     {
+        this.playerName = playerName;
+        this.score = 0;
+        this.firstBuildScore = 0;
+        this.cardsOnHand = new Vector<>();
+        this.cardsOnPile = new Vector<>();
+        this.tourneyScore = 0;
+        this.hasCapturedCardsInMove = false;
+        this.moveSuccessful = false;
+        this.helpRequested = false;
+        this.moveActionIdentifier = "";
+        this.helpExplanation = "";
+        this.clickedTableCards = new Vector<>();
+        this.clickedBuildCards = new Vector<>();
+        this.clickedHandCard = new Card();
+        singleBuildCard = new HashMap<>();
+        multipleBuildCard = new HashMap<>();
     }
 
     // ****************************************************************
@@ -506,8 +522,9 @@ public class Player
         return moveSuccessful;
     }
 
-    public void setHelpRequested(boolean helpRequested) { this.helpRequested = helpRequested; }
+    public void setMoveSuccessful(boolean moveSuccessful) { this.moveSuccessful = moveSuccessful; }
 
+    public void setHelpRequested(boolean helpRequested) { this.helpRequested = helpRequested; }
 
     public String getMoveExplanation()
     {
@@ -523,14 +540,30 @@ public class Player
 
     final public boolean isMultipleBuildEmpty()
     {
+        if (multipleBuildCard.containsKey(getPlayerName()))
+        {
+            Vector<Vector<Card>> multipleBuild = multipleBuildCard.get(getPlayerName());
+            Vector<Card> buildCards = new Vector<>();
+
+            for (Vector<Card> build : multipleBuild)
+            {
+                buildCards.addAll(build);
+            }
+            return (buildCards.size() == 0);
+        }
         return multipleBuildCard.isEmpty();
     }
 
     final public boolean isSingleBuildEmpty()
     {
+        if (singleBuildCard.containsKey(getPlayerName()))
+        {
+            Vector<Card> build = singleBuildCard.get(getPlayerName());
+
+            return (build.size() == 0);
+        }
         return singleBuildCard.isEmpty();
     }
-
 
     public int getTourneyScore()
     {
