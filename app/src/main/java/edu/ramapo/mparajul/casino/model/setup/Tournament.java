@@ -31,6 +31,8 @@ public class Tournament
         roundNumber = 1;
         humanTournamentScore = 0;
         computerTournamentScore = 0;
+        lastRoundHumanScore = 0;
+        lastRoundComputerScore = 0;
         round = new Round();
     }
 

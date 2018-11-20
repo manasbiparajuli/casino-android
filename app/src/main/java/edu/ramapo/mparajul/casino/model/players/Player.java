@@ -19,6 +19,7 @@ public class Player
     protected String playerName;
     protected boolean hasCapturedCardsInMove;
     protected boolean moveSuccessful;
+    protected boolean helpRequested;
     protected Vector<Card> cardsOnPile = new Vector<>();
     protected Vector<Card> cardsOnHand = new Vector<>();
     protected Vector<Card> clickedTableCards = new Vector<>();
@@ -27,6 +28,7 @@ public class Player
 
     protected String moveActionIdentifier;
     protected String moveExplanation;
+    protected String helpExplanation;
 
     protected HashMap<String, Vector<Card>> singleBuildCard = new HashMap<>();
     protected HashMap<String, Vector<Vector<Card>>> multipleBuildCard = new HashMap<>();
@@ -52,7 +54,9 @@ public class Player
         this.tourneyScore = 0;
         this.hasCapturedCardsInMove = false;
         this.moveSuccessful = false;
+        this.helpRequested = false;
         this.moveActionIdentifier = "";
+        this.helpExplanation = "";
         this.clickedTableCards = new Vector<>();
         this.clickedBuildCards = new Vector<>();
         this.clickedHandCard = new Card();
@@ -472,6 +476,11 @@ public class Player
         return multipleBuildCard;
     }
 
+    public void setMultipleBuildCard (HashMap<String, Vector<Vector<Card>>> multipleBuildCard)
+    {
+        this.multipleBuildCard = multipleBuildCard;
+    }
+
     public void setSingleBuildCard (HashMap<String, Vector<Card>> singleBuildCard)
     {
         this.singleBuildCard = singleBuildCard;
@@ -497,10 +506,15 @@ public class Player
         return moveSuccessful;
     }
 
+    public void setHelpRequested(boolean helpRequested) { this.helpRequested = helpRequested; }
+
+
     public String getMoveExplanation()
     {
         return moveExplanation;
     }
+
+    public String getHelpExplanation() { return helpExplanation; }
 
     public void setClickedHandCard(Card clickedHandCard)
     {
@@ -516,6 +530,7 @@ public class Player
     {
         return singleBuildCard.isEmpty();
     }
+
 
     public int getTourneyScore()
     {

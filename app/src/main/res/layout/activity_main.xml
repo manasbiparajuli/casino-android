@@ -53,6 +53,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:clickable="true"
+                    android:enabled="true"
                     android:onClick="onClickCardAction"
                     android:fontFamily="@font/batmanforever"
                     android:text="@string/computer_move"/>
@@ -127,6 +128,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:clickable="true"
+                        android:enabled="true"
                         android:onClick="onClickCardAction"
                         android:fontFamily="@font/batmanforever"
                         android:text="@string/single_build"/>
@@ -138,6 +140,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:clickable="true"
+                        android:enabled="true"
                         android:onClick="onClickCardAction"
                         android:fontFamily="@font/batmanforever"
                         android:text="@string/multiple_build"/>
@@ -148,6 +151,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:clickable="true"
+                        android:enabled="true"
                         android:onClick="onClickCardAction"
                         android:fontFamily="@font/batmanforever"
                         android:text="@string/extend_build"/>
@@ -158,6 +162,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:clickable="true"
+                        android:enabled="true"
                         android:onClick="onClickCardAction"
                         android:fontFamily="@font/batmanforever"
                         android:text="@string/capture"/>
@@ -168,6 +173,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:clickable="true"
+                        android:enabled="true"
                         android:onClick="onClickCardAction"
                         android:fontFamily="@font/batmanforever"
                         android:text="@string/trail"/>

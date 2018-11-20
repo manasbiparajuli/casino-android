@@ -47,12 +47,15 @@ public class Computer extends Player
         // flag for when computer successfully makes a move
         boolean actionSuccess;
 
+        moveExplanation = "";
+
         // Make moves respectively. Return from the function if successful as a player can only make one move.
         actionSuccess = increaseOpponentBuild(tableCards, oppoBuild, opponentPlayerName);
         if (actionSuccess)
         {
             System.out.println("Increased Opponent's Build.");
             hasCapturedCardsInMove = false;
+            moveSuccessful = true;
             return;
         }
 
@@ -61,6 +64,7 @@ public class Computer extends Player
         {
             System.out.println("Captured multiple build");
             hasCapturedCardsInMove = true;
+            moveSuccessful = true;
             return;
         }
 
@@ -69,6 +73,7 @@ public class Computer extends Player
         {
             System.out.println("Multiple build successful");
             hasCapturedCardsInMove = false;
+            moveSuccessful = true;
             return;
         }
 
@@ -77,6 +82,7 @@ public class Computer extends Player
         {
             System.out.println("Captured single build");
             hasCapturedCardsInMove = true;
+            moveSuccessful = true;
             return;
         }
 
@@ -85,6 +91,7 @@ public class Computer extends Player
         {
             System.out.println("Single build successful");
             hasCapturedCardsInMove = false;
+            moveSuccessful = true;
             return;
         }
 
@@ -93,6 +100,7 @@ public class Computer extends Player
         {
             System.out.println("Captured set and individual cards");
             hasCapturedCardsInMove = true;
+            moveSuccessful = true;
             return;
         }
 
@@ -101,6 +109,7 @@ public class Computer extends Player
         {
             System.out.println("Card trailed");
             hasCapturedCardsInMove = false;
+            moveSuccessful = true;
             return;
         }
     }
@@ -165,10 +174,33 @@ public class Computer extends Player
         // Since hand card score matched the key in map at least once, we return true
         if (singleBuildPossible)
         {
-            singleBuildCard.put(getPlayerName(), matchedTableCards);
-
             // remove card that made up build successfully from the player's hand
-            Card cardToRemove = findCommonCard(matchedTableCards);
+            Card cardToRemove = new Card();
+
+            // Check for any matching card in the card list
+            for (Card handCard : getCardsOnHand())
+            {
+                // return the card if found
+                if (matchedTableCards.contains(handCard))
+                {
+                    cardToRemove = handCard;
+                }
+            }
+
+            // if the user requested help using computer strategy, return the move explanation
+            if (helpRequested)
+            {
+                // Explain move reasoning
+                helpExplanation = getPlayerName() + " should play " + cardToRemove.cardToString()
+                                          + " to create a single build of ";
+                for (Card cards : matchedTableCards)
+                {
+                    helpExplanation += cards.cardToString() + " ";
+                }
+                return true;
+            }
+
+            singleBuildCard.put(getPlayerName(), matchedTableCards);
 
             // Explain move reasoning
             moveExplanation = getPlayerName() + " played " + cardToRemove.cardToString() + " to " +
@@ -257,6 +289,21 @@ public class Computer extends Player
                 {
                     matchedTableCards.add(handCardToBuildWith);
 
+                    // if the user requested help using computer strategy, return the move explanation
+                    if (helpRequested)
+                    {
+                        // Explain move reasoning
+                        helpExplanation = getPlayerName() + " should play " + handCardToBuildWith.cardToString() +
+                                                  " to create a multiple build of ";
+                        for (Card cards : matchedTableCards)
+                        {
+                            helpExplanation += cards.cardToString() + " ";
+                        }
+                        helpExplanation += " so that you can increase your number of builds.";
+
+                        return true;
+                    }
+
                     // Explain move reasoning
                     moveExplanation = getPlayerName() + " played " + handCardToBuildWith.cardToString() + "" +
                                               " to create a multiple build of ";
@@ -332,7 +379,31 @@ public class Computer extends Player
         if (multipleBuildPossible)
         {
             // remove card that made up build successfully from the player's hand
-            Card cardToRemove = findCommonCard(matchedTableCards);
+            Card cardToRemove = new Card();
+
+            // Check for any matching card in the card list
+            for (Card handCard : getCardsOnHand())
+            {
+                // return the card if found
+                if (matchedTableCards.contains(handCard))
+                {
+                    cardToRemove = handCard;
+                }
+            }
+
+            if (helpRequested)
+            {
+                // Explain move reasoning
+                helpExplanation = getPlayerName() + " should play " + cardToRemove.cardToString() +
+                                          " to create a multiple build of ";
+                for (Card cards : matchedTableCards)
+                {
+                    helpExplanation += cards.cardToString() + " ";
+                }
+                helpExplanation += " to increase the number of builds.";
+
+                return true;
+            }
 
             // Explain move reasoning
             moveExplanation = getPlayerName() + " played " + cardToRemove.cardToString() + "" +
@@ -388,6 +459,15 @@ public class Computer extends Player
                 // check if there is any card on hand that matches the score of the new extended build
                 if (calcSingleCardScore(handCard) == calcLooseCardScore(oppnBuildCard))
                 {
+                    if (helpRequested)
+                    {
+                        // Explain move reasoning
+                        helpExplanation = getPlayerName() + " should play " + handCardToIncrease.cardToString()
+                                                  + " to increase opponent's build and own their " +
+                                                  "build to dent their chances of capturing that build.";
+                        return true;
+                    }
+
                     // if increasing opponent's build is valid, own the new extended build and remove
                     // ownership of the opponent's build
                     singleBuildCard.put(getPlayerName(), oppnBuildCard);
@@ -459,6 +539,24 @@ public class Computer extends Player
                     // get the list of multiple builds of the player
                     Vector<Vector<Card>> multipleBuild = multipleBuildCard.get(getPlayerName());
 
+                    if (helpRequested)
+                    {
+                        // Explain move reasoning
+                        helpExplanation = getPlayerName() + " should play " + handCard.cardToString() +
+                                                  " to capture your multiple build of ";
+
+                        // loop through the builds stored in the multibuild
+                        for (Vector<Card> parsedBuild : multipleBuild)
+                        {
+                            for (Card buildCards : parsedBuild)
+                            {
+                                moveExplanation += buildCards.cardToString() + " ";
+                            }
+                        }
+                        moveExplanation += " and maximize the number of captured cards.";
+                        return true;
+                    }
+
                     // Explain move reasoning
                     moveExplanation = getPlayerName() + " played " + handCard.cardToString() + "" +
                                                " to capture a multiple build of ";
@@ -511,6 +609,19 @@ public class Computer extends Player
                 {
                     // store the single build
                     Vector<Card> singleBuild = singleBuildCard.get(getPlayerName());
+
+                    if (helpRequested)
+                    {
+                        // Explain move reasoning
+                        helpExplanation = getPlayerName() + " should play " + handCard.cardToString() +
+                                                  " to capture your single build of ";
+                        // push the cards in the single build into the player's pile
+                        for (Card buildCards : singleBuild)
+                        {
+                            helpExplanation += buildCards.cardToString() + " ";
+                        }
+                        return true;
+                    }
 
                     // Explain move reasoning
                     moveExplanation = getPlayerName() + " played " + handCard.cardToString() + "" +
@@ -581,6 +692,11 @@ public class Computer extends Player
             {
                 if (calcSingleCardScore(tableCard) == handCardScore)
                 {
+                    if (helpRequested)
+                    {
+                        helpExplanation = getPlayerName() + " should play " + handCard.cardToString() + " to capture " +
+                                                  "individual card " + tableCard.cardToString();
+                    }
                     // Explain move reasoning
                     moveExplanation = getPlayerName() + " played " + handCard.cardToString() + " to capture " +
                                                "individual card " + tableCard.cardToString();
@@ -635,6 +751,31 @@ public class Computer extends Player
             // match found
             if (buildList.first == handCardScore)
             {
+                if (helpRequested)
+                {
+                    // Explain move reasoning
+                    helpExplanation = getPlayerName() + " should play " + selectedHandCard.cardToString()
+                                           + "to capture the set of ";
+
+                    for (Card match : buildList.second)
+                    {
+                        helpExplanation += match.cardToString();
+                    }
+                    helpExplanation += " and maximize the number of captured cards.";
+
+                    // Add any single card from the table that matches the score of the current card in player's hand
+                    for (Card tableCard : tableCards)
+                    {
+                        if (calcSingleCardScore(tableCard) == handCardScore)
+                        {
+                            // Explain move reasoning
+                            helpExplanation += getPlayerName() + " should play " + selectedHandCard.cardToString() + " " +
+                                                       "to capture individual card " + tableCard.cardToString();
+                        }
+                    }
+                    return true;
+                }
+
                 // Explain move reasoning
                 moveExplanation = getPlayerName() + " played " + selectedHandCard.cardToString() + " " +
                                           "to capture the set of ";
@@ -724,6 +865,14 @@ public class Computer extends Player
         if (trailCard.getFace() == null || trailCard.getFace().equals(""))
         {
             trailCard = getCardsOnHand().get(0);
+        }
+
+        if (helpRequested)
+        {
+            helpExplanation = getPlayerName() + " should trail " + trailCard.cardToString() +
+                                      "as the lowest card value b/c there were no other possible " +
+                                      "moves.";
+            return true;
         }
 
         tableCards.add(trailCard);

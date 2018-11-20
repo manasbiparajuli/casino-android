@@ -52,4 +52,7 @@
 
     <!--Label for display_card_action_explanation-->
     <string name="label_card_action">Card action explanation</string>
+
+    <!--Label when user gets help during computer's turn-->
+    <string name="computer_cannot_get_help">Computer cannot get help during its turn</string>
 </resources>

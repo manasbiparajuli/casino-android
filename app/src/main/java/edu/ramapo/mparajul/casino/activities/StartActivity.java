@@ -134,6 +134,9 @@ public class StartActivity extends AppCompatActivity
         // stores the player who will go first
         String firstPlayer;
 
+        // store the result of the toss that will be shown in mainactivity
+        String tossResult;
+
         // Match the user's guess against the coin toss result and set flag for correctCoinTossGuess
         if (random == 1 && coinTossResult.equals("heads")) { correctCoinTossGuess = true; }
         else if (random == 2 && coinTossResult.equals("tails")) { correctCoinTossGuess = true;}
@@ -143,22 +146,20 @@ public class StartActivity extends AppCompatActivity
         if (correctCoinTossGuess)
         {
             firstPlayer = "Human";
-            Toast.makeText(StartActivity.this,
-        "Correctly guessed " + coinTossResult + ". You play first!",Toast.LENGTH_SHORT).show();
+            tossResult = "Correctly guessed " + coinTossResult + ". You play first!";
         }
         else
         {
             firstPlayer = "Computer";
-            Toast.makeText(StartActivity.this,
-        "Incorrectly guessed " + coinTossResult + ". Computer plays first!",Toast.LENGTH_SHORT).show();
+            tossResult = "Incorrectly guessed " + coinTossResult + ". Computer plays first!";
         }
 
-        // TODO: replace this with mainactivity.class
         Intent launchGame = new Intent (this, MainActivity.class);
 
         // put extra information to tell that we are initiating a new game
         launchGame.putExtra("gameIntent", "newGame");
         launchGame.putExtra("firstPlayer", firstPlayer);
+        launchGame.putExtra("tossResult", tossResult);
         startActivity(launchGame);
     }
 

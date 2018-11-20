@@ -80,11 +80,13 @@ public class Round
         {
             humanIndex = 0;
             computerIndex = 1;
+            this.nextPlayer = "Human";
         }
         if (this.lastCapturer.equals("Computer"))
         {
             humanIndex = 1;
             computerIndex = 0;
+            this.nextPlayer = "Computer";
         }
 
         players[humanIndex] = new Human("Human");
@@ -146,103 +148,41 @@ public class Round
         }
     }
 
-    public void makeMove(int turnIndex)
+    public void makeMove(String turnPlayer)
     {
         HashMap<String, Vector<Card>> opponentBuild = new HashMap<>();
 
-        if (turnIndex == 0)
+        // human player's move
+        if (turnPlayer.equals(getHumanPlayerName()))
         {
-            opponentBuild = players[turnIndex + 1].getSingleBuildCard();
-            players[turnIndex].play(tableCards, opponentBuild, players[turnIndex + 1].getPlayerName());
+            opponentBuild = players[computerIndex].getSingleBuildCard();
+            players[humanIndex].play(tableCards, opponentBuild, getComputerPlayerName());
 
             // set the opponent's build if their build has been modified
-            players[turnIndex + 1].setSingleBuildCard(opponentBuild);
+            players[computerIndex].setSingleBuildCard(opponentBuild);
 
             // set the last capturer to this player if any capturing of cards was done in this move
-            if (players[turnIndex].hasCapturedCard())
+            if (players[humanIndex].hasCapturedCard())
             {
-                lastCapturer = players[turnIndex].getPlayerName();
+                lastCapturer = players[humanIndex].getPlayerName();
             }
         }
-        else if (turnIndex == 1)
+
+        // computer player's move
+        else if (turnPlayer.equals(getComputerPlayerName()))
         {
-            opponentBuild = players[turnIndex - 1].getSingleBuildCard();
-            players[turnIndex].play(tableCards, opponentBuild, players[turnIndex - 1].getPlayerName());
+            opponentBuild = players[humanIndex].getSingleBuildCard();
+            players[computerIndex].play(tableCards, opponentBuild, getHumanPlayerName());
 
             // set the opponent's build if their build has been modified
-            players[turnIndex - 1].setSingleBuildCard(opponentBuild);
+            players[humanIndex].setSingleBuildCard(opponentBuild);
 
             // set the last capturer to this player if any capturing of cards was done in this move
-            if (players[turnIndex].hasCapturedCard())
+            if (players[computerIndex].hasCapturedCard())
             {
-                lastCapturer = players[turnIndex].getPlayerName();
+                lastCapturer = players[computerIndex].getPlayerName();
             }
         }
-    }
-
-    //TODO:delete this function??
-    // ****************************************************************
-    // Function Name: gamePlay
-    // Purpose: the logic behind the gameplay
-    // Parameter: none
-    // Return value: none
-    // Assistance Received: none
-    // ****************************************************************
-    public void gamePlay()
-    {
-        // store the turns in the current round to alternate between players
-        int turns = 0;
-        int pl1Hand = 0, pl2Hand = 0;
-
-        do
-        {
-            // Deal cards to players and place cards on table at the start of the first round
-            if (isNewGame)
-            {
-                dealCardsToPlayers(true);
-                isNewGame = false;
-            }
-
-            // store the size of the players' cards on hand
-            pl1Hand = players[humanIndex].getCardsOnHand().size();
-            pl2Hand = players[computerIndex].getCardsOnHand().size();
-
-            // Deal cards only to players if both of their hands are empty and deck is not empty
-            if (pl1Hand <= 0 && pl2Hand <= 0 && !deck.isDeckEmpty())
-            {
-                dealCardsToPlayers(false);
-            }
-
-            // Player who last captured picks up remaining cards on the table after there are no
-            // cards on hand of one of the players and the deck is empty
-            if ((pl1Hand == 0 && pl2Hand > 0 && deck.isDeckEmpty()) || (pl1Hand > 0 && pl2Hand == 0 && deck.isDeckEmpty()))
-            {
-                for (int i = 0; i < numberOfPlayers; i++)
-                {
-                    // Add to player i's pile if lastCapturer matches its name
-                    if (players[i].getPlayerName().equals(lastCapturer))
-                    {
-                        for (Card tableCards : getTableCards())
-                        {
-                            players[i].addCardsToPile(tableCards);
-                        }
-                        // After cards have been added to player's pile, remove those cards from the table
-                        removeCardsFromTable(getTableCards());
-                        break;
-                    }
-                }
-                break;
-            }
-
-
-
-            pl1Hand = players[humanIndex].getCardsOnHand().size();
-            pl2Hand = players[computerIndex].getCardsOnHand().size();
-        } while (!(pl1Hand <= 0 && pl2Hand <= 0 && deck.isDeckEmpty()));
-
-        // Increment the round number as we finished the deck
-        roundNumber++;
-        roundEnded = true;
     }
 
     public void setSavedPreferences(Intent intent)
@@ -593,6 +533,23 @@ public class Round
         return cardList;
     }
 
+    public String getHelp()
+    {
+        Computer humanHelp = new Computer("You");
+        humanHelp.setCardsOnHand(players[humanIndex].getCardsOnHand());
+        humanHelp.setCardsOnPile(players[humanIndex].getCardsOnPile());
+        humanHelp.setSingleBuildCard(players[humanIndex].getSingleBuildCard());
+        humanHelp.setMultipleBuildCard(players[humanIndex].getMultipleBuildCard());
+        humanHelp.setHelpRequested(true);
+
+        HashMap<String, Vector<Card>> opponentBuild = players[computerIndex].getSingleBuildCard();
+
+        Vector<Card> tempTableCards = getTableCards();
+        humanHelp.play(tempTableCards, opponentBuild, getHumanPlayerName());
+
+        return humanHelp.getHelpExplanation();
+    }
+
     // ****************************************************************
     // Function Name: getRoundNumber
     // Purpose: gets the current round number
@@ -811,6 +768,11 @@ public class Round
     {
         return (new Card(Character.toString(cardStr.charAt(0)),
                 Character.toString(cardStr.charAt(1))));
+    }
+
+    public boolean getComputerIsMoveSuccessful()
+    {
+        return (players[computerIndex].isMoveSuccessful());
     }
 
     public boolean getHumanIsMoveSuccessful()

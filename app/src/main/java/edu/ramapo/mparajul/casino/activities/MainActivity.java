@@ -41,13 +41,12 @@ import edu.ramapo.mparajul.casino.model.utility.Pairs;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener
 {
     private int playerTurn;
-    private int humanIndex;
-    private int computerIndex;
     private int turnIndex;
     private int deviceWidth;
-    private boolean moveSuccessful = false;
+    private boolean roundEnded = false;
+
     private View root;
-    private Tournament tournament = new Tournament();
+    private Tournament tournament;
     private Round round = new Round();
     private Vector<String> cardsClicked = new Vector<>();
     private Vector<String> buildCardClicked = new Vector<>();
@@ -67,16 +66,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // button that display cards in this activity
         deviceWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
 
+        tournament = new Tournament();
+
         playerTurn = 0;
         turnIndex = 0;
+        roundEnded = false;
 
         configureToolbar();
         loadGameState();
-        populateCardsOnDisplay();
-        highlightNextPlayer();
-
         playTournament();
-        //populateCardsOnDisplay();
+        populateCardsOnDisplay();
     }
 
     public void configureToolbar()
@@ -134,6 +133,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             tournament.setNextPlayer(bundle.getString("firstPlayer"));
             tournament.newGame();
             round = tournament.getRound();
+
+            callSnackbar(bundle.getString("tossResult"));
         }
         // Resume game state from saved file
         else if (getIntent().getExtras().getString("gameIntent").equals("resumeGame"))
@@ -151,32 +152,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void playTournament()
     {
-        // flag that identifies whether this is a new round or not
-        boolean newRound = false;
-
-        do
+        if (!(tournament.getHumanTournamentScore() >= 21 || tournament.getComputerTournamentScore() >= 21))
         {
-            populateCardsOnDisplay();
-
             // Play the game, then get the round scores to be added to the tournament score
             gamePlay();
 
-            round.calculateScore();
+            if (roundEnded)
+            {
+                round.calculateScore();
 
-            int humanTourneyScore = round.getHumanTourneyScore() + round.getHumanRoundScore();
-            int computerTourneyScore = round.getComputerTourneyScore() + round.getComputerRoundScore();
+                int humanTourneyScore = round.getHumanTourneyScore() + round.getHumanRoundScore();
+                int computerTourneyScore = round.getComputerTourneyScore() + round.getComputerRoundScore();
 
-            // Set the tournament values after the round has ended
-            tournament.setLastRoundHumanScore(round.getHumanRoundScore());
-            tournament.setLastRoundComputerScore(round.getComputerRoundScore());
-            tournament.setHumanTournamentScore(humanTourneyScore);
-            tournament.setComputerTournamentScore(computerTourneyScore);
-            tournament.setLastCapturer(round.getLastCapturer());
-            tournament.setRoundNumber(round.getRoundNumber()+ 1);
+                // Set the tournament values after the round has ended
+                tournament.setLastRoundHumanScore(round.getHumanRoundScore());
+                tournament.setLastRoundComputerScore(round.getComputerRoundScore());
+                tournament.setHumanTournamentScore(humanTourneyScore);
+                tournament.setComputerTournamentScore(computerTourneyScore);
+                tournament.setLastCapturer(round.getLastCapturer());
+                tournament.setRoundNumber(round.getRoundNumber()+ 1);
+            }
+        }
+        // Tournament has ended
+        else
+        {
+            //TODO: show the list of cards in the game
+            declareWinner();
 
-        } while (!(tournament.getHumanTournamentScore() >= 21 || tournament.getComputerTournamentScore() >= 21));
+            System.out.println("tourney finished");
+        }
     }
-
 
     // ****************************************************************
     // Function Name: gamePlay
@@ -187,33 +192,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // ****************************************************************
     public void gamePlay()
     {
-        // store the turns in the current round to alternate between players
-        int pl1Hand, pl2Hand;
-
-        if (round.getHumanIndex() == 0)
+        // Deal cards to players and place cards on table at the start of the first round
+        if (round.isNewGame())
         {
-            humanIndex = 0;
-            computerIndex = 1;
-        }
-        else
-        {
-            humanIndex = 1;
-            computerIndex = 0;
+            round.dealCardsToPlayers(true);
+            round.setNewGame(false);
         }
 
-        do
+        setMoveButtonsClickableOnTurn();
+        highlightNextPlayer();
+        populateCardsOnDisplay();
+
+        // store the size of the players' cards on hand
+        int pl1Hand = round.getHumanCardsOnHand().size();
+        int pl2Hand = round.getComputerCardsOnHand().size();
+
+        if (!(pl1Hand <= 0 && pl2Hand <= 0 && round.isDeckEmpty()))
         {
-            // Deal cards to players and place cards on table at the start of the first round
-            if (round.isNewGame())
-            {
-                round.dealCardsToPlayers(true);
-                round.setNewGame(false);
-            }
-
-            // store the size of the players' cards on hand
-            pl1Hand = round.getHumanCardsOnHand().size();
-            pl2Hand = round.getComputerCardsOnHand().size();
-
             // Deal cards only to players if both of their hands are empty and deck is not empty
             if (pl1Hand <= 0 && pl2Hand <= 0 && !round.isDeckEmpty())
             {
@@ -223,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // Player who last captured picks up remaining cards on the table after there are no
             // cards on hand of one of the players and the deck is empty
             if ((pl1Hand == 0 && pl2Hand > 0 && round.isDeckEmpty()) || (pl1Hand > 0 && pl2Hand == 0
-                                                                             && round.isDeckEmpty()))
+                                                                                 && round.isDeckEmpty()))
             {
                 if (round.getLastCapturer().equals(round.getComputerPlayerName()))
                 {
@@ -236,30 +231,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 // After cards have been added to player's pile, remove those cards from the table
                 round.removeCardsFromTable(round.getTableCards());
-                break;
+
+                roundEnded = true;
             }
+        }
 
-            highlightNextPlayer();
-            setMoveButtonsClickableOnTurn();
-            moveSuccessful = false;
-
-            do {
-                System.out.println("here");
-            } while (!moveSuccessful);
-
-            populateCardsOnDisplay();
-
-            // increment the turn of the players as we made a successful move
-            playerTurn++;
-
-            pl1Hand = round.getHumanCardsOnHand().size();
-            pl2Hand = round.getComputerCardsOnHand().size();
-        } while (!(pl1Hand <= 0 && pl2Hand <= 0 && round.isDeckEmpty()));
-
-        // round ended
-        round.setNewGame(true);
+        if (roundEnded)
+        {
+            // round ended
+            round.setNewGame(true);
+        }
+        populateCardsOnDisplay();
     }
-
 
     public void showDeckAndPile()
     {
@@ -302,9 +285,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    //TODO: get help using computer strategy
     public void getHelp()
     {
+        final Dialog helpDialog = new Dialog(MainActivity.this);
+        helpDialog.setContentView(R.layout.display_card_action_explanation);
+
+        Button button = helpDialog.findViewById(R.id.card_explanation_button);
+
+        // Warn the user if they try getting help during computer's turn
+        if (round.getNextPlayer().equals(round.getComputerPlayerName()))
+        {
+            button.setText(R.string.computer_cannot_get_help);
+        }
+
+        // Display the best possible move for the human player
+        else
+        {
+            button.setText(round.getHelp());
+        }
+        helpDialog.show();
     }
 
     public void displayScore()
@@ -329,6 +328,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button.setText(String.valueOf(round.getHumanTourneyScore()));
 
         score_dialog.show();
+    }
+
+    //TODO: start new intent and declare the winner heres
+    public void declareWinner()
+    {
+
     }
 
     public void populateCardsOnDisplay()
@@ -654,8 +659,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId())
         {
             case R.id.make_computer_move:
-                round.makeMove(turnIndex);
-                moveSuccessful = true;
+                round.makeMove(round.getComputerPlayerName());
+
+                //TODO:delete print
+                System.out.println(round.getComputerMoveExplanation());
                 break;
 
             case R.id.make_single_build:
@@ -677,7 +684,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         {
                             round.setMoveActionIdentifier("make_single_build");
                             saveClickedCardsToPlayer();
-                            round.makeMove(turnIndex);
+                            round.makeMove(round.getHumanPlayerName());
                         }
                     }
                 }
@@ -711,7 +718,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             {
                                 round.setMoveActionIdentifier("make_multiple_build");
                                 saveClickedCardsToPlayer();
-                                round.makeMove(turnIndex);
+                                round.makeMove(round.getHumanPlayerName());
                             }
                         }
                     }
@@ -733,7 +740,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     {
                         round.setMoveActionIdentifier("extend_build");
                         saveClickedCardsToPlayer();
-                        round.makeMove(turnIndex);
+                        round.makeMove(round.getHumanPlayerName());
                     }
                 }
                 // no hand card in the list of clicked cards
@@ -767,7 +774,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 round.setMoveActionIdentifier("capture_single_build");
                             }
                             saveClickedCardsToPlayer();
-                            round.makeMove(turnIndex);
+                            round.makeMove(round.getHumanPlayerName());
                         }
                     }
                     else
@@ -781,7 +788,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         {
                             round.setMoveActionIdentifier("capture_individual_set");
                             saveClickedCardsToPlayer();
-                            round.makeMove(turnIndex);
+                            round.makeMove(round.getHumanPlayerName());
                         }
                     }
                 }
@@ -797,7 +804,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     {
                         round.setMoveActionIdentifier("trail");
                         saveClickedCardsToPlayer();
-                        round.makeMove(turnIndex);
+                        round.makeMove(round.getHumanPlayerName());
                     }
                     else
                     {
@@ -816,10 +823,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (!round.getHumanIsMoveSuccessful())
         {
             callSnackbar(round.getHumanMoveExplanation());
+
+            System.out.println(round.getHumanMoveExplanation());
         }
+
+        // Set computer as the next player if human made a successful move
         else
         {
-            moveSuccessful = true;
+            round.setNextPlayer(round.getComputerPlayerName());
+            // increment the turn of the players as we made a successful move
+            playerTurn++;
+
+            highlightNextPlayer();
+            setMoveButtonsClickableOnTurn();
+            populateCardsOnDisplay();
+            playTournament();
+        }
+
+        // Set human as the next player if computer made a successful move
+        if (round.getComputerIsMoveSuccessful())
+        {
+            round.setNextPlayer(round.getHumanPlayerName());
+            callSnackbar(round.getComputerMoveExplanation());
+            playerTurn++;
+
+            highlightNextPlayer();
+            setMoveButtonsClickableOnTurn();
+            populateCardsOnDisplay();
+            playTournament();
         }
         resetGameCardClicks();
         populateCardsOnDisplay();
@@ -827,12 +858,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setMoveButtonsClickableOnTurn()
     {
+        // alternate turns
         turnIndex = playerTurn % 2;
 
-        if (turnIndex == humanIndex)
+        if (round.getNextPlayer().equals(round.getHumanPlayerName()))
         {
             Button button = findViewById(R.id.make_computer_move);
-            button.setClickable(false);
+            button.setEnabled(false);
 
             int[] ids = { R.id.make_single_build, R.id.make_multiple_build, R.id.make_extend_build
             , R.id.make_capture, R.id.make_trail};
@@ -840,12 +872,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             for (int id : ids)
             {
                 button = findViewById(id);
+                button.setEnabled(true);
                 button.setClickable(true);
             }
         }
-        else if (turnIndex == computerIndex)
+        else if (round.getNextPlayer().equals(round.getComputerPlayerName()))
         {
             Button button = findViewById(R.id.make_computer_move);
+            button.setEnabled(true);
             button.setClickable(true);
 
             int[] ids = { R.id.make_single_build, R.id.make_multiple_build, R.id.make_extend_build
@@ -854,7 +888,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             for (int id : ids)
             {
                 button = findViewById(id);
-                button.setClickable(false);
+                button.setEnabled(false);
             }
         }
     }
@@ -870,26 +904,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void highlightNextPlayer()
     {
+        LinearLayout linearLayout;
+        Context context;
+        int id;
+        Drawable drawable;
+
         // Next Player: Computer
         if (round.getNextPlayer().equals(round.getComputerPlayerName()))
         {
-            LinearLayout linearLayout = findViewById(R.id.layout_computer_hand);
-            // get current context and set the image of the button to the card it corresponds to
-            Context context = linearLayout.getContext();
-            int id = context.getResources().getIdentifier("computer_player_border", "drawable",
+            // Highlight computer player
+            linearLayout = findViewById(R.id.layout_computer_hand);
+            context = linearLayout.getContext();
+            id = context.getResources().getIdentifier("computer_player_border", "drawable",
                     context.getPackageName());
-            Drawable drawable = ResourcesCompat.getDrawable(getResources(), id, null);
+            drawable = ResourcesCompat.getDrawable(getResources(), id, null);
+            linearLayout.setBackground(drawable);
+
+
+            // Remove highlight from human player
+            linearLayout = findViewById(R.id.layout_human_hand);
+            // get current context and set the image of the button to the card it corresponds to
+            context = linearLayout.getContext();
+            id = context.getResources().getIdentifier("background_border", "drawable",
+                    context.getPackageName());
+            drawable = ResourcesCompat.getDrawable(getResources(), id, null);
             linearLayout.setBackground(drawable);
         }
+
         // Next Player: Human
         else if (round.getNextPlayer().equals(round.getHumanPlayerName()))
         {
-            LinearLayout linearLayout = findViewById(R.id.layout_human_hand);
-            // get current context and set the image of the button to the card it corresponds to
-            Context context = linearLayout.getContext();
-            int id = context.getResources().getIdentifier("human_player_border", "drawable",
+            // Highlight human player
+            linearLayout = findViewById(R.id.layout_human_hand);
+            context = linearLayout.getContext();
+            id = context.getResources().getIdentifier("human_player_border", "drawable",
                     context.getPackageName());
-            Drawable drawable = ResourcesCompat.getDrawable(getResources(), id, null);
+            drawable = ResourcesCompat.getDrawable(getResources(), id, null);
+            linearLayout.setBackground(drawable);
+
+            // Remove highlight from the computer
+            linearLayout = findViewById(R.id.layout_computer_hand);
+            context = linearLayout.getContext();
+            id = context.getResources().getIdentifier("background_border", "drawable",
+                    context.getPackageName());
+            drawable = ResourcesCompat.getDrawable(getResources(), id, null);
             linearLayout.setBackground(drawable);
         }
     }
@@ -902,7 +960,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for (String cards: clickedCards)
         {
             imageView = findViewById(Integer.valueOf(cards));
-            imageView.setBackground(getDrawableFromString("card_border_normal"));
+
+            if (imageView != null)
+            {
+                imageView.setBackground(getDrawableFromString("card_border_normal"));
+            }
         }
     }
 
@@ -913,7 +975,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for (String cards: clickedBuildCards)
         {
             buildLayout = findViewById(Integer.valueOf(cards));
-            buildLayout.setBackground(getDrawableFromString("card_border_normal"));
+
+            if (buildLayout != null)
+            {
+                buildLayout.setBackground(getDrawableFromString("card_border_normal"));
+            }
         }
     }
 
