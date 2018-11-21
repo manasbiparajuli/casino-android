@@ -21,8 +21,7 @@ import edu.ramapo.mparajul.casino.model.players.Human;
 import edu.ramapo.mparajul.casino.model.players.Player;
 import edu.ramapo.mparajul.casino.model.utility.Score;
 
-public class Round
-{
+public class Round {
     private int roundNumber;
     private int numberOfPlayers;
     private int humanIndex;
@@ -36,9 +35,16 @@ public class Round
 
     private Vector<Card> tableCards = new Vector<>();
     private Deck deck = new Deck();
-    private HashMap <String, String> roundEndScores = new HashMap<>();
+    private HashMap<String, String> roundEndScores = new HashMap<>();
     private Player[] players = new Player[2];
 
+    // ****************************************************************
+    // Function Name: Round
+    // Purpose: serves as a default constructor for Round class
+    // Parameters: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public Round()
     {
     }
@@ -52,7 +58,7 @@ public class Round
     // Return value: none
     // Assistance Received: none
     // ****************************************************************
-    public Round (String nextPlayer, String lastCapturer,  int roundNumber)
+    public Round(String nextPlayer, String lastCapturer, int roundNumber)
     {
         this.nextPlayer = nextPlayer;
         this.lastCapturer = lastCapturer;
@@ -65,27 +71,23 @@ public class Round
 
         // This will be executed for first round
         // Set the index of the players based on who the next player is
-        if (this.nextPlayer.equals("Human"))
-        {
+        if (this.nextPlayer.equals("Human")) {
             humanIndex = 0;
             computerIndex = 1;
         }
-        if (this.nextPlayer.equals("Computer"))
-        {
+        if (this.nextPlayer.equals("Computer")) {
             humanIndex = 1;
             computerIndex = 0;
         }
 
         // This will be executed when a new round starts after previous round ended
         // The player that last captured the cards will go first in next round
-        if (this.lastCapturer.equals("Human"))
-        {
+        if (this.lastCapturer.equals("Human")) {
             humanIndex = 0;
             computerIndex = 1;
             this.nextPlayer = "Human";
         }
-        if (this.lastCapturer.equals("Computer"))
-        {
+        if (this.lastCapturer.equals("Computer")) {
             humanIndex = 1;
             computerIndex = 0;
             this.nextPlayer = "Computer";
@@ -122,105 +124,124 @@ public class Round
     {
         int totalCardsToDeal;
 
-        if (newRound) { totalCardsToDeal = 12; }
-        else { totalCardsToDeal = 8; }
+        if (newRound) {
+            totalCardsToDeal = 12;
+        } else {
+            totalCardsToDeal = 8;
+        }
 
         // get cards based on whether it is a new or ongoing round and deal accordingly
-        for (int i = 0; i < totalCardsToDeal; i++)
-        {
+        for (int i = 0; i < totalCardsToDeal; i++) {
             Card card = deck.dealCard();
 
             // Deal first four cards to the human player
-            if (i < 4)
-            {
+            if (i < 4) {
                 players[humanIndex].addCardsToHand(card);
             }
             // Deal next four cards to the computer
-            else if (i < 8)
-            {
+            else if (i < 8) {
                 players[computerIndex].addCardsToHand(card);
             }
             // Deal cards on the table if it is a new round
-            if (newRound)
-            {
-                if (i >= 8 && i < totalCardsToDeal)
-                {
+            if (newRound) {
+                if (i >= 8 && i < totalCardsToDeal) {
                     tableCards.add(card);
                 }
             }
         }
     }
 
+    // ****************************************************************
+    // Function Name: makeMove
+    // Purpose: makes move for the players based on the current player
+    // Parameters: turnPlayer, a string. Holds the current player
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void makeMove(String turnPlayer)
     {
         HashMap<String, Vector<Card>> opponentBuild = new HashMap<>();
 
         // human player's move
-        if (turnPlayer.equals(getHumanPlayerName()))
-        {
+        if (turnPlayer.equals(getHumanPlayerName())) {
             opponentBuild = players[computerIndex].getSingleBuildCard();
             players[humanIndex].play(tableCards, opponentBuild, getComputerPlayerName());
 
-            if (players[humanIndex].isMoveSuccessful())
-            {
+            if (players[humanIndex].isMoveSuccessful()) {
                 // set the opponent's build if their build has been modified
                 players[computerIndex].setSingleBuildCard(opponentBuild);
             }
 
             // set the last capturer to this player if any capturing of cards was done in this move
-            if (players[humanIndex].hasCapturedCard())
-            {
+            if (players[humanIndex].hasCapturedCard()) {
                 lastCapturer = players[humanIndex].getPlayerName();
             }
 
-            if (players[humanIndex].isMakeOpponentBuildScoreEmpty())
-            {
+            // Set the opponent's build score to 0 if the human player extended computer's build
+            if (players[humanIndex].isMakeOpponentBuildScoreEmpty()) {
                 players[computerIndex].setFirstBuildScore(0);
             }
         }
 
         // computer player's move
-        else if (turnPlayer.equals(getComputerPlayerName()))
-        {
+        else if (turnPlayer.equals(getComputerPlayerName())) {
             opponentBuild = players[humanIndex].getSingleBuildCard();
             players[computerIndex].play(tableCards, opponentBuild, getHumanPlayerName());
 
-            if (players[computerIndex].isMoveSuccessful())
-            {
+            if (players[computerIndex].isMoveSuccessful()) {
                 // set the opponent's build if their build has been modified
                 players[humanIndex].setSingleBuildCard(opponentBuild);
             }
 
             // set the last capturer to this player if any capturing of cards was done in this move
-            if (players[computerIndex].hasCapturedCard())
-            {
+            if (players[computerIndex].hasCapturedCard()) {
                 lastCapturer = players[computerIndex].getPlayerName();
             }
 
-            if (players[computerIndex].isMakeOpponentBuildScoreEmpty())
-            {
+            // Set the opponent's build score to 0 if the computer extended human's build
+            if (players[computerIndex].isMakeOpponentBuildScoreEmpty()) {
                 players[humanIndex].setFirstBuildScore(0);
             }
         }
     }
 
+    // ****************************************************************
+    // Function Name: setHumanIsMakeOpponentBuildEmpty
+    // Purpose: sets human's build to be empty
+    // Parameter: flag, a boolean. Holds the flag to make human's build to be empty or not
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void setHumanIsMakeOpponentBuildEmpty(boolean flag)
     {
         players[humanIndex].setMakeOpponentBuildScoreEmpty(flag);
     }
 
+    // ****************************************************************
+    // Function Name: setComputerIsMakeOpponentBuildEmpty
+    // Purpose: sets computer's build to be empty
+    // Parameter: flag, a boolean. Holds the flag to make computer's build to be empty or not
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void setComputerIsMakeOpponentBuildEmpty(boolean flag)
     {
         players[computerIndex].setMakeOpponentBuildScoreEmpty(flag);
     }
 
-
+    // ****************************************************************
+    // Function Name: setSavedPreferences
+    // Purpose: loads the values stored in a file
+    // Parameter: intent, an Intent. Holds the values of the loaded file
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void setSavedPreferences(Intent intent)
     {
         Bundle bundle = intent.getExtras();
-        Vector<Card> cards;
-        if (bundle != null)
-        {
+        Vector<Card> cards = new Vector<>();
+
+        if (bundle != null) {
             // set player scores
             players[computerIndex].setTourneyScore(intent.getExtras().getInt("computerScore"));
             players[humanIndex].setTourneyScore(intent.getExtras().getInt("humanScore"));
@@ -250,23 +271,18 @@ public class Round
             HashMap<String, Vector<Card>> singleBuild = new HashMap<>();
             cards = makeCardFromFile(intent.getExtras().getStringArray("buildCards"));
 
-
-            if (owner != null)
-            {
-                if (owner.equals("Human"))
-                {
+            // Store the build into the corresponding owner
+            if (owner != null) {
+                if (owner.equals("Human")) {
                     singleBuild.put(owner, cards);
                     players[humanIndex].setSingleBuildCard(singleBuild);
                     players[humanIndex].setFirstBuildScore(calcBuildScore(cards));
-                }
-                else if (owner.equals("Computer"))
-                {
+                } else if (owner.equals("Computer")) {
                     singleBuild.put(owner, cards);
                     players[computerIndex].setSingleBuildCard(singleBuild);
                     players[computerIndex].setFirstBuildScore(calcBuildScore(cards));
                 }
             }
-
             // set last capturer
             setLastCapturer(intent.getExtras().getString("lastCapturer"));
         }
@@ -293,16 +309,14 @@ public class Round
         serializedFile += "Computer:\n";
         serializedFile += "Score: " + players[computerIndex].getScore() + "\n";
         serializedFile += "Hand: ";
-        for (Card card : players[computerIndex].getCardsOnHand())
-        {
+        for (Card card : players[computerIndex].getCardsOnHand()) {
             stringBuilder.append(card.cardToString()).append(" ");
         }
         serializedFile += stringBuilder.toString() + "\n";
 
         serializedFile += "Pile: ";
         stringBuilder = new StringBuilder();
-        for (Card card : players[computerIndex].getCardsOnPile())
-        {
+        for (Card card : players[computerIndex].getCardsOnPile()) {
             stringBuilder.append(card.cardToString()).append(" ");
         }
         serializedFile += stringBuilder.toString() + "\n\n";
@@ -312,19 +326,17 @@ public class Round
         serializedFile += "Score: " + players[humanIndex].getScore() + "\n";
         serializedFile += "Hand: ";
         stringBuilder = new StringBuilder();
-        for (Card card : players[humanIndex].getCardsOnHand())
-        {
+        for (Card card : players[humanIndex].getCardsOnHand()) {
             stringBuilder.append(card.cardToString()).append(" ");
         }
         serializedFile += stringBuilder.toString() + "\n";
 
         serializedFile += "Pile: ";
         stringBuilder = new StringBuilder();
-        for (Card card : players[humanIndex].getCardsOnPile())
-        {
+        for (Card card : players[humanIndex].getCardsOnPile()) {
             stringBuilder.append(card.cardToString()).append(" ");
         }
-        serializedFile += stringBuilder.toString()  + "\n\n";
+        serializedFile += stringBuilder.toString() + "\n\n";
 
         // Save table
         serializedFile += "Table: " + saveTableCardsToFile();
@@ -338,8 +350,7 @@ public class Round
         // Save deck
         serializedFile += "Deck: ";
         stringBuilder = new StringBuilder();
-        for(Card card: deck.getDeck())
-        {
+        for (Card card : deck.getDeck()) {
             stringBuilder.append(card.cardToString()).append(" ");
         }
         serializedFile += stringBuilder.toString() + "\n\n";
@@ -347,27 +358,37 @@ public class Round
         // save next player
         serializedFile += "Next Player: " + getNextPlayer();
 
-        return generateCasinoOnSD (fileName, serializedFile);
+        return generateCasinoOnSD(fileName, serializedFile);
     }
 
-    private boolean generateCasinoOnSD (String saveFileName, String serializedContent)
+    // ****************************************************************
+    // Function Name: generateCasinoOnSD
+    // Purpose: saves the file in the devices's internal storage under the folder "Casino"
+    // Parameter: -> saveFileName, a string. The name of the file
+    //            -> serializedContent, a string.. Holds the contents of the current game state
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    private boolean generateCasinoOnSD(String saveFileName, String serializedContent)
     {
-        try
-        {
-            File root = new File (Environment.getExternalStorageDirectory(), "Casino");
+        try {
+            File root = new File(Environment.getExternalStorageDirectory(), "Casino");
 
             // Check if Casino folder exists to save the file
             // If is doesn't, then create the directory
-            if (!root.exists()) { root.mkdirs(); }
+            if (!root.exists()) {
+                root.mkdirs();
+            }
 
-            File file = new File (root, saveFileName);
+            File file = new File(root, saveFileName);
             FileWriter writer = new FileWriter(file);
+
+            // Write the contents to the device
             writer.write(serializedContent);
             writer.flush();
             writer.close();
             return true;
-        }catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
@@ -397,16 +418,15 @@ public class Round
         int humanTotalSpades = score.getPlayerOneTotalSpades();
         int computerTotalSpades = score.getPlayerTwoTotalSpades();
 
+        // appends the contents of the players' pile
         StringBuilder humanPile = new StringBuilder();
         StringBuilder computerPile = new StringBuilder();
 
-        for (Card card : players[humanIndex].getCardsOnPile())
-        {
+        for (Card card : players[humanIndex].getCardsOnPile()) {
             humanPile.append(card.cardToString()).append(" ");
         }
 
-        for (Card card : players[computerIndex].getCardsOnPile())
-        {
+        for (Card card : players[computerIndex].getCardsOnPile()) {
             computerPile.append(card.cardToString()).append(" ");
         }
 
@@ -432,8 +452,7 @@ public class Round
     // ****************************************************************
     public void removeCardsFromTable(Vector<Card> cardsToRemove)
     {
-        for (Card builtCards : cardsToRemove)
-        {
+        for (Card builtCards : cardsToRemove) {
             tableCards.remove(builtCards);
         }
     }
@@ -453,38 +472,33 @@ public class Round
         Vector<Card> singleBuild;
 
         // Save multiple builds to file
-        if (!players[computerIndex].isMultipleBuildEmpty())
-        {
+        if (!players[computerIndex].isMultipleBuildEmpty()) {
             stringBuilder.append("[ ");
             multipleBuild = players[computerIndex].getMultipleBuildCard().get(players[computerIndex].getPlayerName());
             saveMultipleBuildToFile(stringBuilder, multipleBuild);
         }
 
-        if (!players[humanIndex].isMultipleBuildEmpty())
-        {
+        if (!players[humanIndex].isMultipleBuildEmpty()) {
             stringBuilder.append("[ ");
             multipleBuild = players[humanIndex].getMultipleBuildCard().get(players[humanIndex].getPlayerName());
             saveMultipleBuildToFile(stringBuilder, multipleBuild);
         }
 
         // Save single builds to file
-        if (!players[computerIndex].isSingleBuildEmpty())
-        {
+        if (!players[computerIndex].isSingleBuildEmpty()) {
             stringBuilder.append("[ ");
             singleBuild = players[computerIndex].getSingleBuildCard().get(players[computerIndex].getPlayerName());
             saveSingleBuildToFile(stringBuilder, singleBuild);
         }
 
-        if (!players[humanIndex].isSingleBuildEmpty())
-        {
+        if (!players[humanIndex].isSingleBuildEmpty()) {
             stringBuilder.append("[ ");
             singleBuild = players[humanIndex].getSingleBuildCard().get(players[humanIndex].getPlayerName());
             saveSingleBuildToFile(stringBuilder, singleBuild);
         }
 
         // Save loose table cards to file
-        for (Card card : tableCards)
-        {
+        for (Card card : tableCards) {
             stringBuilder.append(card.cardToString()).append(" ");
         }
         stringBuilder.append("\n\n");
@@ -506,16 +520,14 @@ public class Round
         Vector<Vector<Card>> multipleBuild;
         Vector<Card> singleBuild;
 
-        if (!players[computerIndex].isMultipleBuildEmpty())
-        {
+        if (!players[computerIndex].isMultipleBuildEmpty()) {
             stringBuilder.append("[ ");
             multipleBuild = players[computerIndex].getMultipleBuildCard().get(players[computerIndex].getPlayerName());
             saveMultipleBuildToFile(stringBuilder, multipleBuild);
             stringBuilder.append(players[computerIndex].getPlayerName()).append(" ");
         }
 
-        if (!players[humanIndex].isMultipleBuildEmpty())
-        {
+        if (!players[humanIndex].isMultipleBuildEmpty()) {
             stringBuilder.append("[ ");
             multipleBuild = players[humanIndex].getMultipleBuildCard().get(players[humanIndex].getPlayerName());
             saveMultipleBuildToFile(stringBuilder, multipleBuild);
@@ -523,16 +535,14 @@ public class Round
         }
 
         // Save single builds to file
-        if (!players[computerIndex].isSingleBuildEmpty())
-        {
+        if (!players[computerIndex].isSingleBuildEmpty()) {
             stringBuilder.append("[ ");
             singleBuild = players[computerIndex].getSingleBuildCard().get(players[computerIndex].getPlayerName());
             saveSingleBuildToFile(stringBuilder, singleBuild);
             stringBuilder.append(players[computerIndex].getPlayerName()).append(" ");
         }
 
-        if (!players[humanIndex].isSingleBuildEmpty())
-        {
+        if (!players[humanIndex].isSingleBuildEmpty()) {
             stringBuilder.append("[ ");
             singleBuild = players[humanIndex].getSingleBuildCard().get(players[humanIndex].getPlayerName());
             saveSingleBuildToFile(stringBuilder, singleBuild);
@@ -554,8 +564,7 @@ public class Round
     private void saveSingleBuildToFile(StringBuilder stringBuilder, Vector<Card> singleBuild)
     {
         stringBuilder.append("[");
-        for (Card card : singleBuild)
-        {
+        for (Card card : singleBuild) {
             stringBuilder.append(card.cardToString()).append(" ");
         }
         stringBuilder.append("] ");
@@ -572,11 +581,9 @@ public class Round
     // ****************************************************************
     private void saveMultipleBuildToFile(StringBuilder stringBuilder, Vector<Vector<Card>> multipleBuild)
     {
-        for (Vector<Card> build : multipleBuild)
-        {
+        for (Vector<Card> build : multipleBuild) {
             stringBuilder.append("[");
-            for (Card card : build)
-            {
+            for (Card card : build) {
                 stringBuilder.append(card.cardToString()).append(" ");
             }
             stringBuilder.append("] ");
@@ -598,18 +605,24 @@ public class Round
 
         // Loop through the string and make it a card object
         // Then return cards as vector of cards
-        for (String cardStr : cards)
-        {
-            if (cardStr.length() == 2)
-            {
+        for (String cardStr : cards) {
+            if (cardStr.length() == 2) {
                 cardList.add(stringToCard(cardStr));
             }
         }
         return cardList;
     }
 
+    // ****************************************************************
+    // Function Name: getHelp
+    // Purpose: gets the help explanation based on the computer's strategy
+    // Parameters: none
+    // Return value: a string containing the possible move explanation for the human player
+    // Assistance Received: none
+    // ****************************************************************
     public String getHelp()
     {
+        // Create a computer object and store human's current game values
         Computer humanHelp = new Computer(players[humanIndex].getPlayerName());
         humanHelp.setCardsOnHand(players[humanIndex].getCardsOnHand());
         humanHelp.setCardsOnPile(players[humanIndex].getCardsOnPile());
@@ -620,9 +633,13 @@ public class Round
 
         HashMap<String, Vector<Card>> opponentBuild = players[computerIndex].getSingleBuildCard();
 
-        Vector<Card> tempTableCards = getTableCards();
-        humanHelp.play(tempTableCards, opponentBuild, getComputerPlayerName());
+        Vector<Card> tempTableCards = new Vector<>();
+        if (getTableCards() != null) {
+            tempTableCards = (Vector<Card>) getTableCards().clone();
+        }
 
+        // User computer's game play strategy to find the best possible move
+        humanHelp.play(tempTableCards, opponentBuild, getComputerPlayerName());
         return humanHelp.getHelpExplanation();
     }
 
@@ -637,19 +654,19 @@ public class Round
     {
         String face = card.getFace();
 
-        if (face.equals("A")) { return 1;}
-        else if (face.equals("2")) { return 2;}
-        else if (face.equals("3")) { return 3;}
-        else if (face.equals("4")) { return 4;}
-        else if (face.equals("5")) { return 5;}
-        else if (face.equals("6")) { return 6;}
-        else if (face.equals("7")) { return 7;}
-        else if (face.equals("8")) { return 8;}
-        else if (face.equals("9")) { return 9;}
-        else if (face.equals("X")) { return 10;}
-        else if (face.equals("J")) { return 11;}
-        else if (face.equals("Q")) { return 12;}
-        else { return 13;}
+        if (face.equals("A")) { return 1; }
+        else if (face.equals("2")) { return 2; }
+        else if (face.equals("3")) { return 3; }
+        else if (face.equals("4")) { return 4; }
+        else if (face.equals("5")) { return 5; }
+        else if (face.equals("6")) { return 6; }
+        else if (face.equals("7")) { return 7; }
+        else if (face.equals("8")) { return 8; }
+        else if (face.equals("9")) { return 9; }
+        else if (face.equals("X")) { return 10; }
+        else if (face.equals("J")) { return 11; }
+        else if (face.equals("Q")) { return 12; }
+        else { return 13; }
     }
 
     // ****************************************************************
@@ -663,14 +680,11 @@ public class Round
     {
         int score = 0;
         // Go through the build and add the score of each of the cards
-        for (Card cards : buildCards)
-        {
+        for (Card cards : buildCards) {
             score += cardScore(cards);
         }
         return score;
     }
-
-
 
     // ****************************************************************
     // Function Name: getRoundNumber
@@ -682,18 +696,6 @@ public class Round
     public int getRoundNumber()
     {
         return roundNumber;
-    }
-
-    // ****************************************************************
-    // Function Name: setRoundNumber
-    // Purpose: sets the current round number
-    // Parameter: rnd, an integer value. Holds the new round number
-    // Return value: none
-    // Assistance Received: none
-    // ****************************************************************
-    public void setRoundNumber(int roundNumber)
-    {
-        this.roundNumber = roundNumber;
     }
 
     // ****************************************************************
@@ -756,18 +758,52 @@ public class Round
         deck.setDeck(tempDeck);
     }
 
+    // ****************************************************************
+    // Function Name: getDeck
+    // Purpose: gets the deck in the game
+    // Parameters: none
+    // Return value: a vector of cards. Holds the current deck
+    // Assistance Received: none
+    // ****************************************************************
     public Vector<Card> getDeck()
     {
         return deck.getDeck();
     }
 
-    public boolean isNewGame() { return isNewGame; }
-
-    public void setNewGame(boolean newGame) { isNewGame = newGame; }
-
+    // ****************************************************************
+    // Function Name: isDeckEmpty
+    // Purpose: returns whether the current deck is empty or not
+    // Parameters: none
+    // Return value: flag that identifies whether the current deck is empty or not
+    // Assistance Received: none
+    // ****************************************************************
     public boolean isDeckEmpty()
     {
         return deck.isDeckEmpty();
+    }
+
+    // ****************************************************************
+    // Function Name: isNewGame
+    // Purpose: identifies whether it is a new game or not
+    // Parameters: none
+    // Return value: flag that identifies whether the game started new or not
+    // Assistance Received: none
+    // ****************************************************************
+    public boolean isNewGame()
+    {
+        return isNewGame;
+    }
+
+    // ****************************************************************
+    // Function Name: setNewGame
+    // Purpose: sets the flag to identify whether it is a new game or not
+    // Parameters: newGame, a boolean.
+    // Return value: flag that identifies whether the game started new or not
+    // Assistance Received: none
+    // ****************************************************************
+    public void setNewGame(boolean newGame)
+    {
+        isNewGame = newGame;
     }
 
     // ****************************************************************
@@ -794,156 +830,339 @@ public class Round
         this.tableCards = tableCards;
     }
 
-    public void setHumanCardsOnPile (Vector<Card> cards)
+    // ****************************************************************
+    // Function Name: setHumanCardsOnPile
+    // Purpose: sets human's cards on pile
+    // Parameters: cards, a vector of pile of cards
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    public void setHumanCardsOnPile(Vector<Card> cards)
     {
-        for (Card card : cards)
-        {
+        for (Card card : cards) {
             players[humanIndex].addCardsToPile(card);
         }
     }
 
-    public void setComputerCardsOnPile (Vector<Card> cards)
+    // ****************************************************************
+    // Function Name: setComputerCardsOnPile
+    // Purpose: sets computer's cards on pile
+    // Parameters: cards, a vector of pile of cards
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    public void setComputerCardsOnPile(Vector<Card> cards)
     {
-        for (Card card : cards)
-        {
+        for (Card card : cards) {
             players[computerIndex].addCardsToPile(card);
         }
     }
 
+    // ****************************************************************
+    // Function Name: getHumanCardsOnHand
+    // Purpose: gets human's cards on hand
+    // Parameters: none
+    // Return value: a vector of cards representing human's cards on hand
+    // Assistance Received: none
+    // ****************************************************************
     public Vector<Card> getHumanCardsOnHand()
     {
         return players[humanIndex].getCardsOnHand();
     }
 
+    // ****************************************************************
+    // Function Name: getComputerCardsOnHand
+    // Purpose: gets computer's cards on hand
+    // Parameters: none
+    // Return value: a vector of cards representing computer's cards on hand
+    // Assistance Received: none
+    // ****************************************************************
     public Vector<Card> getComputerCardsOnHand()
     {
         return players[computerIndex].getCardsOnHand();
     }
 
+    // ****************************************************************
+    // Function Name: getHumanCardsOnPile
+    // Purpose: gets human's cards on pile
+    // Parameters: cards, a vector of pile of cards
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public Vector<Card> getHumanCardsOnPile()
     {
         return players[humanIndex].getCardsOnPile();
     }
 
+    // ****************************************************************
+    // Function Name: getComputerCardsOnPile
+    // Purpose: gets computer's cards on pile
+    // Parameters: cards, a vector of pile of cards
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public Vector<Card> getComputerCardsOnPile()
     {
         return players[computerIndex].getCardsOnPile();
     }
 
-    public int getHumanTourneyScore() { return players[humanIndex].getTourneyScore();}
+    // ****************************************************************
+    // Function Name: getHumanTourneyScore
+    // Purpose: gets the human player's score of the tournament
+    // Parameters: none
+    // Return value: humanTournamentScore, an integer. Holds the human's tourney score
+    // Assistance Received: none
+    // ****************************************************************
+    public int getHumanTourneyScore()
+    {
+        return players[humanIndex].getTourneyScore();
+    }
 
-    public int getComputerTourneyScore() { return players[computerIndex].getTourneyScore();}
+    // ****************************************************************
+    // Function Name: getComputerTournamentScore
+    // Purpose: gets the computer's score of the tournament
+    // Parameters: none
+    // Return value: the computer's tourney score
+    // Assistance Received: none
+    // ****************************************************************
+    public int getComputerTourneyScore()
+    {
+        return players[computerIndex].getTourneyScore();
+    }
 
-    public int getHumanRoundScore() { return players[humanIndex].getScore();}
+    // ****************************************************************
+    // Function Name: getHumanRoundScore
+    // Purpose: gets the human player's round score
+    // Parameters: none
+    // Return value: the human's round score
+    // Assistance Received: none
+    // ****************************************************************
+    public int getHumanRoundScore()
+    {
+        return players[humanIndex].getScore();
+    }
 
-    public int getComputerRoundScore() { return players[computerIndex].getScore();}
+    // ****************************************************************
+    // Function Name: getComputerRoundScore
+    // Purpose: gets the computer player's round score
+    // Parameters: none
+    // Return value: the computer's round score
+    // Assistance Received: none
+    // ****************************************************************
+    public int getComputerRoundScore()
+    {
+        return players[computerIndex].getScore();
+    }
 
+    // ****************************************************************
+    // Function Name: getHumanPlayerName
+    // Purpose: gets the human player's name
+    // Parameters: none
+    // Return value: the name of the human player
+    // Assistance Received: none
+    // ****************************************************************
     public String getHumanPlayerName()
     {
         return players[humanIndex].getPlayerName();
     }
 
-    public String getComputerPlayerName() { return players[computerIndex].getPlayerName();
-    }
+    // ****************************************************************
+    // Function Name: getComputerPlayerName
+    // Purpose: gets the computer player's name
+    // Parameters: none
+    // Return value: the name of the computer player
+    // Assistance Received: none
+    // ****************************************************************
+    public String getComputerPlayerName() { return players[computerIndex].getPlayerName(); }
 
-    public int getHumanIndex()
-    {
-        return humanIndex;
-    }
-
-    public int getComputerIndex()
-    {
-        return computerIndex;
-    }
-
+    // ****************************************************************
+    // Function Name: setMoveActionIdentifier
+    // Purpose: sets the name of the move that the player is trying to make
+    // Parameter: moveActionIdentifier, a string. Holds the player's action name
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void setMoveActionIdentifier(String moveActionIdentifier)
     {
         players[humanIndex].setMoveActionIdentifier(moveActionIdentifier);
     }
 
+    // ****************************************************************
+    // Function Name: setClickedTableCards
+    // Purpose: saves the table cards clicked by the player
+    // Parameter: clickedTableCards. Holds the table cards clicked by the human player
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void setClickedTableCards(Vector<String> clickedTableCards)
     {
-        Vector <Card> temp = new Vector<>();
-        for (String cardStr: clickedTableCards)
-        {
+        Vector<Card> temp = new Vector<>();
+        for (String cardStr : clickedTableCards) {
             temp.add(stringToCard(cardStr));
         }
         players[humanIndex].setClickedTableCards(temp);
     }
 
+    // ****************************************************************
+    // Function Name: setClickedBuildCards
+    // Purpose: saves the build cards clicked by the player
+    // Parameter: clickedBuildCards. Holds the build cards clicked by the human player
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void setClickedBuildCards(Vector<String> clickedBuildCards)
     {
-        Vector <Card> temp = new Vector<>();
-        for (String cardStr: clickedBuildCards)
-        {
+        Vector<Card> temp = new Vector<>();
+        for (String cardStr : clickedBuildCards) {
             temp.add(stringToCard(cardStr));
         }
         players[humanIndex].setClickedBuildCards(temp);
     }
 
+    // ****************************************************************
+    // Function Name: setClickedHandCards
+    // Purpose: saves the hand card clicked by the human player
+    // Parameter: clickedHandCard. Holds the hand card clicked by the human player
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void setClickedHandCard(String handCard)
     {
         players[humanIndex].setClickedHandCard(stringToCard(handCard));
     }
 
+    // ****************************************************************
+    // Function Name: stringToCard
+    // Purpose: converts a string into a Card object
+    // Parameter: cardStr, a string. Holds the string representation of a card
+    // Return value: a Card object.
+    // Assistance Received: none
+    // ****************************************************************
     private Card stringToCard(String cardStr)
     {
         return (new Card(Character.toString(cardStr.charAt(0)),
                 Character.toString(cardStr.charAt(1))));
     }
 
-    public boolean getComputerIsMoveSuccessful()
-    {
-        return (players[computerIndex].isMoveSuccessful());
-    }
-
-    public void setComputerIsMoveSuccessful(boolean flag)
-    {
-        players[computerIndex].setMoveSuccessful(flag);
-    }
-
-    public void setHumanIsMoveSuccessful(boolean flag)
-    {
-        players[humanIndex].setMoveSuccessful(flag);
-    }
-
+    // ****************************************************************
+    // Function Name: getHumanIsMoveSuccessful
+    // Purpose: returns whether the human made a successful move in the current turn
+    // Parameter: none
+    // Return value: a boolean based on whether the human made a successful move
+    // Assistance Received: none
+    // ****************************************************************
     public boolean getHumanIsMoveSuccessful()
     {
         return players[humanIndex].isMoveSuccessful();
     }
 
+    // ****************************************************************
+    // Function Name: getComputerIsMoveSuccessful
+    // Purpose: returns whether the computer made a successful move in the current turn
+    // Parameter: none
+    // Return value: a boolean based on whether the computer made a successful move
+    // Assistance Received: none
+    // ****************************************************************
+    public boolean getComputerIsMoveSuccessful()
+    {
+        return (players[computerIndex].isMoveSuccessful());
+    }
+
+    // ****************************************************************
+    // Function Name: setComputerIsMoveSuccessful
+    // Purpose: sets whether the computer made a successful move in the current turn
+    // Parameter: flag, a boolean. Holds whether the computer made a successful move
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    public void setComputerIsMoveSuccessful(boolean flag)
+    {
+        players[computerIndex].setMoveSuccessful(flag);
+    }
+
+    // ****************************************************************
+    // Function Name: setHumanIsMoveSuccessful
+    // Purpose: sets whether the human made a successful move in the current turn
+    // Parameter: flag, a boolean. Holds whether the human made a successful move
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    public void setHumanIsMoveSuccessful(boolean flag)
+    {
+        players[humanIndex].setMoveSuccessful(flag);
+    }
+
+    // ****************************************************************
+    // Function Name: getHumanMoveExplanation
+    // Purpose: gets the explanation for the move that human makes
+    // Parameters: none
+    // Return value: a string that stores the explanation of the move
+    // Assistance Received: none
+    // ****************************************************************
     public String getHumanMoveExplanation()
     {
         return players[humanIndex].getMoveExplanation();
     }
 
+    // ****************************************************************
+    // Function Name: getComputerMoveExplanation
+    // Purpose: gets the explanation for the move that the computer makes
+    // Parameters: none
+    // Return value: a string that stores the explanation of the move
+    // Assistance Received: none
+    // ****************************************************************
     public String getComputerMoveExplanation()
     {
         return players[computerIndex].getMoveExplanation();
     }
 
-
+    // ****************************************************************
+    // Function Name: isHumanSingleBuildEmpty
+    // Purpose: returns whether the human player has a single build
+    // Parameter: none
+    // Return value: a boolean based on whether the human player has a single build or not
+    // Assistance Received: none
+    // ****************************************************************
     public boolean isHumanSingleBuildEmpty()
     {
         return players[humanIndex].isSingleBuildEmpty();
     }
 
+    // ****************************************************************
+    // Function Name: isComputerSingleBuildEmpty
+    // Purpose: returns whether the computer has a single build
+    // Parameter: none
+    // Return value: a boolean based on whether the computer has a single build or not
+    // Assistance Received: none
+    // ****************************************************************
     public boolean isComputerSingleBuildEmpty()
     {
         return players[computerIndex].isSingleBuildEmpty();
     }
 
+    // ****************************************************************
+    // Function Name: isHumanMultipleBuildEmpty
+    // Purpose: returns whether the human player has a multiple build
+    // Parameter: none
+    // Return value: a boolean based on whether the human player has a multiple build or not
+    // Assistance Received: none
+    // ****************************************************************
     public boolean isHumanMultipleBuildEmpty()
     {
         return players[humanIndex].isMultipleBuildEmpty();
     }
 
+    // ****************************************************************
+    // Function Name: isComputerMultipleBuildEmpty
+    // Purpose: returns whether the computer has a multiple build
+    // Parameter: none
+    // Return value: a boolean based on whether the computer has a multiple build or not
+    // Assistance Received: none
+    // ****************************************************************
     public boolean isComputerMultipleBuildEmpty()
     {
         return players[computerIndex].isMultipleBuildEmpty();
     }
-
-
 
     // ****************************************************************
     // Function Name: getHumanSingleBuildCard
@@ -995,20 +1214,15 @@ public class Round
         return players[computerIndex].getMultipleBuildCard();
     }
 
+    // ****************************************************************
+    // Function Name: getRoundEndScores
+    // Purpose: gets the last rounds scores, total cards, total spades of the players
+    // Parameters: none
+    // Return value: a hash map of player's names corresponding to their card (Spade, Ace) scores
+    // Assistance Received: none
+    // ****************************************************************
     public HashMap<String, String> getRoundEndScores()
     {
         return roundEndScores;
-    }
-
-    // ****************************************************************
-    // Function Name: isTableEmpty
-    // Purpose: checks if the table is empty or not
-    // Parameters: none
-    // Return value: returns true or false based on whether the table is empty or not
-    // Assistance Received: none
-    // ****************************************************************
-    public boolean isTableEmpty()
-    {
-        return tableCards.isEmpty();
     }
 }

@@ -565,6 +565,6 @@ public class StartActivity extends AppCompatActivity
                 return false;
             }
         }
-        return true;
+        return false;
     }
 }

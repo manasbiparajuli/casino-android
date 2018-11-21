@@ -30,9 +30,13 @@ public class EndActivity extends AppCompatActivity
         editResult();
     }
 
-    // Setup card view listener for the user to go into the start page
-    // Receives: null
-    // Returns: null
+    // ****************************************************************
+    // Function Name: mainMenu
+    // Purpose: Setup card listener to go to the main menu of the app
+    // Parameters: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void mainMenu()
     {
         CardView menu = findViewById(R.id.main_menu_cardview);
@@ -44,9 +48,13 @@ public class EndActivity extends AppCompatActivity
         });
     }
 
-    // Setup card view listener for the user to restart the game
-    // Receives: null
-    // Returns: null
+    // ****************************************************************
+    // Function Name: mainMenu
+    // Purpose: Setup card listener for the player to restart the game
+    // Parameters: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void playAgain()
     {
         CardView playAgain = findViewById(R.id.play_again_cardview);
@@ -58,10 +66,14 @@ public class EndActivity extends AppCompatActivity
         });
     }
 
-    // Edit the text view based on the result of the game
-    // and whose values are passed from the Main Activity as extra message in the intent
-    // Receives: Values from the intent
-    // Returns: null
+    // ****************************************************************
+    // Function Name: editResult
+    // Purpose: Edit the text view based on the result of the game
+    //        and whose values are passed from the Main Activity as extra message in the intent
+    // Parameters: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void editResult()
     {
         // Get the string value from the passed intent
@@ -69,15 +81,25 @@ public class EndActivity extends AppCompatActivity
         TextView textView = findViewById(R.id.game_result);
 
         // set text of the text view based on the result of the game
-        if (resultValue.equals("computer")) {
+        if (resultValue.equals("computer"))
+        {
             textView.setText(R.string.computer_won);
-        }else if (resultValue.equals("human")){
+        }else if (resultValue.equals("human"))
+        {
             textView.setText(R.string.human_won);
-        }else {
+        }else
+        {
             textView.setText(R.string.match_drawn);
         }
     }
 
+    // ****************************************************************
+    // Function Name: playClick
+    // Purpose: Displays dialog that shows the summary of the tournament
+    // Parameters: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void playClick()
     {
         final Dialog helpDialog = new Dialog(EndActivity.this);
@@ -88,10 +110,15 @@ public class EndActivity extends AppCompatActivity
         helpDialog.show();
     }
 
-    // Open start page by creating an intent
-    // Receives: null
-    // Returns: null
-    public void menuClick() {
+    // ****************************************************************
+    // Function Name: menuClick
+    // Purpose: Creates intent to start StartActivity
+    // Parameters: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    public void menuClick()
+    {
         Intent main_menu = new Intent(this, StartActivity.class);
         startActivity(main_menu);
     }

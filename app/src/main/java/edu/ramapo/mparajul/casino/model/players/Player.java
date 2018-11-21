@@ -184,79 +184,6 @@ public class Player
     }
 
     // ****************************************************************
-    // Function Name: findCommonCard
-    // Purpose: finds the card in common with the player's hand
-    // Parameters: matchedTableCards, a vector of cards. Holds the cards that were
-    //                   used to perform an action in the current move.
-    // Return value: a card object. Returns the card that was in common with the set of matched cards
-    // Assistance Received: none
-    // ****************************************************************
-    protected Card findCommonCard(final Vector<Card> matchedTableCards)
-    {
-        for (Card handCard : getCardsOnHand())
-        {
-            // return the card if found
-            if (matchedTableCards.contains(handCard))
-            {
-                return handCard;
-            }
-        }
-        return new Card();
-    }
-
-    // ****************************************************************
-    // Function Name: isCardOnHand
-    // Purpose: checks if the card selected by the player is in the player's hand
-    // Parameter: cardSelected, a string. The card selected by the player
-    // Return value: returns a boolean that checks if the player has the card in hand
-    // Assistance Received: none
-    // ****************************************************************
-    final boolean isCardOnHand(String cardSelected)
-    {
-        for (Card card : cardsOnHand)
-        {
-            if (card.cardToString().equals(cardSelected))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // ****************************************************************
-    // Function Name: isCardOnPile
-    // Purpose: checks if the card selected by the player is in the player's pile
-    // Parameter: cardSelected, a string. The card selected by the player
-    // Return value: returns a boolean that checks if the player has the card in pile
-    // Assistance Received: none
-    // ****************************************************************
-    final boolean isCardOnPile(String cardSelected)
-    {
-        for (Card card : cardsOnPile)
-        {
-            if (card.cardToString().equals(cardSelected)) return true;
-        }
-        return false;
-    }
-
-    // ****************************************************************
-    // Function Name: isCardOnTable
-    // Purpose: checks if the card selected by the player is in the table
-    // Parameter: cardSelected, a string. The card selected by the player
-    //            cardsOnTable, a vector of cards. The ongoing cards on the table
-    // Return value: returns a boolean that checks if the card is on table
-    // Assistance Received: none
-    // ****************************************************************
-    final boolean isCardOnTable (String cardSelected, Vector<Card> cardsOnTable)
-    {
-        for (Card card : cardsOnTable)
-        {
-            if (card.cardToString().equals(cardSelected)) return true;
-        }
-        return false;
-    }
-
-    // ****************************************************************
     // Function Name: playerCardsOnHand
     // Purpose: prints the current cards on the player's hand
     // Parameter: none
@@ -495,54 +422,144 @@ public class Player
         return multipleBuildCard;
     }
 
+    // ****************************************************************
+    // Function Name: setMultipleBuildCard
+    // Purpose: sets the multiple build cards on the player's hand
+    // Parameter: multipleBuildCard, a hash map of string and vector of vector of Cards. Holds the
+    // new
+    // multiple build cards for the player
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void setMultipleBuildCard (HashMap<String, Vector<Vector<Card>>> multipleBuildCard)
     {
         this.multipleBuildCard = multipleBuildCard;
     }
 
+    // ****************************************************************
+    // Function Name: setSingleBuildCard
+    // Purpose: sets the single build cards on the player's hand
+    // Parameter: singleBuildCard, a hash map of string and vector of Cards. Holds the new
+    // multiple build cards for the player
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void setSingleBuildCard (HashMap<String, Vector<Card>> singleBuildCard)
     {
         this.singleBuildCard = singleBuildCard;
     }
 
+    // ****************************************************************
+    // Function Name: setMoveActionIdentifier
+    // Purpose: sets the name of the move that the player is trying to make
+    // Parameter: moveActionIdentifier, a string. Holds the player's action name
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void setMoveActionIdentifier(String moveActionIdentifier)
     {
         this.moveActionIdentifier = moveActionIdentifier;
     }
 
+    // ****************************************************************
+    // Function Name: setClickedTableCards
+    // Purpose: saves the table cards clicked by the player
+    // Parameter: clickedTableCards. Holds the table cards clicked by the human player
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void setClickedTableCards(Vector<Card> clickedTableCards)
     {
         this.clickedTableCards = clickedTableCards;
     }
 
+    // ****************************************************************
+    // Function Name: setClickedBuildCards
+    // Purpose: saves the build cards clicked by the player
+    // Parameter: clickedBuildCards. Holds the build cards clicked by the human player
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void setClickedBuildCards(Vector<Card> clickedBuildCards)
     {
         this.clickedBuildCards = clickedBuildCards;
     }
 
-    public boolean isMoveSuccessful()
-    {
-        return moveSuccessful;
-    }
-
-    public void setMoveSuccessful(boolean moveSuccessful) { this.moveSuccessful = moveSuccessful; }
-
-    public void setHelpRequested(boolean helpRequested) { this.helpRequested = helpRequested; }
-
-    public String getMoveExplanation()
-    {
-        return moveExplanation;
-    }
-
-    public String getHelpExplanation() { return helpExplanation; }
-
+    // ****************************************************************
+    // Function Name: setClickedHandCards
+    // Purpose: saves the hand card clicked by the human player
+    // Parameter: clickedHandCard. Holds the hand card clicked by the human player
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void setClickedHandCard(Card clickedHandCard)
     {
         this.clickedHandCard = clickedHandCard;
     }
 
+    // ****************************************************************
+    // Function Name: isMoveSuccessful
+    // Purpose: returns whether the player made a successful move in the current turn
+    // Parameter: none
+    // Return value: a boolean based on whether the player made a successful move
+    // Assistance Received: none
+    // ****************************************************************
+    public boolean isMoveSuccessful()
+    {
+        return moveSuccessful;
+    }
+
+    // ****************************************************************
+    // Function Name: setMoveSuccessful
+    // Purpose: saves the flag if the player made a successful move in the current turn
+    // Parameter: moveSuccessful, a boolean. Holds tha flag to identify if the player made a
+    // successful move in their current turn
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    public void setMoveSuccessful(boolean moveSuccessful) { this.moveSuccessful = moveSuccessful; }
+
+    // ****************************************************************
+    // Function Name: setHelpRequested
+    // Purpose: sets the flag if the human player requested help during their turn
+    // Parameter: helpRequested, a boolean. Holds the flag if the human player requested help in
+    // their turn
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    public void setHelpRequested(boolean helpRequested) { this.helpRequested = helpRequested; }
+
+    // ****************************************************************
+    // Function Name: getMoveExplanation
+    // Purpose: gets the explanation for the move that the player makes
+    // Parameters: none
+    // Return value: a string that stores the explanation of the move
+    // Assistance Received: none
+    // ****************************************************************
+    public String getMoveExplanation()
+    {
+        return moveExplanation;
+    }
+
+    // ****************************************************************
+    // Function Name: getHelpExplanation
+    // Purpose: gets the help explanation for the move that the human can make
+    // Parameters: none
+    // Return value: a string that stores the explanation of a valid possible move
+    // Assistance Received: none
+    // ****************************************************************
+    public String getHelpExplanation() { return helpExplanation; }
+
+    // ****************************************************************
+    // Function Name: isMultipleBuildEmpty
+    // Purpose: returns whether the player has a multiple build
+    // Parameter: none
+    // Return value: a boolean based on whether the player has a multiple build or not
+    // Assistance Received: none
+    // ****************************************************************
     final public boolean isMultipleBuildEmpty()
     {
+        // check if there are non empty builds in the player's multiple build
         if (multipleBuildCard.containsKey(getPlayerName()))
         {
             Vector<Vector<Card>> multipleBuild = multipleBuildCard.get(getPlayerName());
@@ -557,8 +574,16 @@ public class Player
         return multipleBuildCard.isEmpty();
     }
 
+    // ****************************************************************
+    // Function Name: isSingleBuildEmpty
+    // Purpose: returns whether the player has a single build
+    // Parameter: none
+    // Return value: a boolean based on whether the player has a single build or not
+    // Assistance Received: none
+    // ****************************************************************
     final public boolean isSingleBuildEmpty()
     {
+        // check if there are non empty builds in the player's single build
         if (singleBuildCard.containsKey(getPlayerName()))
         {
             Vector<Card> build = singleBuildCard.get(getPlayerName());
@@ -568,26 +593,59 @@ public class Player
         return singleBuildCard.isEmpty();
     }
 
+    // ****************************************************************
+    // Function Name: isMakeOpponentBuildScoreEmpty
+    // Purpose: returns whether the current player has extended the build of the opponent and
+    // thus needs to set the opponent's build score to 0
+    // Parameter: none
+    // Return value: a boolean based on whether the player has extended the opponent's build
+    // Assistance Received: none
+    // ****************************************************************
     public boolean isMakeOpponentBuildScoreEmpty()
     {
         return makeOpponentBuildScoreEmpty;
     }
 
+    // ****************************************************************
+    // Function Name: setMakeOpponentBuildSooreEmpty
+    // Purpose: sets the flag if the previous player extended the opponent's build
+    // Parameter: makeOpponentBuildScoreEmpty, a boolean. Holds the flag if the current player
+    // extended the build of the opponent
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void setMakeOpponentBuildScoreEmpty(boolean makeOpponentBuildScoreEmpty)
     {
         this.makeOpponentBuildScoreEmpty = makeOpponentBuildScoreEmpty;
     }
 
+    // ****************************************************************
+    // Function Name: getTourneyScore
+    // Purpose: gets the player's score of the tournament
+    // Parameters: none
+    // Return value: the tournament score of the player
+    // Assistance Received: none
+    // ****************************************************************
     public int getTourneyScore()
     {
         return tourneyScore;
     }
 
+    // ****************************************************************
+    // Function Name: setTourneyScore
+    // Purpose: sets the player's score of the tournament
+    // Parameters: tourneyScore, an integer. Holds the tournament score of the player
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void setTourneyScore(int tourneyScore)
     {
         this.tourneyScore = tourneyScore;
     }
 
+
+
+    // The following functions will be overridden by the Human and Computer classes.
 
     public void play (Vector<Card> tableCards, HashMap<String, Vector<Card>> oppoBuild,
                       String opponentPlayerName){}

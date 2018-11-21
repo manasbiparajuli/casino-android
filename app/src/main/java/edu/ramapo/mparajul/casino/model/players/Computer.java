@@ -15,8 +15,17 @@ import edu.ramapo.mparajul.casino.model.utility.Pairs;
 
 public class Computer extends Player
 {
+    // Create a score object that will be used to create the possible build combinations
+    // by utilizing the concept of power set
     private Score score = new Score();
 
+    // ****************************************************************
+    // Function Name: Computer
+    // Purpose: serves as a default constructor for Round class
+    // Parameters: -> name, a string. Holds the name of the computer player
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public Computer(String name)
     {
         playerName = name;
@@ -53,7 +62,6 @@ public class Computer extends Player
         actionSuccess = increaseOpponentBuild(tableCards, oppoBuild, opponentPlayerName);
         if (actionSuccess)
         {
-            System.out.println("Increased Opponent's Build.");
             hasCapturedCardsInMove = false;
             moveSuccessful = true;
             return;
@@ -62,7 +70,6 @@ public class Computer extends Player
         actionSuccess = captureMultipleBuild();
         if (actionSuccess)
         {
-            System.out.println("Captured multiple build");
             hasCapturedCardsInMove = true;
             moveSuccessful = true;
             return;
@@ -71,7 +78,6 @@ public class Computer extends Player
         actionSuccess = makeMultipleBuild(tableCards);
         if (actionSuccess)
         {
-            System.out.println("Multiple build successful");
             hasCapturedCardsInMove = false;
             moveSuccessful = true;
             return;
@@ -80,7 +86,6 @@ public class Computer extends Player
         actionSuccess = captureSingleBuild();
         if (actionSuccess)
         {
-            System.out.println("Captured single build");
             hasCapturedCardsInMove = true;
             moveSuccessful = true;
             return;
@@ -89,7 +94,6 @@ public class Computer extends Player
         actionSuccess = makeSingleBuild(tableCards);
         if (actionSuccess)
         {
-            System.out.println("Single build successful");
             hasCapturedCardsInMove = false;
             moveSuccessful = true;
             return;
@@ -98,7 +102,6 @@ public class Computer extends Player
         actionSuccess = captureSetAndIndividualCards(tableCards);
         if (actionSuccess)
         {
-            System.out.println("Captured set and individual cards");
             hasCapturedCardsInMove = true;
             moveSuccessful = true;
             return;
@@ -551,6 +554,7 @@ public class Computer extends Player
     {
         for (Card handCard : getCardsOnHand())
         {
+            // Check if any hand cards matches the single build score of the player
             if (calcSingleCardScore(handCard) == getFirstBuildScore())
             {
                 // capture multiple builds, if there exist a matching card in the player's hand
@@ -623,6 +627,7 @@ public class Computer extends Player
     {
         for (Card handCard : getCardsOnHand())
         {
+            // Check if any hand card matches the score of the build
             if (calcSingleCardScore(handCard) == getFirstBuildScore())
             {
                 // capture single build

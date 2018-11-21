@@ -123,7 +123,6 @@ public class Score
     private void calculate10OfDiamonds()
     {
         // Player with 10 of Diamonds scores 2 points
-
         for (Card card : playerOnePile)
         {
             if (card.cardToString().equals("DX"))
@@ -391,27 +390,51 @@ public class Score
     // Return value: none
     // Assistance Received: none
     // ****************************************************************
-    public void setPlayerTwoScore(int score)
-    {
-        playerTwoScore += score;
+    public void setPlayerTwoScore(int score) { playerTwoScore += score; }
 
-    }
-
+    // ****************************************************************
+    // Function Name: getPlayerOneTotalCards
+    // Purpose: gets the total cards of player one
+    // Parameter: none
+    // Return value: The total cards of player one
+    // Assistance Received: none
+    // ****************************************************************
     public int getPlayerOneTotalCards()
     {
         return playerOneTotalCards;
     }
 
+    // ****************************************************************
+    // Function Name: getPlayerTwoTotalCards
+    // Purpose: gets the total cards of player two
+    // Parameter: none
+    // Return value: The total cards of player two
+    // Assistance Received: none
+    // ****************************************************************
     public int getPlayerTwoTotalCards()
     {
         return playerTwoTotalCards;
     }
 
+    // ****************************************************************
+    // Function Name: getPlayerOneTotalSpades
+    // Purpose: gets the total spades of cards of player one
+    // Parameter: none
+    // Return value: The total spades of cards of player one
+    // Assistance Received: none
+    // ****************************************************************
     public int getPlayerOneTotalSpades()
     {
         return playerOneTotalSpades;
     }
 
+    // ****************************************************************
+    // Function Name: getPlayerTwoTotalSpades
+    // Purpose: gets the total spades of cards of player two
+    // Parameter: none
+    // Return value: The total spades of cards of player two
+    // Assistance Received: none
+    // ****************************************************************
     public int getPlayerTwoTotalSpades()
     {
         return playerTwoTotalSpades;

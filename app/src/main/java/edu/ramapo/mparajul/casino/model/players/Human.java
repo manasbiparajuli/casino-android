@@ -5,19 +5,22 @@
 //* Date: 11/20/2018
 //****************************************************
 package edu.ramapo.mparajul.casino.model.players;
-
-import android.os.Build;
-
 import java.util.HashMap;
 import java.util.Vector;
-
 import edu.ramapo.mparajul.casino.model.setup.Card;
 import edu.ramapo.mparajul.casino.model.utility.Pairs;
 import edu.ramapo.mparajul.casino.model.utility.Score;
 
 public class Human extends Player
 {
-    public Human (String name)
+    // ****************************************************************
+    // Function Name: Human
+    // Purpose: serves as a default constructor for Round class
+    // Parameters: -> name, a string. Holds the name of the human player
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
+    public Human(String name)
     {
         playerName = name;
     }
@@ -32,8 +35,8 @@ public class Human extends Player
     // Return value: none
     // Assistance Received: none
     // ****************************************************************
-    public void play (Vector<Card> tableCards, HashMap<String, Vector<Card>> oppoBuild,
-                      String opponentPlayerName)
+    public void play(Vector<Card> tableCards, HashMap<String, Vector<Card>> oppoBuild,
+                     String opponentPlayerName)
     {
         // flag for when human player successfully makes a move
         boolean actionSuccess;
@@ -41,47 +44,62 @@ public class Human extends Player
         moveExplanation = "";
 
         // call move functions based on user choice
-        if (moveActionIdentifier.equals("make_single_build"))
-        {
+        if (moveActionIdentifier.equals("make_single_build")) {
             actionSuccess = makeSingleBuild(tableCards);
-            if (actionSuccess) { hasCapturedCardsInMove = false; moveSuccessful = true;}
-            else { moveSuccessful = false; }
-        }
-        else if (moveActionIdentifier.equals("make_multiple_build"))
-        {
+            if (actionSuccess) {
+                hasCapturedCardsInMove = false;
+                moveSuccessful = true;
+            } else {
+                moveSuccessful = false;
+            }
+        } else if (moveActionIdentifier.equals("make_multiple_build")) {
             actionSuccess = makeMultipleBuild(tableCards);
-            if (actionSuccess) { hasCapturedCardsInMove = false; moveSuccessful = true;}
-            else { moveSuccessful = false; }
-        }
-        else if (moveActionIdentifier.equals("extend_build"))
-        {
+            if (actionSuccess) {
+                hasCapturedCardsInMove = false;
+                moveSuccessful = true;
+            } else {
+                moveSuccessful = false;
+            }
+        } else if (moveActionIdentifier.equals("extend_build")) {
             actionSuccess = increaseOpponentBuild(tableCards, oppoBuild, opponentPlayerName);
-            if (actionSuccess) { hasCapturedCardsInMove = false; moveSuccessful = true;}
-            else { moveSuccessful = false; }
-        }
-        else if (moveActionIdentifier.equals("capture_individual_set"))
-        {
+            if (actionSuccess) {
+                hasCapturedCardsInMove = false;
+                moveSuccessful = true;
+            } else {
+                moveSuccessful = false;
+            }
+        } else if (moveActionIdentifier.equals("capture_individual_set")) {
             actionSuccess = captureSetAndIndividualCards(tableCards);
-            if (actionSuccess) { hasCapturedCardsInMove = true; moveSuccessful = true;}
-            else { moveSuccessful = false; }
-        }
-        else if (moveActionIdentifier.equals("capture_single_build"))
-        {
+            if (actionSuccess) {
+                hasCapturedCardsInMove = true;
+                moveSuccessful = true;
+            } else {
+                moveSuccessful = false;
+            }
+        } else if (moveActionIdentifier.equals("capture_single_build")) {
             actionSuccess = captureSingleBuild();
-            if (actionSuccess) { hasCapturedCardsInMove = true; moveSuccessful = true;}
-            else { moveSuccessful = false; }
-        }
-        else if (moveActionIdentifier.equals("capture_multiple_build"))
-        {
+            if (actionSuccess) {
+                hasCapturedCardsInMove = true;
+                moveSuccessful = true;
+            } else {
+                moveSuccessful = false;
+            }
+        } else if (moveActionIdentifier.equals("capture_multiple_build")) {
             actionSuccess = captureMultipleBuild();
-            if (actionSuccess) { hasCapturedCardsInMove = true; moveSuccessful = true;}
-            else { moveSuccessful = false; }
-        }
-        else if (moveActionIdentifier.equals("trail"))
-        {
+            if (actionSuccess) {
+                hasCapturedCardsInMove = true;
+                moveSuccessful = true;
+            } else {
+                moveSuccessful = false;
+            }
+        } else if (moveActionIdentifier.equals("trail")) {
             actionSuccess = trailCard(tableCards);
-            if (actionSuccess) { hasCapturedCardsInMove = false; moveSuccessful = true;}
-            else { moveSuccessful = false; }
+            if (actionSuccess) {
+                hasCapturedCardsInMove = false;
+                moveSuccessful = true;
+            } else {
+                moveSuccessful = false;
+            }
         }
     }
 
@@ -92,18 +110,16 @@ public class Human extends Player
     // Return value: a boolean. Returns whether the player was able to make a single build or not
     // Assistance Received: none
     // ****************************************************************
-    public boolean makeSingleBuild (Vector<Card> tableCards)
+    public boolean makeSingleBuild(Vector<Card> tableCards)
     {
         // Player cannot make a single build if there are less than two cards on hand
-        if (getCardsOnHand().size() < 2)
-        {
+        if (getCardsOnHand().size() < 2) {
             moveExplanation = "Invalid. Cannot build when there are less than two cards in hand.";
             return false;
         }
 
         // Player cannot make a build if there are no cards on the table
-        if (tableCards.size() < 1)
-        {
+        if (tableCards.size() < 1) {
             moveExplanation = "Invalid. No cards on table to build with.";
             return false;
         }
@@ -113,11 +129,9 @@ public class Human extends Player
 
         // check if there are any cards on hand that will be used to
         // capture the new possible build in the player's next turn
-        for (Card card: cardsOnHand)
-        {
+        for (Card card : cardsOnHand) {
             // there exists a card on hand that can be used to capture this build in the next turn
-            if (calcSingleCardScore(card) == calcLooseCardScore(clickedTableCards))
-            {
+            if (calcSingleCardScore(card) == calcLooseCardScore(clickedTableCards)) {
                 firstBuildScore = calcSingleCardScore(card);
 
                 // Initialize build process
@@ -143,7 +157,7 @@ public class Human extends Player
     // Return value: a boolean. Returns whether the player was able to make a multiple build or not
     // Assistance Received: none
     // ****************************************************************
-    public boolean makeMultipleBuild (Vector<Card> tableCards)
+    public boolean makeMultipleBuild(Vector<Card> tableCards)
     {
         // get the build score of last successful single build
         int previousBuildScore = getFirstBuildScore();
@@ -155,22 +169,17 @@ public class Human extends Player
         Vector<Card> looseCardsSelected = new Vector<>();
 
         // Player cannot make a multiple build if there are less than two cards in hand
-        if (getCardsOnHand().size() < 2)
-        {
+        if (getCardsOnHand().size() < 2) {
             moveExplanation = "Invalid. Cannot make multiple build when there are less than " +
                                       "two cards in hand.";
             return false;
         }
 
         // check if we have a card in hand that matches score of previous single build score
-        for (Card handCards : getCardsOnHand())
-        {
-            if (calcSingleCardScore(handCards) != previousBuildScore)
-            {
+        for (Card handCards : getCardsOnHand()) {
+            if (calcSingleCardScore(handCards) != previousBuildScore) {
                 buildScoreMismatch = true;
-            }
-            else
-            {
+            } else {
                 // since there exists a card that matches previous build score, we can break from loop
                 buildScoreMismatch = false;
                 break;
@@ -178,8 +187,7 @@ public class Human extends Player
         }
 
         // if there are no cards to match the previous build score, then return from the function
-        if (buildScoreMismatch)
-        {
+        if (buildScoreMismatch) {
             moveExplanation = "Invalid. No card present on hand that matches previous build " +
                                       "score.";
             return false;
@@ -187,23 +195,18 @@ public class Human extends Player
 
         // check if the player can make a multiple build with just the single hand card
         // If this is the case, then the player should not have clicked on any table cards
-        if (clickedTableCards.size() == 0)
-        {
-            if (calcSingleCardScore(clickedHandCard) == previousBuildScore)
-            {
+        if (clickedTableCards.size() == 0) {
+            if (calcSingleCardScore(clickedHandCard) == previousBuildScore) {
                 int sameHandCardScore = 0;
 
                 // check if there are at least two cards on hand that match the
                 // score of the new build that the player is trying to make
-                for (Card handCard : getCardsOnHand())
-                {
-                    if (calcSingleCardScore(handCard) == previousBuildScore)
-                    {
+                for (Card handCard : getCardsOnHand()) {
+                    if (calcSingleCardScore(handCard) == previousBuildScore) {
                         sameHandCardScore++;
 
                         // initiate multiple build if we have two hand cards with same score as previous build score
-                        if (sameHandCardScore >= 2)
-                        {
+                        if (sameHandCardScore >= 2) {
                             // add the selected card to the build that the user is trying to make
                             looseCardsSelected.add(clickedHandCard);
                             initiateMultipleBuild(looseCardsSelected);
@@ -217,8 +220,7 @@ public class Human extends Player
             }
             // The single card that the user is trying to use to make a singular-build
             // does not match the score of the previous build
-            else
-            {
+            else {
                 moveExplanation = "Invalid. Newest build score does not match the previous score of " +
                                           "" + previousBuildScore + ".";
                 return false;
@@ -232,21 +234,16 @@ public class Human extends Player
         looseCardsSelected.addAll(clickedTableCards);
 
         // Check if the newest build score matches the previous single build score
-        if (calcLooseCardScore(looseCardsSelected) != previousBuildScore)
-        {
+        if (calcLooseCardScore(looseCardsSelected) != previousBuildScore) {
             moveExplanation = "Invalid. Newest build score does not match the previous score of"
                                       + previousBuildScore + ".";
             return false;
-        }
-        else
-        {
+        } else {
             // check if there is a card on hand that matches the score of the new build
             // that the user is trying to make
-            for (Card handCard : getCardsOnHand())
-            {
+            for (Card handCard : getCardsOnHand()) {
                 // check if the hand card score matches the build that the user is trying to make
-                if (calcSingleCardScore(handCard) == previousBuildScore)
-                {
+                if (calcSingleCardScore(handCard) == previousBuildScore) {
                     // make multiple build as the build score matched the previous single build score
                     // and there is a card in hand equal to the new build score
                     initiateMultipleBuild(looseCardsSelected);
@@ -270,19 +267,21 @@ public class Human extends Player
     // Return value: a boolean. Returns whether the player was able to increase opponent's single build or not
     // Assistance Received: none
     // ****************************************************************
-    public boolean increaseOpponentBuild (Vector<Card> tableCards, HashMap<String, Vector<Card>>
-                                                                           oppoBuild, String opponentPlayerName)
+    public boolean increaseOpponentBuild(Vector<Card> tableCards, HashMap<String, Vector<Card>>
+                                                                          oppoBuild, String opponentPlayerName)
     {
         // get the build of the opponent
         Vector<Card> realOpponentBuild = new Vector<>();
-        realOpponentBuild = (Vector<Card>) oppoBuild.get(opponentPlayerName).clone();
-
         Vector<Card> opponentBuild = new Vector<>();
-        opponentBuild = (Vector<Card>) oppoBuild.get(opponentPlayerName).clone();
+
+        // Store the opponent's build as we do not want to modify the original build
+        if (oppoBuild.get(opponentPlayerName).clone() != null) {
+            realOpponentBuild = (Vector<Card>) oppoBuild.get(opponentPlayerName).clone();
+            opponentBuild = (Vector<Card>) oppoBuild.get(opponentPlayerName).clone();
+        }
 
         // ensure that the player is not increasing their own build or that the opponent's build is not empty
-        if (opponentPlayerName.equals(getPlayerName()) || opponentBuild.size() == 0)
-        {
+        if (opponentPlayerName.equals(getPlayerName()) || opponentBuild.size() == 0) {
             moveExplanation = "Cannot increment your own build or opponent's build is empty!";
             return false;
         }
@@ -293,26 +292,21 @@ public class Human extends Player
 
         // check if there is a handcard that the player can use to increase the opponent's build
         // by matching the handcard score against the score of the possible extended build
-        for (Card handCard : getCardsOnHand())
-        {
-            if (calcSingleCardScore(handCard) == calcLooseCardScore(opponentBuild))
-            {
+        for (Card handCard : getCardsOnHand()) {
+            if (calcSingleCardScore(handCard) == calcLooseCardScore(opponentBuild)) {
                 // Stores all the cards in the opponent's single build which will be used to check
                 // against the list of build cards clicked by the user and to verify if
                 // the correct builds have been selected to extend
                 int clickedBuildCount = 0;
-                for (Card card : opponentBuild)
-                {
+                for (Card card : opponentBuild) {
                     // check if all the cards clicked exists in the player's single build
-                    if (clickedBuildCards.contains(card))
-                    {
+                    if (clickedBuildCards.contains(card)) {
                         clickedBuildCount++;
                     }
                 }
 
                 // Check if the player selected the wrong build to capture
-                if (clickedBuildCount != realOpponentBuild.size())
-                {
+                if (clickedBuildCount != realOpponentBuild.size()) {
                     moveExplanation = "Invalid selection of opponent's build cards.";
                     return false;
                 }
@@ -343,7 +337,7 @@ public class Human extends Player
     // Return value: none
     // Assistance Received: none
     // ****************************************************************
-    public void initiateMultipleBuild (Vector<Card> looseCardsSelected)
+    public void initiateMultipleBuild(Vector<Card> looseCardsSelected)
     {
         // cards in the single build
         Vector<Card> singleBuild = singleBuildCard.get(getPlayerName());
@@ -375,15 +369,13 @@ public class Human extends Player
     public boolean captureMultipleBuild()
     {
         // Check if the player has multiple build to capture
-        if (isMultipleBuildEmpty())
-        {
+        if (isMultipleBuildEmpty()) {
             moveExplanation = "Invalid. No multiple builds exist to capture!!";
             return false;
         }
 
         // check if the selected hand card score matches the multiple build card score
-        if (calcSingleCardScore(clickedHandCard) == firstBuildScore)
-        {
+        if (calcSingleCardScore(clickedHandCard) == firstBuildScore) {
             Vector<Vector<Card>> multipleBuild = multipleBuildCard.get(getPlayerName());
 
             // Stores all the cards in the multiple build which will be used to check
@@ -393,29 +385,24 @@ public class Human extends Player
 
             int clickedBuildCount = 0;
 
-            for (Vector<Card> tempSingleBuild : multipleBuild)
-            {
+            for (Vector<Card> tempSingleBuild : multipleBuild) {
                 buildList.addAll(tempSingleBuild);
             }
 
-            for (Card card : buildList)
-            {
-                if (clickedBuildCards.contains(card))
-                {
+            for (Card card : buildList) {
+                if (clickedBuildCards.contains(card)) {
                     clickedBuildCount++;
                 }
             }
 
             // Check if the player selected the wrong build to capture
-            if (clickedBuildCount != buildList.size())
-            {
+            if (clickedBuildCount != buildList.size()) {
                 moveExplanation = "Invalid build cards selected to capture.";
                 return false;
             }
 
             // add the cards in the multiple build to the pile of the human player
-            for (Vector<Card> singleBuild : multipleBuild)
-            {
+            for (Vector<Card> singleBuild : multipleBuild) {
                 cardsOnPile.addAll(singleBuild);
             }
 
@@ -430,9 +417,7 @@ public class Human extends Player
             removeCardFromHand(clickedHandCard);
 
             return true;
-        }
-        else
-        {
+        } else {
             moveExplanation = "Invalid. Selected hand card does not match the multiple build " +
                                       "score of " + firstBuildScore;
             return false;
@@ -449,18 +434,15 @@ public class Human extends Player
     public boolean captureSingleBuild()
     {
         // Check if the player has single build to capture
-        if (isSingleBuildEmpty())
-        {
+        if (isSingleBuildEmpty()) {
             moveExplanation = "Invalid. No single build exists to capture!!";
             return false;
         }
 
         // check if the selected hand card score matches the single build card score
-        if (calcSingleCardScore(clickedHandCard) == firstBuildScore)
-        {
+        if (calcSingleCardScore(clickedHandCard) == firstBuildScore) {
             // Check if the player has selected the correct build to capture with the hand card
-            if (calcSingleCardScore(clickedHandCard) != calcLooseCardScore(clickedBuildCards))
-            {
+            if (calcSingleCardScore(clickedHandCard) != calcLooseCardScore(clickedBuildCards)) {
                 moveExplanation = "Invalid. Build and hand card score mismatch.";
                 return false;
             }
@@ -472,18 +454,15 @@ public class Human extends Player
 
             int clickedBuildCount = 0;
 
-            for (Card card : buildList)
-            {
+            for (Card card : buildList) {
                 // check if all the cards clicked exists in the player's single build
-                if (clickedBuildCards.contains(card))
-                {
+                if (clickedBuildCards.contains(card)) {
                     clickedBuildCount++;
                 }
             }
 
             // Check if the player selected the wrong build to capture
-            if (clickedBuildCount != buildList.size())
-            {
+            if (clickedBuildCount != buildList.size()) {
                 moveExplanation = "Invalid build cards selected to capture.";
                 return false;
             }
@@ -505,9 +484,7 @@ public class Human extends Player
             removeCardFromHand(clickedHandCard);
 
             return true;
-        }
-        else
-        {
+        } else {
             moveExplanation = "Invalid. Selected hand card does not match the single build score of "
                                       + firstBuildScore;
             return false;
@@ -534,14 +511,11 @@ public class Human extends Player
 
         // If there is only one clicked card from the table, then it must be a matching card with
         // the hand card that the player is trying to capture
-        if (clickedTableCards.size() == 1)
-        {
-            for (Card card : clickedTableCards)
-            {
+        if (clickedTableCards.size() == 1) {
+            for (Card card : clickedTableCards) {
                 // check if there are any single cards in the player's clicked table cards
                 // that matches the score of the clicked hand card
-                if (calcSingleCardScore(card) == handCardScore)
-                {
+                if (calcSingleCardScore(card) == handCardScore) {
                     // Add the card to pile as capturing has been successful and
                     // remove the selected card from hand and the table
                     cardsOnPile.add(clickedHandCard);
@@ -572,11 +546,9 @@ public class Human extends Player
         // of their picked hand card
         // It is mandatory to capture the loose card if the selected hand card matches any single
         // cards in the table
-        for (Card card : tableCards)
-        {
+        for (Card card : tableCards) {
             // Player did not select a table card that matched the score of the clicked hand card
-            if (calcSingleCardScore(card) == handCardScore && !clickedTableCards.contains(card))
-            {
+            if (calcSingleCardScore(card) == handCardScore && !clickedTableCards.contains(card)) {
                 moveExplanation = "Matching single loose card must be captured using the hand card";
                 return false;
             }
@@ -584,37 +556,31 @@ public class Human extends Player
 
         // iterate through the map and check if the key matches the handCardScore
         // add the possible set combination to the list
-        for (Pairs<Integer, Vector<Card>> buildList : mapSet)
-        {
+        for (Pairs<Integer, Vector<Card>> buildList : mapSet) {
             // the build combination score matches the hand card of the player
-            if (buildList.first == handCardScore)
-            {
+            if (buildList.first == handCardScore) {
                 // keep track of all the possible sets in the build
                 possibleSets.addAll(buildList.second);
             }
         }
 
-        for (Card card : clickedTableCards)
-        {
+        for (Card card : clickedTableCards) {
             // count the number of common cards in the player's clicked table cards
             // with the possible sets.
-            if (possibleSets.contains(card))
-            {
+            if (possibleSets.contains(card)) {
                 setCountFound++;
             }
 
             // check if there are any single cards in the player's clicked table cards
             // that matches the score of the clicked hand card
-            if (calcSingleCardScore(card) == handCardScore)
-            {
+            if (calcSingleCardScore(card) == handCardScore) {
                 possibleSets.add(card);
                 setCountFound++;
             }
         }
 
         // the player's table cards does not match the sets count
-        if (setCountFound != clickedTableCards.size())
-        {
+        if (setCountFound != clickedTableCards.size()) {
             moveExplanation = "Cannot capture set of cards";
             return false;
         }
@@ -636,17 +602,15 @@ public class Human extends Player
     // Return value: a boolean. Returns whether the player was able to trail a card or not
     // Assistance Received: none
     // ****************************************************************
-    public boolean trailCard (Vector<Card> tableCards)
+    public boolean trailCard(Vector<Card> tableCards)
     {
         // Warn the human player that trailing is not possible when they own a build
-        if (!isSingleBuildEmpty() || !isMultipleBuildEmpty())
-        {
+        if (!isSingleBuildEmpty() || !isMultipleBuildEmpty()) {
             moveExplanation = "Cannot trail if you have a build owned!";
             return false;
         }
 
-        if (calcSingleCardScore(clickedHandCard) == firstBuildScore)
-        {
+        if (calcSingleCardScore(clickedHandCard) == firstBuildScore) {
             moveExplanation = "Invalid. Cannot trail a card that matches your build score because" +
                                       " you need to use the card to capture build in next turn";
             return false;
@@ -654,12 +618,9 @@ public class Human extends Player
 
         // Check if there are any loose cards on table that the player did not capture using this
         // card
-        if (tableCards.size() > 0)
-        {
-            for (Card table : tableCards)
-            {
-                if (calcSingleCardScore(clickedHandCard) == calcSingleCardScore(table))
-                {
+        if (tableCards.size() > 0) {
+            for (Card table : tableCards) {
+                if (calcSingleCardScore(clickedHandCard) == calcSingleCardScore(table)) {
                     moveExplanation = "Invalid. Cannot trail when you have a matching loose card" +
                                               " in the table.";
                     return false;

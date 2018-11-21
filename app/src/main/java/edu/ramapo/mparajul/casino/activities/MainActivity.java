@@ -37,11 +37,9 @@ import edu.ramapo.mparajul.casino.R;
 import edu.ramapo.mparajul.casino.model.setup.Card;
 import edu.ramapo.mparajul.casino.model.setup.Round;
 import edu.ramapo.mparajul.casino.model.setup.Tournament;
-import edu.ramapo.mparajul.casino.model.utility.Pairs;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener
 {
-    private int playerTurn;
     private int deviceWidth;
     private boolean roundEnded = false;
 
@@ -66,9 +64,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // button that display cards in this activity
         deviceWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
 
+        // create a tournament object
         tournament = new Tournament();
-
-        playerTurn = 0;
         roundEnded = false;
 
         configureToolbar();
@@ -77,12 +74,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         populateCardsOnDisplay();
     }
 
+    // ****************************************************************
+    // Function Name: configureToolbar
+    // Purpose: creates a toolbar that populates with menu items for getting help, seeing scores
+    // Parameters: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void configureToolbar()
     {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
     }
 
+    // ****************************************************************
+    // Function Name: onCreateOptionsMenu
+    // Purpose: inflates the toolbar with menu items for getting help, seeing scores
+    // Parameters: menu, a Menu object. Holds the menu
+    // Return value: a flag that returns if menu has been populated in the toolbar
+    // Assistance Received: none
+    // ****************************************************************
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
@@ -91,6 +102,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return true;
     }
 
+    // ****************************************************************
+    // Function Name: onOptionsItemsSelected
+    // Purpose: populates the menu with menu items
+    // Parameters: item, an MenuItem object. Holds the items for the toolbar
+    // Return value: a flag that returns if menu has been populated with items
+    // Assistance Received: none
+    // ****************************************************************
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
@@ -121,6 +139,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return super.onOptionsItemSelected(item);
     }
 
+    // ****************************************************************
+    // Function Name: loadGameState
+    // Purpose: loads the tournament based on whether the player selected for new game or load game
+    // Parameters: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     private void loadGameState()
     {
         Intent intent = getIntent();
@@ -149,6 +174,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    // ****************************************************************
+    // Function Name: playTournament
+    // Purpose: starts the tournament
+    // Parameters: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void playTournament()
     {
         if (!(tournament.getHumanTournamentScore() >= 21 || tournament.getComputerTournamentScore() >= 21))
@@ -263,6 +295,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         populateCardsOnDisplay();
     }
 
+    // ****************************************************************
+    // Function Name: showDeckAndPile
+    // Purpose: sets the dialog box for showing the deck of cards and pile of the players
+    // Parameter: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void showDeckAndPile()
     {
         final Dialog deck_dialog = new Dialog(MainActivity.this);
@@ -271,6 +310,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         deck_dialog.show();
     }
 
+    // ****************************************************************
+    // Function Name: saveGame
+    // Purpose: sets the dialog box to save the current game state
+    // Parameter: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void saveGame()
     {
         final Dialog dialog = new Dialog(MainActivity.this);
@@ -304,6 +350,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    // ****************************************************************
+    // Function Name: getHelp
+    // Purpose: sets the dialog box to display the possible move for the human player
+    // Parameter: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void getHelp()
     {
         final Dialog helpDialog = new Dialog(MainActivity.this);
@@ -325,6 +378,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         helpDialog.show();
     }
 
+    // ****************************************************************
+    // Function Name: displayScore
+    // Purpose: sets the dialog box to display the round and tournament scores for the players
+    // Parameter: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void displayScore()
     {
         int humanTourneyScore = round.getHumanTourneyScore() + round.getHumanRoundScore();
@@ -358,6 +418,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         score_dialog.show();
     }
 
+    // ****************************************************************
+    // Function Name: getEndRoundStatus
+    // Purpose: gets the string that summarises the round
+    // Parameter: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public String getEndRoundStatus()
     {
         StringBuilder message = new StringBuilder();
@@ -381,6 +448,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return message.toString();
     }
 
+    // ****************************************************************
+    // Function Name: declareWinner
+    // Purpose: gets the score for the tournament and start the EndActivity
+    // Parameter: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void declareWinner()
     {
         int compScore = tournament.getComputerTournamentScore();
@@ -404,6 +478,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(intent);
     }
 
+    // ****************************************************************
+    // Function Name: populateCardsOnDisplay
+    // Purpose: calls the functions that populates hand, table and the build cards
+    // Parameter: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void populateCardsOnDisplay()
     {
         populateHand();
@@ -411,6 +492,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setBuildCards();
     }
 
+    // ****************************************************************
+    // Function Name: populateDeckPile
+    // Purpose: populates the deck and pile in a new dialog
+    // Parameter: dialog, a Dialog object. Holds the specific dialog box that will be used to
+    //                populate the cards
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void populateDeckPile(Dialog dialog)
     {
         // display computer cards on pile
@@ -442,7 +531,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         createCardsDynamically(linearLayout, labelNames, false);
     }
 
-
+    // ****************************************************************
+    // Function Name: populateHand
+    // Purpose: populates the dialog with hand cards
+    // Parameters: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void populateHand()
     {
         // display computer cards on hand
@@ -463,17 +558,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             labelNames.add(card.cardToString());
         }
         createCardsDynamically(linearLayout, labelNames,true);
-
     }
 
+    // ****************************************************************
+    // Function Name: populateTable
+    // Purpose: populates the dialog with table cards
+    // Parameters: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void populateTable()
     {
+        // stores the width of the card that will be used when displaying cards
         int cardWidth = deviceWidth / 5;
 
         // display cards on table
         FlexboxLayout flexboxLayout = findViewById(R.id.layout_table_cards);
         flexboxLayout.removeAllViews();
         Vector<String> labelNames = new Vector<>();
+
+        // convert the cards into a string
         for (Card card : round.getTableCards())
         {
             labelNames.add(card.cardToString());
@@ -512,6 +616,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    // ****************************************************************
+    // Function Name: setBuildCards
+    // Purpose: gets the builds of the players and calls converts into a string
+    // Parameters: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void setBuildCards()
     {
         FlexboxLayout parentFlexboxLayout = findViewById(R.id.layout_build_cards);
@@ -572,6 +683,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    // ****************************************************************
+    // Function Name: makeLayoutForBuild
+    // Purpose: populates the flexboxlayout with the build cards
+    // Parameters:  -> flexboxLayout, a FlexboxLayout object. Holds the layout to where the build
+    //                      are populated
+    //              -> temp, a vector of String. Holds the cards
+    //              -> borderDrawable, a String. Holds the drawable file name that will be used
+    //                          to set the border of the builds to differentiate between computer and human players
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     private void makeLayoutForBuild(FlexboxLayout flexboxLayout, Vector<String> temp,
                                     String borderDrawable)
     {
@@ -646,10 +768,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         flexboxLayout.addView(linearLayout);
     }
 
-
+    // ****************************************************************
+    // Function Name: createCardsDynamically
+    // Purpose: dynamically populate cards in the linearlayout
+    // Parameters:  -> linearlayout, LinearLayout object. The layout that will be populated with
+    //                      cards
+    //              -> labelNames, a vector of String. List of cards as string.
+    //              -> clickable, a boolean. Holds the flag to define if cards are clickable
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     private void createCardsDynamically(LinearLayout linearLayout, Vector<String> labelNames, boolean clickable)
     {
+        // clear all views before populating the layout with cards
         linearLayout.removeAllViews();
+
         // store the width of the card
         int cardWidth = deviceWidth / 5;
 
@@ -681,11 +814,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 imageView.setClickable(true);
                 imageView.setOnClickListener(this);
             }
+            // computer hand cards, deck, pile of cards are not clickable
             else { imageView.setClickable(false);}
+
             linearLayout.addView(imageView);
         }
     }
 
+    // ****************************************************************
+    // Function Name: onClick
+    // Purpose: overrides the on click function
+    // Parameters: view, a View object. Holds the clicked view
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     @Override
     public void onClick(View view)
     {
@@ -722,6 +864,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    // ****************************************************************
+    // Function Name: onClickCardAction
+    // Purpose: defines the function for clicks registered for human action clicks
+    // Parameters: view, a View object. Holds the clicked view
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void onClickCardAction(View view)
     {
         switch (view.getId())
@@ -898,9 +1047,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             round.setHumanIsMoveSuccessful(false);
             round.setHumanIsMakeOpponentBuildEmpty(false);
 
-            // increment the turn of the players as we made a successful move
-            playerTurn++;
-
             highlightNextPlayer();
             setMoveButtonsClickableOnTurn();
             populateCardsOnDisplay();
@@ -913,9 +1059,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             round.setNextPlayer(round.getHumanPlayerName());
             round.setComputerIsMoveSuccessful(false);
             round.setComputerIsMakeOpponentBuildEmpty(false);
-
             displayMoveExplanation(round.getComputerMoveExplanation());
-            playerTurn++;
 
             highlightNextPlayer();
             setMoveButtonsClickableOnTurn();
@@ -926,8 +1070,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         populateCardsOnDisplay();
     }
 
+    // ****************************************************************
+    // Function Name: setMoveButtonsClickableOnTurn
+    // Purpose: disables the buttons for player based on the current player
+    // Parameters: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     private void setMoveButtonsClickableOnTurn()
     {
+        // enable human buttons, disable computer move button
         if (round.getNextPlayer().equals(round.getHumanPlayerName()))
         {
             Button button = findViewById(R.id.make_computer_move);
@@ -943,6 +1095,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 button.setClickable(true);
             }
         }
+        // disable human buttons, enable computer move button
         else if (round.getNextPlayer().equals(round.getComputerPlayerName()))
         {
             Button button = findViewById(R.id.make_computer_move);
@@ -960,6 +1113,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    // ****************************************************************
+    // Function Name: resetGameCardClicks
+    // Purpose: removes the clicked buttons and sets their buttons to normal
+    // Parameters: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     private void resetGameCardClicks()
     {
         // reset the holder for clicked and build cards
@@ -969,6 +1129,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         buildCardClicked = new Vector<>();
     }
 
+    // ****************************************************************
+    // Function Name: highlightNextPlayer
+    // Purpose: highlights the border of the player's hands based on whose turn it is
+    // Parameters: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     private void highlightNextPlayer()
     {
         LinearLayout linearLayout;
@@ -1019,6 +1186,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    // ****************************************************************
+    // Function Name: setCardBorderNormal
+    // Purpose: removes the clicked buttons and sets their buttons to normal
+    // Parameters: clickedCards, a vector of String. the list of cards to set border as normal
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     private void setCardBorderNormal(Vector<String> clickedCards)
     {
         ImageView imageView;
@@ -1035,6 +1209,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    // ****************************************************************
+    // Function Name: setBuildBorderNormal
+    // Purpose: removes the clicked buttons and sets their buttons to normal
+    // Parameters: clickedBuildCards, a vector of String. the list of cards to set border as normal
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     private void setBuildBorderNormal(Vector<String> clickedBuildCards)
     {
         LinearLayout buildLayout;
@@ -1050,6 +1231,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    // ****************************************************************
+    // Function Name: duplicateBuildCardClicked
+    // Purpose: removes the border of a card that has already been clicked
+    // Parameters: buildCardId, an integer. Holds the id of the card that has been clicked
+    // Return value: a flag that identifies whether the clicked card has already been clicked or not
+    // Assistance Received: none
+    // ****************************************************************
     private boolean duplicateBuildCardClicked(int buildCardId)
     {
         if (!buildCardClicked.isEmpty())
@@ -1071,6 +1259,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return false;
     }
 
+    // ****************************************************************
+    // Function Name: duplicateCardClicked
+    // Purpose: removes the border of a card that has already been clicked
+    // Parameters: cardId, an integer. Holds the id of the card that has been clicked
+    // Return value: a flag that identifies whether the clicked card has already been clicked or not
+    // Assistance Received: none
+    // ****************************************************************
     private boolean duplicateCardClicked(int cardId)
     {
         if (!cardsClicked.isEmpty())
@@ -1092,6 +1287,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return false;
     }
 
+    // ****************************************************************
+    // Function Name: singleHandCardClicked
+    // Purpose: checks if a hand card has already been clicked
+    // Parameters: cardId, an integer. Holds the id of the card that has been clicked
+    // Return value: a flag that identifies whether the clicked card has already been clicked or not
+    // Assistance Received: none
+    // ****************************************************************
     private boolean singleHandCardClicked(int handCardId)
     {
         LinearLayout linearLayout = findViewById(R.id.layout_human_hand);
@@ -1125,6 +1327,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return true;
     }
 
+    // ****************************************************************
+    // Function Name: belongsToHumanCard
+    // Purpose: checks if a hand card belongs to human's hand cards
+    // Parameters: cardId, an integer. Holds the id of the card that has been clicked
+    // Return value: a flag that identifies whether the clicked card belongs to human hand
+    // Assistance Received: none
+    // ****************************************************************
     private boolean belongsToHumanCard(int cardId)
     {
         LinearLayout linearLayout = findViewById(R.id.layout_human_hand);
@@ -1143,6 +1352,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return false;
     }
 
+    // ****************************************************************
+    // Function Name: cardsClickedContainsHandCard
+    // Purpose: checks if the list of clicked cards contains at least one hand card
+    // Parameters: none
+    // Return value: a flag that identifies whether the player has clicked on a hand card
+    // Assistance Received: none
+    // ****************************************************************
     private boolean cardsClickedContainsHandCard()
     {
         for (String card: cardsClicked)
@@ -1152,6 +1368,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return false;
     }
 
+    // ****************************************************************
+    // Function Name: belongsToHumanCard
+    // Purpose: sets the clicked cards of the player to be converted into cards
+    // Parameters: none
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     private void saveClickedCardsToPlayer()
     {
         Vector<String> looseCardsList = new Vector<>();
@@ -1213,6 +1436,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    // ****************************************************************
+    // Function Name: getDrawableFromString
+    // Purpose: creates a drawable from a drawable file name
+    // Parameters: drawableFile, a String. Holds the drawable file name
+    // Return value: drawable object
+    // Assistance Received: none
+    // ****************************************************************
     private Drawable getDrawableFromString(String drawableFile)
     {
         Context context = this;
@@ -1221,6 +1451,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return (ResourcesCompat.getDrawable(getResources(), card_border, null));
     }
 
+    // ****************************************************************
+    // Function Name: displayMoveExplanation
+    // Purpose: displays the explanation in a display dialog
+    // Parameters: move, a String. Holds the explanation
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void displayMoveExplanation(String move)
     {
         final Dialog helpDialog = new Dialog(MainActivity.this);
@@ -1231,6 +1468,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         helpDialog.show();
     }
 
+    // ****************************************************************
+    // Function Name: callSnackbar
+    // Purpose: displays  a message in a Snackbar
+    // Parameters: message, a String. Holds the message to be displayed
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void callSnackbar (String message)
     {
         // Create snackbar
@@ -1248,10 +1492,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         snackbar.show();
     }
 
-    // Display messages to the user as Toast
-    // Parameters: mContext -> the current context of the app
-    //              message -> the message to be displayed in the toast
-    // Return: null
+    // ****************************************************************
+    // Function Name: callToast
+    // Purpose: displays  a message in a Snackbar
+    // Parameters: -> message, a String. Holds the message to be displayed
+    //             -> mContext, a Context object. Holds the context to which to display the toast
+    // Return value: none
+    // Assistance Received: none
+    // ****************************************************************
     public void callToast(Context mContext, String message)
     {
         Toast.makeText(mContext, "" + message, Toast.LENGTH_SHORT).show();
