@@ -57,6 +57,8 @@ public class Round
         this.nextPlayer = nextPlayer;
         this.lastCapturer = lastCapturer;
         this.roundNumber = roundNumber;
+        this.tableCards = new Vector<>();
+        this.roundEndScores = new HashMap<>();
         this.roundEnded = false;
         numberOfPlayers = 2;
         isNewGame = false;
@@ -141,7 +143,7 @@ public class Round
             // Deal cards on the table if it is a new round
             if (newRound)
             {
-                if (i >= 8)
+                if (i >= 8 && i < totalCardsToDeal)
                 {
                     tableCards.add(card);
                 }
@@ -159,13 +161,21 @@ public class Round
             opponentBuild = players[computerIndex].getSingleBuildCard();
             players[humanIndex].play(tableCards, opponentBuild, getComputerPlayerName());
 
-            // set the opponent's build if their build has been modified
-            players[computerIndex].setSingleBuildCard(opponentBuild);
+            if (players[humanIndex].isMoveSuccessful())
+            {
+                // set the opponent's build if their build has been modified
+                players[computerIndex].setSingleBuildCard(opponentBuild);
+            }
 
             // set the last capturer to this player if any capturing of cards was done in this move
             if (players[humanIndex].hasCapturedCard())
             {
                 lastCapturer = players[humanIndex].getPlayerName();
+            }
+
+            if (players[humanIndex].isMakeOpponentBuildScoreEmpty())
+            {
+                players[computerIndex].setFirstBuildScore(0);
             }
         }
 
@@ -175,16 +185,35 @@ public class Round
             opponentBuild = players[humanIndex].getSingleBuildCard();
             players[computerIndex].play(tableCards, opponentBuild, getHumanPlayerName());
 
-            // set the opponent's build if their build has been modified
-            players[humanIndex].setSingleBuildCard(opponentBuild);
+            if (players[computerIndex].isMoveSuccessful())
+            {
+                // set the opponent's build if their build has been modified
+                players[humanIndex].setSingleBuildCard(opponentBuild);
+            }
 
             // set the last capturer to this player if any capturing of cards was done in this move
             if (players[computerIndex].hasCapturedCard())
             {
                 lastCapturer = players[computerIndex].getPlayerName();
             }
+
+            if (players[computerIndex].isMakeOpponentBuildScoreEmpty())
+            {
+                players[humanIndex].setFirstBuildScore(0);
+            }
         }
     }
+
+    public void setHumanIsMakeOpponentBuildEmpty(boolean flag)
+    {
+        players[humanIndex].setMakeOpponentBuildScoreEmpty(flag);
+    }
+
+    public void setComputerIsMakeOpponentBuildEmpty(boolean flag)
+    {
+        players[computerIndex].setMakeOpponentBuildScoreEmpty(flag);
+    }
+
 
     public void setSavedPreferences(Intent intent)
     {
@@ -216,7 +245,27 @@ public class Round
             cards = makeCardFromFile(intent.getExtras().getStringArray("deck"));
             setDeck(cards);
 
-            // TODO: set build cards
+            // set build cards
+            String owner = intent.getExtras().getString("owner");
+            HashMap<String, Vector<Card>> singleBuild = new HashMap<>();
+            cards = makeCardFromFile(intent.getExtras().getStringArray("buildCards"));
+
+
+            if (owner != null)
+            {
+                if (owner.equals("Human"))
+                {
+                    singleBuild.put(owner, cards);
+                    players[humanIndex].setSingleBuildCard(singleBuild);
+                    players[humanIndex].setFirstBuildScore(calcBuildScore(cards));
+                }
+                else if (owner.equals("Computer"))
+                {
+                    singleBuild.put(owner, cards);
+                    players[computerIndex].setSingleBuildCard(singleBuild);
+                    players[computerIndex].setFirstBuildScore(calcBuildScore(cards));
+                }
+            }
 
             // set last capturer
             setLastCapturer(intent.getExtras().getString("lastCapturer"));
@@ -572,10 +621,56 @@ public class Round
         HashMap<String, Vector<Card>> opponentBuild = players[computerIndex].getSingleBuildCard();
 
         Vector<Card> tempTableCards = getTableCards();
-        humanHelp.play(tempTableCards, opponentBuild, getHumanPlayerName());
+        humanHelp.play(tempTableCards, opponentBuild, getComputerPlayerName());
 
         return humanHelp.getHelpExplanation();
     }
+
+    // ****************************************************************
+    // Function Name: cardScore
+    // Purpose: calculate the numerical equivalent of a card
+    // Parameters: card, a Card object
+    // Return value: integer value, the numerical equivalent of a card
+    // Assistance Received: none
+    // ****************************************************************
+    private int cardScore(Card card)
+    {
+        String face = card.getFace();
+
+        if (face.equals("A")) { return 1;}
+        else if (face.equals("2")) { return 2;}
+        else if (face.equals("3")) { return 3;}
+        else if (face.equals("4")) { return 4;}
+        else if (face.equals("5")) { return 5;}
+        else if (face.equals("6")) { return 6;}
+        else if (face.equals("7")) { return 7;}
+        else if (face.equals("8")) { return 8;}
+        else if (face.equals("9")) { return 9;}
+        else if (face.equals("X")) { return 10;}
+        else if (face.equals("J")) { return 11;}
+        else if (face.equals("Q")) { return 12;}
+        else { return 13;}
+    }
+
+    // ****************************************************************
+    // Function Name: calcBuildScore
+    // Purpose: calculate the score of the build
+    // Parameters: buildCards, a vector of strings. It holds the build combination.
+    // Return value: integer value, the score of the build
+    // Assistance Received: none
+    // ****************************************************************
+    private int calcBuildScore(Vector<Card> buildCards)
+    {
+        int score = 0;
+        // Go through the build and add the score of each of the cards
+        for (Card cards : buildCards)
+        {
+            score += cardScore(cards);
+        }
+        return score;
+    }
+
+
 
     // ****************************************************************
     // Function Name: getRoundNumber

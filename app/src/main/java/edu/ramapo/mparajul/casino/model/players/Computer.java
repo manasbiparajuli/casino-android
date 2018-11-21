@@ -161,9 +161,19 @@ public class Computer extends Player
                     // match found
                     if (build.first == handCardScore)
                     {
-                        setFirstBuildScore(handCardScore);
-                        singleBuildPossible = true;
-                        matchedTableCards = build.second;
+                        Vector<Card> buildPossible = build.second;
+
+                        // check if the possible build has at least one card from
+                        // the player's hand
+                        for (Card card : buildPossible)
+                        {
+                            if (cardsOnHand.contains(card))
+                            {
+                                setFirstBuildScore(handCardScore);
+                                matchedTableCards = build.second;
+                                singleBuildPossible = true;
+                            }
+                        }
                     }
                 }
             }
@@ -358,8 +368,18 @@ public class Computer extends Player
                             // match found
                             if (build.first == handCardScore)
                             {
-                                multipleBuildPossible = true;
-                                matchedTableCards = build.second;
+                                Vector<Card> buildPossible = build.second;
+
+                                // check if the possible build has at least one card from
+                                // the player's hand
+                                for (Card card : buildPossible)
+                                {
+                                    if (cardsOnHand.contains(card))
+                                    {
+                                        matchedTableCards = build.second;
+                                        multipleBuildPossible = true;
+                                    }
+                                }
                             }
                         }
                     }
@@ -429,11 +449,16 @@ public class Computer extends Player
     public boolean increaseOpponentBuild (Vector<Card> tableCards,
                                           HashMap<String, Vector<Card>> oppoBuild, String opponentPlayerName)
     {
+        Vector<Card> oppnBuildCard = new Vector<>();
+
         // cards in the build of the opponent
-        Vector<Card> oppnBuildCard = oppoBuild.get(opponentPlayerName);
+        if (oppoBuild.get(opponentPlayerName) != null)
+        {
+            oppnBuildCard = (Vector<Card>) oppoBuild.get(opponentPlayerName).clone();
+        }
 
         // return false if the build is not owned by the player or if the opponent's build is empty
-        if (!oppoBuild.containsKey(getPlayerName()) || (oppnBuildCard.size() == 0))
+        if (oppoBuild.containsKey(getPlayerName()) || (oppnBuildCard.size() == 0))
         {
             return false;
         }
@@ -469,6 +494,7 @@ public class Computer extends Player
                     Vector<Card> empty = new Vector<>();
                     oppoBuild.put(opponentPlayerName, empty);
 
+                    makeOpponentBuildScoreEmpty = true;
                     removeCardFromHand(handCardToIncrease);
 
                     // Explain move reasoning
@@ -573,6 +599,7 @@ public class Computer extends Player
                     Vector<Card> singleBuild = new Vector<>();
                     multipleBuildCard.put(getPlayerName(), multipleBuild);
                     singleBuildCard.put(getPlayerName(), singleBuild);
+                    firstBuildScore = 0;
 
                     // remove card that was used to capture the build successfully from the player's hand and add to pile
                     removeCardFromHand(handCard);
@@ -631,6 +658,7 @@ public class Computer extends Player
                     // empty the single build as we have captured these cards
                     singleBuild = new Vector<>();
                     singleBuildCard.put(getPlayerName(), singleBuild);
+                    firstBuildScore = 0;
 
                     // push the hand card into the player's pile and remove it from player's hand
                     cardsOnPile.add(handCard);
@@ -875,38 +903,5 @@ public class Computer extends Player
         moveExplanation = getPlayerName() + " trailed " + trailCard.cardToString() + " as the " +
                                   "lowest card value b/c there were no other possible moves.";
         return true;
-    }
-
-    public static void main(String[] args)
-    {
-        String[] stringTable = { "C4", "H2", "DA", "C7"};
-        String[] stringHand = { "S3", "H7", "D2", "D7", "S5" };
-
-        Computer computer = new Computer("Computer");
-
-        Vector<Card> handCard = new Vector<>();
-        Vector<Card> tableCards = new Vector<>();
-
-        for (String str: stringHand)
-        {
-            handCard.add(new Card(String.valueOf(str.charAt(0)), String.valueOf(str.charAt(1))));
-        }
-        computer.setCardsOnHand(handCard);
-
-        for (String str: stringTable)
-        {
-            tableCards.add(new Card(String.valueOf(str.charAt(0)), String.valueOf(str.charAt(1))));
-        }
-
-        boolean move = computer.captureSetAndIndividualCards(tableCards);
-
-        if (move)
-        {
-            System.out.println("success");
-        }
-        else
-        {
-            System.out.println("capture failed");
-        }
     }
 }

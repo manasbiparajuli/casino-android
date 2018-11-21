@@ -259,7 +259,6 @@ public class Score
         return score;
     }
 
-
     // ****************************************************************
     // Function Name: powerSet
     // Purpose: calculate the power set based on the size of the table

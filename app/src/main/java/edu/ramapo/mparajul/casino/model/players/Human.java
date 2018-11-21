@@ -274,7 +274,11 @@ public class Human extends Player
                                                                            oppoBuild, String opponentPlayerName)
     {
         // get the build of the opponent
-        Vector<Card> opponentBuild = oppoBuild.get(opponentPlayerName);
+        Vector<Card> realOpponentBuild = new Vector<>();
+        realOpponentBuild = (Vector<Card>) oppoBuild.get(opponentPlayerName).clone();
+
+        Vector<Card> opponentBuild = new Vector<>();
+        opponentBuild = (Vector<Card>) oppoBuild.get(opponentPlayerName).clone();
 
         // ensure that the player is not increasing their own build or that the opponent's build is not empty
         if (opponentPlayerName.equals(getPlayerName()) || opponentBuild.size() == 0)
@@ -307,7 +311,7 @@ public class Human extends Player
                 }
 
                 // Check if the player selected the wrong build to capture
-                if (clickedBuildCount != opponentBuild.size())
+                if (clickedBuildCount != realOpponentBuild.size())
                 {
                     moveExplanation = "Invalid selection of opponent's build cards.";
                     return false;
@@ -319,6 +323,8 @@ public class Human extends Player
                 singleBuildCard.put(getPlayerName(), opponentBuild);
                 Vector<Card> empty = new Vector<>();
                 oppoBuild.put(opponentPlayerName, empty);
+
+                makeOpponentBuildScoreEmpty = true;
 
                 // As the player successfully increased the opponent's build,
                 // remove the card from the player's hand
@@ -636,6 +642,13 @@ public class Human extends Player
         if (!isSingleBuildEmpty() || !isMultipleBuildEmpty())
         {
             moveExplanation = "Cannot trail if you have a build owned!";
+            return false;
+        }
+
+        if (calcSingleCardScore(clickedHandCard) == firstBuildScore)
+        {
+            moveExplanation = "Invalid. Cannot trail a card that matches your build score because" +
+                                      " you need to use the card to capture build in next turn";
             return false;
         }
 

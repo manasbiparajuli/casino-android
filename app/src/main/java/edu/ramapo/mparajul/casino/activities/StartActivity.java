@@ -481,14 +481,16 @@ public class StartActivity extends AppCompatActivity
                     owner = identifier.substring(index + 2, identifier.length());
                     System.out.println("owner: " + owner);
 
-
-                    // TODO: parse the build in build owner
-
                     // [ [C6 S3] [S9] ]
                     String build = identifier.substring(0, index + 1);
                     System.out.println("build: " + build);
+
+                    String parsed = build.substring(1, build.lastIndexOf("]"));
+                    cards = parsed.split(" ");
+
                 }
                 resumeGameState.putExtra("owner", owner);
+                resumeGameState.putExtra("buildCards", cards);
                 return true;
             }
             catch (Exception e)

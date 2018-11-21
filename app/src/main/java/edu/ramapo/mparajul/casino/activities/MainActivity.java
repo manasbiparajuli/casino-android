@@ -211,8 +211,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (roundEnded)
         {
+            Vector<Card> empty = new Vector<>();
+
             displayMoveExplanation(getEndRoundStatus());
             round = new Round ("", tournament.getLastCapturer(), tournament.getRoundNumber());
+            round.setHumanCardsOnPile(empty);
+            round.setComputerCardsOnPile(empty);
+            round.setTableCards(empty);
             round.startGame();
             round.dealCardsToPlayers(true);
             round.setNewGame(false);
@@ -322,6 +327,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void displayScore()
     {
+        int humanTourneyScore = round.getHumanTourneyScore() + round.getHumanRoundScore();
+        int computerTourneyScore = round.getComputerTourneyScore() + round.getComputerRoundScore();
+
+        // Set the tournament values after the round has ended
+        tournament.setLastRoundHumanScore(round.getHumanRoundScore());
+        tournament.setLastRoundComputerScore(round.getComputerRoundScore());
+        tournament.setHumanTournamentScore(humanTourneyScore);
+        tournament.setComputerTournamentScore(computerTourneyScore);
+
         final Dialog score_dialog = new Dialog(MainActivity.this);
         score_dialog.setContentView(R.layout.display_scores_dialog);
 
@@ -714,9 +728,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             case R.id.make_computer_move:
                 round.makeMove(round.getComputerPlayerName());
-
-                //TODO:delete print
-                System.out.println(round.getComputerMoveExplanation());
                 break;
 
             case R.id.make_single_build:
@@ -885,6 +896,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             round.setNextPlayer(round.getComputerPlayerName());
             round.setHumanIsMoveSuccessful(false);
+            round.setHumanIsMakeOpponentBuildEmpty(false);
 
             // increment the turn of the players as we made a successful move
             playerTurn++;
@@ -900,6 +912,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             round.setNextPlayer(round.getHumanPlayerName());
             round.setComputerIsMoveSuccessful(false);
+            round.setComputerIsMakeOpponentBuildEmpty(false);
 
             displayMoveExplanation(round.getComputerMoveExplanation());
             playerTurn++;

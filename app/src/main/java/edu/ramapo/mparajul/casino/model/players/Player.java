@@ -20,6 +20,7 @@ public class Player
     protected boolean hasCapturedCardsInMove;
     protected boolean moveSuccessful;
     protected boolean helpRequested;
+    protected boolean makeOpponentBuildScoreEmpty;
     protected Vector<Card> cardsOnPile = new Vector<>();
     protected Vector<Card> cardsOnHand = new Vector<>();
     protected Vector<Card> clickedTableCards = new Vector<>();
@@ -44,6 +45,7 @@ public class Player
         this.hasCapturedCardsInMove = false;
         this.moveSuccessful = false;
         this.helpRequested = false;
+        this.makeOpponentBuildScoreEmpty = false;
         this.moveActionIdentifier = "";
         this.helpExplanation = "";
         this.clickedTableCards = new Vector<>();
@@ -69,6 +71,7 @@ public class Player
         this.cardsOnPile = new Vector<>();
         this.tourneyScore = 0;
         this.hasCapturedCardsInMove = false;
+        this.makeOpponentBuildScoreEmpty = false;
         this.moveSuccessful = false;
         this.helpRequested = false;
         this.moveActionIdentifier = "";
@@ -563,6 +566,16 @@ public class Player
             return (build.size() == 0);
         }
         return singleBuildCard.isEmpty();
+    }
+
+    public boolean isMakeOpponentBuildScoreEmpty()
+    {
+        return makeOpponentBuildScoreEmpty;
+    }
+
+    public void setMakeOpponentBuildScoreEmpty(boolean makeOpponentBuildScoreEmpty)
+    {
+        this.makeOpponentBuildScoreEmpty = makeOpponentBuildScoreEmpty;
     }
 
     public int getTourneyScore()
