@@ -1,0 +1,1 @@
+Built a two-player card game for Android Devices. Utilized the core concepts of OOP to create a robust and efficient game and used the MVC design pattern with GUI. Devised strategies for the computer to win based on the game rules. Integrated options for the user to get help using computer's strategy and to save, load the games.
